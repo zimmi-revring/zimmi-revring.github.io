@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Diagnostic Tracker</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<style>
+  :root { --navy:#041327; --primary:#0284c7; --strong:#1684e8; --accent:#06b6d4; --ink:#0f172a; --ink2:#334155; --muted:#64748b; --line:#e2e8f0; --bg:#f6f9fc; --surface:#fff; --tint:#f0f9ff; --red:#ef4444; --amber:#f59e0b; --green:#22c55e; --font:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --ink:#e6eefc; --ink2:#c7d4ea; --muted:#8ea2c2; --line:#223656; --bg:#071426; --surface:#0c1a30; --tint:#0e2340; --primary:#38bdf8; } }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font-family:var(--font); font-size:14.5px; line-height:1.45; }
+  a { color:var(--primary); }
+  .top { background:var(--navy); color:#fff; padding:14px 20px; display:flex; flex-wrap:wrap; gap:12px 18px; align-items:center; }
+  .top h1 { margin:0; font-size:18px; letter-spacing:-.01em; }
+  .top .sub { color:#b6c6dc; font-size:13px; }
+  .wrap { max-width:1180px; margin:0 auto; padding:18px 16px 60px; }
+  .bar { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:14px; }
+  .bar input[type=url], .bar input[type=text], .bar select { padding:9px 11px; border:1.5px solid var(--line); border-radius:8px; background:var(--surface); color:var(--ink); font:inherit; }
+  .bar input[type=url] { flex:1 1 360px; min-width:240px; }
+  .btn { padding:9px 14px; border-radius:8px; border:1.5px solid var(--line); background:var(--surface); color:var(--ink); font:inherit; font-weight:600; cursor:pointer; }
+  .btn.primary { background:var(--strong); border-color:var(--strong); color:#fff; }
+  .btn.sm { padding:6px 10px; font-size:13px; }
+  .seg { display:inline-flex; border:1.5px solid var(--line); border-radius:8px; overflow:hidden; }
+  .seg button { border:0; background:var(--surface); color:var(--ink2); padding:8px 12px; font:inherit; font-weight:600; cursor:pointer; }
+  .seg button.on { background:var(--strong); color:#fff; }
+  .status { font-size:13px; color:var(--muted); }
+  .status.bad { color:var(--red); }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:10px; margin:6px 0 16px; }
+  .kpi { background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:12px 14px; }
+  .kpi .l { font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); font-weight:700; }
+  .kpi .v { font-size:26px; font-weight:800; letter-spacing:-.02em; margin-top:4px; }
+  .kpi .d { font-size:12px; color:var(--muted); }
+  .card { background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:16px 18px; margin-bottom:14px; }
+  .card h2 { margin:0 0 4px; font-size:16px; }
+  .card .sub { color:var(--muted); font-size:13px; margin:0 0 12px; }
+  .two { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  @media (max-width:860px) { .two { grid-template-columns:1fr; } }
+  .funnel .row { display:grid; grid-template-columns:150px 1fr 70px 60px; gap:10px; align-items:center; padding:5px 0; font-size:13.5px; }
+  .funnel .row .track { height:14px; background:var(--tint); border-radius:7px; overflow:hidden; }
+  .funnel .row .track i { display:block; height:100%; background:var(--strong); border-radius:7px; }
+  .funnel .row.q .track i { background:var(--accent); }
+  .funnel .row.win .track i { background:var(--green); }
+  .funnel .n { text-align:right; font-weight:700; }
+  .funnel .p { text-align:right; color:var(--muted); font-size:12.5px; }
+  table { width:100%; border-collapse:collapse; font-size:13.5px; }
+  th, td { text-align:left; padding:8px 8px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { font-size:11.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); }
+  td.n, th.n { text-align:right; white-space:nowrap; }
+  tr.tot td { font-weight:700; border-top:2px solid var(--line); }
+  .tag { display:inline-block; padding:2px 8px; border-radius:999px; font-size:12px; font-weight:700; }
+  .tag.hot { background:#fee2e2; color:#b91c1c; } .tag.warm { background:#fef3c7; color:#b45309; } .tag.nurture { background:#e2e8f0; color:#334155; }
+  .chip { display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:6px; vertical-align:middle; }
+  .empty { padding:26px; text-align:center; color:var(--muted); border:1.5px dashed var(--line); border-radius:12px; }
+  .drop { border:1.5px dashed var(--line); border-radius:10px; padding:10px 12px; font-size:13px; color:var(--muted); }
+  .drop.over { border-color:var(--strong); background:var(--tint); }
+  svg text { font-family:var(--font); }
+  .links input { width:100%; padding:8px 10px; border:1.5px solid var(--line); border-radius:8px; background:var(--surface); color:var(--ink); font:inherit; }
+  .links .row { display:grid; grid-template-columns:90px 1fr auto; gap:8px; align-items:center; padding:6px 0; border-bottom:1px solid var(--line); }
+  .links .row code { font-size:12.5px; word-break:break-all; color:var(--ink2); }
+  .fine { font-size:12.5px; color:var(--muted); }
+  .hidden { display:none !important; }
+  .split { display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; }
+  @media (max-width:860px) { .split { grid-template-columns:1fr; } }
+  .mini .r { display:grid; grid-template-columns:110px 1fr 40px; gap:8px; align-items:center; font-size:13px; padding:3px 0; }
+  .mini .r .t { height:10px; background:var(--tint); border-radius:5px; overflow:hidden; } .mini .r .t i { display:block; height:100%; background:var(--primary); }
+  .mini .r .n { text-align:right; font-weight:700; }
+</style>
+</head>
+<body>
+<header class="top">
+  <h1>RevRing Business Diagnostic: tracker</h1>
+  <span class="sub">Every view, start, question, completion, click and sign-up, by campaign and by rep.</span>
+</header>
+<div class="wrap">
+  <div class="bar">
+    <input id="src" type="url" placeholder="Paste the events collector URL (Apps Script web app, ends in /exec)">
+    <button class="btn primary" id="load">Load</button>
+    <label class="fine"><input type="checkbox" id="auto" checked> refresh every minute</label>
+    <span class="status" id="status">No data loaded yet.</span>
+  </div>
+  <div class="bar">
+    <span class="seg" id="range"><button data-d="1">Today</button><button data-d="7">7 days</button><button data-d="30" class="on">30 days</button><button data-d="0">All time</button></span>
+    <select id="f-source"><option value="">All sources</option></select>
+    <select id="f-camp"><option value="">All campaign codes</option></select>
+    <select id="f-rep"><option value="">All reps</option></select>
+    <select id="f-device"><option value="">All devices</option><option value="mobile">Mobile</option><option value="desktop">Desktop</option></select>
+    <div class="drop" id="drop">or drop an export here (.json from the collector, or .csv from the sheet)</div>
+  </div>
+
+  <div id="empty" class="empty">Paste the collector URL above and press Load. Until the collector exists, this page has nothing to count.</div>
+
+  <div id="dash" class="hidden">
+    <div class="grid" id="kpis"></div>
+
+    <div class="two">
+      <div class="card funnel"><h2>Funnel</h2><p class="sub">Unique people at each step. Percent is of everyone who saw the page.</p><div id="funnel"></div></div>
+      <div class="card"><h2>By day</h2><p class="sub">Views, starts and completions.</p><div id="daily"></div></div>
+    </div>
+
+    <div class="card"><h2>By campaign</h2><p class="sub">This is the table for the text and email blasts. One row per campaign code or source.</p><div id="bycamp"></div></div>
+    <div class="card"><h2>By rep</h2><p class="sub">Links that carried a rep name.</p><div id="byrep"></div></div>
+
+    <div class="split">
+      <div class="card mini"><h2>Device</h2><div id="bydevice"></div></div>
+      <div class="card mini"><h2>Plan recommended</h2><div id="byplan"></div></div>
+      <div class="card mini"><h2>Zimmi's color</h2><div id="bycolor"></div></div>
+    </div>
+
+    <div class="card"><h2>Sign-ups</h2><p class="sub">People who created an account after the diagnostic. Needs the one-line snippet on the sign-up success page (see the guide).</p><div id="signups"></div></div>
+    <div class="card"><h2>Recent completions</h2><p class="sub">Newest first. Lead status is HOT, WARM or NURTURE from their answers.</p><div id="recent"></div></div>
+  </div>
+
+  <div class="card links"><h2>Tracking links for the blasts</h2><p class="sub">Short links for texts, full links for email. Each code is set in the diagnostic's Admin panel under short campaign codes.</p>
+    <div class="two">
+      <div><label class="fine">Diagnostic address</label><input id="base" type="url" value="https://zimmi-revring.github.io/"></div>
+      <div><label class="fine">Rep (optional, goes on the link as rep=)</label><input id="rep" type="text" placeholder="christian"></div>
+    </div>
+    <div style="margin-top:10px"><label class="fine">Campaign codes, one per line as code | source | medium | campaign</label><textarea id="codes" rows="4" style="width:100%;padding:8px 10px;border:1.5px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);font:inherit;font-size:13px">s1 | sms | text | sept-blast-1
+e1 | email | email | sept-blast-1
+li | linkedin | social | zimmi</textarea></div>
+    <div id="linklist" style="margin-top:8px"></div>
+    <p class="fine">Texts: use the short one. Email: either works, the full one shows up in any email tool's own click stats too. Add <b>&amp;start=1</b> to skip the landing page and open on question one.</p>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  const $ = s => document.querySelector(s);
+  const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const store = { get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} } };
+  let EVENTS = [], rangeDays = 30, timer = null;
+  const QORDER = ["seats", "crm_name", "crm_feel", "dialer_name", "dialing", "tools", "pains", "cost", "worth", "arq2", "contact"];
+  const QLABEL = { seats: "Q1 team", crm_name: "Q2 CRM", crm_feel: "Q3 CRM feel", dialer_name: "Q4 dialer", dialing: "Q5 calling", tools: "Q6 stack", pains: "Q7 pains", cost: "Q8 cost", worth: "Q9 worth", arq2: "Q10 where", contact: "Q11 report" };
+
+  // a private link can carry the collector address after # so it never hits any server: tracker.html#src=...&base=...
+  try {
+    const h = new URLSearchParams(location.hash.replace(/^#/, ""));
+    if (h.get("src")) store.set("trk_src", h.get("src"));
+    if (h.get("base")) store.set("trk_base", h.get("base"));
+  } catch (e) {}
+  $("#src").value = store.get("trk_src", "");
+  $("#base").value = store.get("trk_base", $("#base").value);
+  $("#codes").value = store.get("trk_codes", $("#codes").value);
+  $("#rep").value = store.get("trk_rep", "");
+
+  function status(msg, bad) { const el = $("#status"); el.textContent = msg; el.className = "status" + (bad ? " bad" : ""); }
+  async function load() {
+    const url = $("#src").value.trim(); if (!url) return status("Paste the collector URL first.", true);
+    store.set("trk_src", url); status("Loading...");
+    try {
+      const r = await fetch(url + (url.includes("?") ? "&" : "?") + "t=" + Date.now(), { cache: "no-store" });
+      const j = await r.json();
+      if (!j || !Array.isArray(j.events)) throw new Error("unexpected response");
+      EVENTS = j.events; status("Loaded " + EVENTS.length + " events at " + new Date().toLocaleTimeString() + ".");
+      render();
+    } catch (e) { status("Could not load. Check the URL is the web app /exec link and the deployment allows Anyone. (" + (e.message || e) + ")", true); }
+  }
+  $("#load").addEventListener("click", load);
+  $("#src").addEventListener("keydown", e => { if (e.key === "Enter") load(); });
+  function schedule() { clearInterval(timer); if ($("#auto").checked) timer = setInterval(() => { if ($("#src").value.trim()) load(); }, 60000); }
+  $("#auto").addEventListener("change", schedule); schedule();
+  if ($("#src").value.trim()) load();
+
+  // drop a file: JSON from the collector, or CSV exported from the sheet
+  const drop = $("#drop");
+  ["dragenter", "dragover"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add("over"); }));
+  ["dragleave", "drop"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove("over"); }));
+  drop.addEventListener("drop", async e => {
+    const f = e.dataTransfer.files[0]; if (!f) return; const txt = await f.text();
+    try {
+      if (/^\s*[\[{]/.test(txt)) { const j = JSON.parse(txt); EVENTS = Array.isArray(j) ? j : (j.events || []); }
+      else EVENTS = csv(txt);
+      status("Loaded " + EVENTS.length + " events from " + f.name + "."); render();
+    } catch (err) { status("Could not read that file.", true); }
+  });
+  function csv(t) {
+    const rows = []; let row = [], cell = "", q = false;
+    for (let i = 0; i < t.length; i++) { const ch = t[i]; if (q) { if (ch === '"') { if (t[i + 1] === '"') { cell += '"'; i++; } else q = false; } else cell += ch; } else if (ch === '"') q = true; else if (ch === ",") { row.push(cell); cell = ""; } else if (ch === "\n" || ch === "\r") { if (ch === "\r" && t[i + 1] === "\n") i++; row.push(cell); rows.push(row); row = []; cell = ""; } else cell += ch; }
+    if (cell || row.length) { row.push(cell); rows.push(row); }
+    const head = rows.shift() || []; return rows.filter(r => r.length > 1).map(r => { const o = {}; head.forEach((h, i) => { if (r[i] !== "" && r[i] != null) o[h.trim()] = r[i]; }); return o; });
+  }
+
+  // filters
+  $("#range").addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; $("#range").querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b)); rangeDays = parseInt(b.dataset.d, 10); render(); });
+  ["f-source", "f-camp", "f-rep", "f-device"].forEach(id => $("#" + id).addEventListener("change", render));
+  function fillSelect(id, values, label) { const sel = $("#" + id); const cur = sel.value; sel.innerHTML = `<option value="">${label}</option>` + values.map(v => `<option value="${esc(v)}">${esc(v)}</option>`).join(""); sel.value = values.includes(cur) ? cur : ""; }
+
+  const day = ts => (ts || "").slice(0, 10);
+  const uniq = arr => arr.filter((v, i, a) => a.indexOf(v) === i);
+  const src = e => e.utm_source || (e.referrer ? "referral" : "direct");
+  const camp = e => e.campaign_code || e.utm_campaign || "(none)";
+
+  function filtered() {
+    const since = rangeDays ? Date.now() - rangeDays * 864e5 : 0;
+    const fs = $("#f-source").value, fc = $("#f-camp").value, fr = $("#f-rep").value, fd = $("#f-device").value;
+    return EVENTS.filter(e => e.event && e.ts && (!since || new Date(e.ts).getTime() >= since) && (!fs || src(e) === fs) && (!fc || camp(e) === fc) && (!fr || (e.rep || "") === fr) && (!fd || e.device === fd));
+  }
+  const count = (evs, name) => uniq(evs.filter(e => e.event === name).map(e => e.sid)).length;
+  const pct = (a, b) => b ? Math.round(a / b * 100) + "%" : "0%";
+
+  function render() {
+    fillSelect("f-source", uniq(EVENTS.map(src)).sort(), "All sources");
+    fillSelect("f-camp", uniq(EVENTS.map(camp)).sort(), "All campaign codes");
+    fillSelect("f-rep", uniq(EVENTS.map(e => e.rep).filter(Boolean)).sort(), "All reps");
+    const evs = filtered();
+    $("#empty").classList.toggle("hidden", EVENTS.length > 0); $("#dash").classList.toggle("hidden", EVENTS.length === 0);
+    if (!EVENTS.length) return;
+
+    const views = uniq(evs.filter(e => e.event === "view").map(e => e.vid || e.sid)).length;
+    const sessions = count(evs, "view"), starts = count(evs, "start"), completes = count(evs, "complete"), builds = count(evs, "cta_build"), reviews = count(evs, "cta_review"), emails = count(evs, "cta_email"), signups = count(evs, "signup_complete"), breakdown = count(evs, "breakdown_open");
+    const kp = [["Visitors", views, "unique people"], ["Starts", starts, pct(starts, sessions) + " of visits"], ["Completions", completes, pct(completes, starts) + " of starts"], ["Build my stack clicks", builds, pct(builds, completes) + " of completions"], ["Review bookings clicked", reviews, ""], ["Reports emailed", emails, ""], ["Opened the breakdown", breakdown, pct(breakdown, completes) + " of completions"], ["Sign-ups", signups, pct(signups, completes) + " of completions"]];
+    $("#kpis").innerHTML = kp.map(([l, v, d]) => `<div class="kpi"><div class="l">${esc(l)}</div><div class="v">${v.toLocaleString()}</div><div class="d">${esc(d)}</div></div>`).join("");
+
+    // funnel
+    const steps = [["Saw the page", sessions, ""], ["Started", starts, ""]];
+    QORDER.forEach(q => steps.push([QLABEL[q], uniq(evs.filter(e => e.event === "question" && e.qid === q).map(e => e.sid)).length, "q"]));
+    steps.push(["Got their report", completes, "win"], ["Clicked Build my stack", builds, "win"], ["Signed up", signups, "win"]);
+    const max = Math.max(1, sessions);
+    $("#funnel").innerHTML = steps.map(([l, n, cls]) => `<div class="row ${cls}"><span>${esc(l)}</span><span class="track"><i style="width:${Math.round(n / max * 100)}%"></i></span><span class="n">${n}</span><span class="p">${pct(n, sessions)}</span></div>`).join("");
+
+    // daily chart (inline svg)
+    const days = []; const nDays = rangeDays || 30; const today = new Date(); today.setHours(0, 0, 0, 0);
+    for (let i = nDays - 1; i >= 0; i--) { const d = new Date(today.getTime() - i * 864e5); days.push(d.toISOString().slice(0, 10)); }
+    const byDay = k => days.map(d => uniq(evs.filter(e => e.event === k && day(e.ts) === d).map(e => e.sid)).length);
+    const sV = byDay("view"), sS = byDay("start"), sC = byDay("complete");
+    const W = 520, H = 170, padL = 30, padR = 18, padB = 22, mx = Math.max(1, ...sV);
+    const x = i => padL + i * ((W - padL - padR) / Math.max(1, days.length - 1)), y = v => H - padB - v / mx * (H - padB - 10);
+    const line = arr => arr.map((v, i) => (i ? "L" : "M") + x(i).toFixed(1) + " " + y(v).toFixed(1)).join(" ");
+    const ticks = [0, Math.round(mx / 2), mx].filter((v, i, a) => a.indexOf(v) === i);
+    const lab = days.length <= 8 ? days.map((d, i) => [i, d.slice(5)]) : [[0, days[0].slice(5)], [Math.floor(days.length / 2), days[Math.floor(days.length / 2)].slice(5)], [days.length - 1, days[days.length - 1].slice(5)]];
+    $("#daily").innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Views, starts and completions by day">
+      ${ticks.map(t => `<line x1="${padL}" x2="${W - padR}" y1="${y(t)}" y2="${y(t)}" stroke="var(--line)"/><text x="${padL - 6}" y="${y(t) + 4}" font-size="10" text-anchor="end" fill="var(--muted)">${t}</text>`).join("")}
+      <path d="${line(sV)}" fill="none" stroke="#1684e8" stroke-width="2.2"/><path d="${line(sS)}" fill="none" stroke="#06b6d4" stroke-width="2.2"/><path d="${line(sC)}" fill="none" stroke="#22c55e" stroke-width="2.2"/>
+      ${lab.map(([i, t], k) => `<text x="${x(i)}" y="${H - 6}" font-size="10" text-anchor="${k === 0 ? "start" : k === lab.length - 1 ? "end" : "middle"}" fill="var(--muted)">${t}</text>`).join("")}
+    </svg><div class="fine"><span class="chip" style="background:#1684e8"></span>Views <span class="chip" style="background:#06b6d4;margin-left:10px"></span>Starts <span class="chip" style="background:#22c55e;margin-left:10px"></span>Completions</div>`;
+
+    // by campaign and by rep
+    const group = (sub, keyFn, label) => {
+      const keys = uniq(sub.map(keyFn)).sort();
+      const rows = keys.map(k => { const g = sub.filter(e => keyFn(e) === k); return { k, v: count(g, "view"), s: count(g, "start"), c: count(g, "complete"), b: count(g, "cta_build"), su: count(g, "signup_complete") }; }).sort((a, b) => b.v - a.v);
+      const tot = rows.reduce((t, r) => ({ v: t.v + r.v, s: t.s + r.s, c: t.c + r.c, b: t.b + r.b, su: t.su + r.su }), { v: 0, s: 0, c: 0, b: 0, su: 0 });
+      return `<table><tr><th>${label}</th><th class="n">Views</th><th class="n">Starts</th><th class="n">Completed</th><th class="n">Finish rate</th><th class="n">Build clicks</th><th class="n">Sign-ups</th></tr>
+        ${rows.map(r => `<tr><td>${esc(r.k)}</td><td class="n">${r.v}</td><td class="n">${r.s}</td><td class="n">${r.c}</td><td class="n">${pct(r.c, r.s)}</td><td class="n">${r.b}</td><td class="n">${r.su}</td></tr>`).join("")}
+        ${rows.length > 1 ? `<tr class="tot"><td>All</td><td class="n">${tot.v}</td><td class="n">${tot.s}</td><td class="n">${tot.c}</td><td class="n">${pct(tot.c, tot.s)}</td><td class="n">${tot.b}</td><td class="n">${tot.su}</td></tr>` : ""}</table>`;
+    };
+    $("#bycamp").innerHTML = group(evs, e => camp(e) + "  (" + src(e) + ")", "Campaign (source)");
+    const repEvs = evs.filter(e => e.rep);
+    $("#byrep").innerHTML = repEvs.length ? group(repEvs, e => e.rep, "Rep") : `<p class="fine">No links with a rep name yet. Add rep=name to a link and it shows up here.</p>`;
+
+    // small splits
+    const mini = (id, keyFn, evName) => { const g = evs.filter(e => e.event === evName); const keys = uniq(g.map(keyFn).filter(Boolean)); const rows = keys.map(k => [k, uniq(g.filter(e => keyFn(e) === k).map(e => e.sid)).length]).sort((a, b) => b[1] - a[1]); const m = Math.max(1, ...rows.map(r => r[1])); $("#" + id).innerHTML = rows.length ? rows.map(([k, n]) => `<div class="r"><span>${esc(k)}</span><span class="t"><i style="width:${Math.round(n / m * 100)}%"></i></span><span class="n">${n}</span></div>`).join("") : `<p class="fine">Nothing yet.</p>`; };
+    mini("bydevice", e => e.device, "view");
+    mini("byplan", e => e.plan ? "RevRing " + e.plan.charAt(0).toUpperCase() + e.plan.slice(1) + (e.crm === "add" ? " plus CRM" : "") : null, "complete");
+    mini("bycolor", e => e.color, "complete");
+
+    // sign-ups and recent completions
+    const comps = evs.filter(e => e.event === "complete").sort((a, b) => (b.ts > a.ts ? 1 : -1));
+    const sus = evs.filter(e => e.event === "signup_complete").sort((a, b) => (b.ts > a.ts ? 1 : -1));
+    const bySid = {}; comps.forEach(c => { bySid[c.sid] = c; });
+    $("#signups").innerHTML = sus.length ? `<table><tr><th>When</th><th>Who</th><th>Plan</th><th>Campaign</th><th>Rep</th></tr>${sus.slice(0, 50).map(s => { const c = bySid[s.sid] || {}; return `<tr><td>${esc((s.ts || "").slice(0, 16).replace("T", " "))}</td><td>${esc(s.first_name || c.first_name || "")} ${esc(s.email || c.email || "")}<br><span class="fine">${esc(s.company || c.company || "")}</span></td><td>${esc(s.plan || c.plan || "")}${(s.crm || c.crm) === "add" ? " plus CRM" : ""}</td><td>${esc(camp(s))}</td><td>${esc(s.rep || c.rep || "")}</td></tr>`; }).join("")}</table>` : `<p class="fine">No sign-ups recorded yet. Build my stack clicks are counted above; the sign-up itself needs the snippet on RevRing's success page.</p>`;
+    $("#recent").innerHTML = comps.length ? `<table><tr><th>When</th><th>Who</th><th>Recommended</th><th class="n">Seats</th><th>Lead</th><th>Zimmi</th><th>Source</th><th>Rep</th><th>Device</th></tr>${comps.slice(0, 60).map(c => `<tr><td>${esc((c.ts || "").slice(0, 16).replace("T", " "))}</td><td>${esc(c.first_name || "")}<br><span class="fine">${esc(c.email || "")}${c.company ? " · " + esc(c.company) : ""}</span></td><td>${c.plan ? "RevRing " + esc(c.plan.charAt(0).toUpperCase() + c.plan.slice(1)) + (c.crm === "add" ? " plus CRM" : "") : ""}</td><td class="n">${esc(c.seats || "")}</td><td><span class="tag ${esc((c.lead || "").toLowerCase())}">${esc(c.lead || "")}</span></td><td>${esc(c.color || "")}</td><td>${esc(camp(c))}<br><span class="fine">${esc(src(c))}</span></td><td>${esc(c.rep || "")}</td><td>${esc(c.device || "")}</td></tr>`).join("")}</table>` : `<p class="fine">No completions in this range.</p>`;
+  }
+
+  // link builder
+  function links() {
+    const base = $("#base").value.trim().replace(/\?.*$/, ""); const rep = $("#rep").value.trim();
+    store.set("trk_base", base); store.set("trk_rep", rep); store.set("trk_codes", $("#codes").value);
+    const rows = $("#codes").value.split("\n").map(l => l.split("|").map(x => x.trim())).filter(x => x[0]);
+    $("#linklist").innerHTML = rows.map(([code, source, medium, campaign]) => {
+      const short = base + "?c=" + encodeURIComponent(code) + (rep ? "&rep=" + encodeURIComponent(rep) : "");
+      const full = base + "?utm_source=" + encodeURIComponent(source || "link") + "&utm_medium=" + encodeURIComponent(medium || "link") + "&utm_campaign=" + encodeURIComponent(campaign || code) + "&c=" + encodeURIComponent(code) + (rep ? "&rep=" + encodeURIComponent(rep) : "");
+      return `<div class="row"><b>${esc(code)}</b><div><code>${esc(short)}</code><br><code class="fine">${esc(full)}</code></div><div><button class="btn sm" data-copy="${esc(short)}">Copy short</button> <button class="btn sm" data-copy="${esc(full)}">Copy full</button></div></div>`;
+    }).join("");
+  }
+  ["base", "rep", "codes"].forEach(id => $("#" + id).addEventListener("input", links)); links();
+  document.addEventListener("click", async e => { const b = e.target.closest("[data-copy]"); if (!b) return; try { await navigator.clipboard.writeText(b.dataset.copy); b.textContent = "Copied"; setTimeout(() => { b.textContent = b.dataset.copy.includes("utm_") ? "Copy full" : "Copy short"; }, 1200); } catch (err) {} });
+})();
+</script>
+</body>
+</html>
