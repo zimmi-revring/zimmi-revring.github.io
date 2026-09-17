@@ -2395,7 +2395,7 @@
           const pop = lastTapped === v ? "pop" : "";
           return `<button type="button" class="opt ${q.type === "multi" ? "check" : ""} ${q.ordered ? "ordered" : ""} ${pop}" role="${q.type === "multi" ? "checkbox" : "radio"}" aria-checked="${on}" data-v="${esc(v)}" ${dis ? "disabled" : ""}><span class="mark">${idx}</span><span>${esc(label)}</span></button>`;
         }).join("") + `</div>`;
-      if (q.max && q.type === "multi") optsHtml += `<p class="small muted" style="margin-top:10px">${chosen.length ? chosen.length + " of " + q.max + (q.ordered ? ". Numbered in the order you tapped them." : "") : "Tap up to " + q.max + "."}</p>`;
+      if (q.max && q.type === "multi") optsHtml += `<p class="small muted" id="opt-count" style="margin-top:10px">${countLine(q, chosen)}</p>`;
     }
     let extrasHtml = "";
     (q.extras || []).forEach(x => {
@@ -2449,6 +2449,30 @@
       ${leanHtml}`;
     showDock(zemiLine, mood, q.id + ":" + (insight ? "r" : "i"), heat);
 
+    // A tap on this same question updates the screen in place. Nothing is rebuilt, so the page never moves under the thumb.
+    const hasConditionalExtras = (q.extras || []).some(x => x.showIf);
+    const refresh = () => {
+      const a2 = F.withDerived(state.answers), sel2 = a2[q.id];
+      const chosen2 = q.type === "multi" ? (Array.isArray(sel2) ? sel2 : []) : (sel2 ? [sel2] : []);
+      const maxed2 = q.type === "multi" && q.max && chosen2.length >= q.max;
+      app.querySelectorAll(".opt").forEach(b => {
+        const v = b.dataset.v, on = chosen2.includes(v);
+        b.setAttribute("aria-checked", String(on)); b.disabled = !!(maxed2 && !on);
+        const mk = b.querySelector(".mark"); if (mk) mk.textContent = q.ordered && on ? String(chosen2.indexOf(v) + 1) : "";
+        b.classList.remove("pop"); if (lastTapped === v) { void b.offsetWidth; b.classList.add("pop"); }
+      });
+      const cnt = $("#opt-count"); if (cnt) cnt.textContent = countLine(q, chosen2);
+      const nb = $("#q-next"); if (nb) nb.disabled = !canContinue(q);
+      const answered2 = q.type === "single" ? !!state.answers[q.id] : (Array.isArray(state.answers[q.id]) && state.answers[q.id].length > 0);
+      const insight2 = answered2 && insightFn ? insightFn(a2) : null;
+      const heat2 = F.zemiHeat(a2), zc2 = F.zemiColor(heat2);
+      const chip = app.querySelector(".zc-chip"); if (chip) { chip.style.setProperty("--zc", zc2.hex); chip.innerHTML = `Zimmi is <b>${esc(zc2.name)}</b>`; }
+      const lean2 = F.leaning(a2, CFG), leanEl = app.querySelector(".lean");
+      const leanHtml2 = lean2 && !isLast ? `<div class="lean"><span class="eyebrow">Building</span><b>RevRing ${esc(CFG.plans[lean2].name)}</b><span class="muted small">Keep going. The last answers set the details.</span></div>` : "";
+      if (leanEl && !leanHtml2) leanEl.remove(); else if (leanEl) leanEl.outerHTML = leanHtml2; else if (leanHtml2) app.insertAdjacentHTML("beforeend", leanHtml2);
+      showDock(insight2 || intro, F.zemiMood(a2), q.id + ":" + (insight2 ? "r" : "i"), heat2);
+    };
+
     lastTapped = null;
     app.querySelectorAll(".opt").forEach(b => b.addEventListener("click", () => {
       const v = b.dataset.v;
@@ -2458,7 +2482,7 @@
         // Clear dependent answers when the CRM feel changes to none
         if (q.id === "crm_feel" && v === "none") { delete state.answers.crm_keep; delete state.answers.crm_cost; }
         if (q.id === "crm_feel") save();
-        renderSurvey();
+        if (hasConditionalExtras) renderSurvey(); else refresh();
         // Auto-advance only when there is nothing to read. If a note shows, they click Continue.
         const note = F.INSIGHTS[q.id] ? F.INSIGHTS[q.id](F.withDerived(state.answers)) : null;
         if (!(q.extras && q.extras.length) && !note) setTimeout(next, 160);
@@ -2467,7 +2491,7 @@
         let arr = Array.isArray(state.answers[q.id]) ? state.answers[q.id].slice() : [];
         if (arr.includes(v)) arr = arr.filter(x => x !== v);
         else if (!q.max || arr.length < q.max) arr.push(v);
-        state.answers[q.id] = arr; save(); renderSurvey();
+        state.answers[q.id] = arr; save(); refresh();
       }
     }));
     (q.extras || []).forEach(x => {
@@ -2502,6 +2526,7 @@
     if (stepChanged) window.scrollTo(0, 0); else window.scrollTo(0, keepY);
   }
 
+  function countLine(q, chosen) { return chosen.length ? chosen.length + " of " + q.max + (q.ordered ? ". Numbered in the order you tapped them." : "") : "Tap up to " + q.max + "."; }
   function canContinue(q) {
     const a = state.answers;
     if (q.type === "single") return !!a[q.id];
