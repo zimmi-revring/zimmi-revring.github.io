@@ -211,7 +211,7 @@ li | linkedin | social | zimmi</textarea></div>
 
     const views = uniq(evs.filter(e => e.event === "view").map(e => e.vid || e.sid)).length;
     const sessions = count(evs, "view"), starts = count(evs, "start"), completes = count(evs, "complete"), builds = count(evs, "cta_build"), reviews = count(evs, "cta_review"), emails = count(evs, "cta_email"), signups = count(evs, "signup_complete"), breakdown = count(evs, "breakdown_open");
-    const kp = [["Visitors", views, "unique people"], ["Starts", starts, pct(starts, sessions) + " of visits"], ["Completions", completes, pct(completes, starts) + " of starts"], ["Build my stack clicks", builds, pct(builds, completes) + " of completions"], ["Review bookings clicked", reviews, ""], ["Reports emailed", emails, ""], ["Opened the breakdown", breakdown, pct(breakdown, completes) + " of completions"], ["Sign-ups", signups, pct(signups, completes) + " of completions"]];
+    const kp = [["Visits", sessions, views + " unique " + (views === 1 ? "person" : "people")], ["Starts", starts, pct(starts, sessions) + " of visits"], ["Completions", completes, pct(completes, starts) + " of starts"], ["Build my stack clicks", builds, pct(builds, completes) + " of completions"], ["Review bookings clicked", reviews, ""], ["Reports emailed", emails, ""], ["Opened the breakdown", breakdown, pct(breakdown, completes) + " of completions"], ["Sign-ups", signups, pct(signups, completes) + " of completions"]];
     $("#kpis").innerHTML = kp.map(([l, v, d]) => `<div class="kpi"><div class="l">${esc(l)}</div><div class="v">${v.toLocaleString()}</div><div class="d">${esc(d)}</div></div>`).join("");
 
     // funnel

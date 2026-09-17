@@ -463,8 +463,30 @@
   .zemi-fig.side.enter { animation: slideInRight .6s ease-out both, bob 4s ease-in-out .6s infinite; }
   @media (prefers-reduced-motion: reduce) { .zemi-body, .zemi-lids .lid, .zemi-lids .mouth, .zemi-jaw, .zemi-shine, .zemi-fig.side.enter { animation: none !important; } .zemi-jaw, .zemi-shine { display: none; } }
   .zemi-hello { position: relative; margin: 0 0 14px auto; max-width: 250px; background: #fff; color: var(--navy); font-weight: 600; font-size: 14px; line-height: 1.4; padding: 10px 13px; border-radius: 14px 14px 4px 14px; box-shadow: 0 8px 24px rgba(0,0,0,.3); }
+  .zemi-hello:empty { opacity: 0; }
+  .zemi-hello { transition: opacity .25s ease; }
   .zemi-hello::after { content: ""; position: absolute; right: 22px; bottom: -8px; border: 8px solid transparent; border-top-color: #fff; border-bottom: 0; }
-  @media (max-width: 760px) { .hero-zemi { grid-template-columns: 1fr; } .hero-figure { min-height: 0; margin-top: 0; padding-top: 0; } .zemi-fig { height: 240px; } .zemi-hello { margin: 0 auto 10px; border-radius: 14px; } .zemi-hello::after { display: none; } }
+  /* Phone landing: headline, Zimmi and the button on the first screen; the explanation follows */
+  @media (max-width: 760px) {
+    .page { padding-top: 14px; }
+    .hero { padding: 22px 18px 0; }
+    .hero-zemi { grid-template-columns: 1fr; gap: 0; }
+    .hero-copy { display: contents; }
+    .hero-copy > .eyebrow { order: 1; font-size: 11px; }
+    .hero-copy > h1 { order: 2; font-size: clamp(27px, 7.6vw, 34px); line-height: 1.12; max-width: none; margin-top: 8px; }
+    .hero-figure { order: 3; min-height: 0; margin-top: 14px; padding-top: 0; }
+    .hero-copy > .entry-one { order: 4; margin-top: 10px; padding-bottom: 6px; flex-direction: column; align-items: stretch; gap: 8px; }
+    .hero-copy > .entry-one .btn { width: 100%; font-size: 17px; padding: 15px 20px; }
+    .hero-copy > .entry-one span { text-align: center; font-size: 13px; }
+    .hero-copy > p.lead { order: 5; font-size: 15.5px; margin-top: 18px; }
+    .hero-copy > .hero-game { order: 6; margin-top: 18px; }
+    .hero-copy > .get-grid { order: 7; margin-top: 14px; padding-bottom: 26px; }
+    .hero-figure .zemi-fig { height: 210px; }
+    .zemi-hello { margin: 0 auto 8px; border-radius: 14px; max-width: 300px; font-size: 13.5px; padding: 9px 12px; min-height: 58px; }
+    .zemi-hello::after { display: none; }
+    .zemi-shadow { margin-bottom: 4px; }
+  }
+  @media (max-width: 520px) { .spec-legend span:not(:first-child):not(:last-child) { display: none; } }
   .zemi-note { display: flex; align-items: flex-start; gap: 10px; margin-top: 14px; }
   .zemi-note.lead { margin: 12px 0 4px; }
   .zemi-av { width: 44px; height: 44px; border-radius: 50%; flex: 0 0 44px; box-shadow: 0 2px 8px rgba(0,0,0,.18); }
@@ -493,11 +515,28 @@
   .mood-bright .zemi-bubble { background: var(--primary-strong); border-color: var(--primary-strong); color: #fff; }
   .mood-bright .zemi-name { color: #dff3ff; }
   .mobile-only { display: none; }
+  /* Phones and small tablets: Zimmi rides along as a compact strip pinned under the top bar, so every tap's reaction and color change stays in view */
   @media (max-width: 860px) {
-    #stage.survey-grid { grid-template-columns: 1fr; }
-    .zemi-side { display: none !important; }
-    .mobile-only { display: flex; }
+    #stage.survey-grid { grid-template-columns: 1fr; gap: 12px; }
+    #stage.survey-grid > .zemi-side {
+      order: -1; position: sticky; top: calc(var(--topbar-h, 61px) + env(safe-area-inset-top, 0px)); z-index: 6;
+      display: grid; grid-template-columns: 84px minmax(0, 1fr); grid-template-areas: "fig bubble" "fig spec";
+      column-gap: 12px; row-gap: 6px; align-items: center;
+      background: var(--surface-2); padding: 8px 0 10px; margin-top: -10px;
+      box-shadow: 0 10px 12px -12px rgba(15, 23, 42, .25);
+    }
+    #stage.survey-grid > .zemi-side .zemi-fig.side { grid-area: fig; height: 100px; width: auto; justify-self: center; animation: bob 4s ease-in-out infinite; }
+    #stage.survey-grid > .zemi-side .zemi-bubble.side { grid-area: bubble; width: auto; font-size: 13.5px; line-height: 1.35; padding: 8px 11px; border-radius: 4px 12px 12px 12px; min-height: 38px; }
+    #stage.survey-grid > .zemi-side .zemi-name { display: none; }
+    #stage.survey-grid > .zemi-side .zemi-spec { grid-area: spec; }
+    #stage.survey-grid > .zemi-side .zemi-spec .spec-bar { height: 7px; }
+    #stage.survey-grid > .zemi-side .zemi-spec .spec-bar i { width: 14px; height: 14px; border-width: 2.5px; }
+    #stage.survey-grid > .zemi-side .zemi-spec .spec-ends { display: none; }
+    #stage.survey-grid > .zemi-side .zemi-spec .spec-lbl { margin-top: 5px; font-size: 11.5px; text-align: left; }
+    .meter, .qmeta .zc-chip, .mobile-only { display: none !important; }
+    .qmeta { flex-wrap: wrap; }
   }
+  @media (pointer: coarse), (max-width: 640px) { .qfoot > span { visibility: hidden; } }
   @media (prefers-reduced-motion: reduce) { .zemi-side .zemi-fig.side, .zemi-side .zemi-bubble.side, .zemi-band.cool-down { animation: none; } .zemi-band.cool-down { filter: drop-shadow(0 12px 24px rgba(0,0,0,.45)); } }
 
   /* Lights: feedback that feels good without tricking anyone */
@@ -1951,6 +1990,9 @@
   function zemiLayers() { return `<div class="zemi-body">${neutralLayer()}</div>`; }
   const zemiFigure = (cls, id, style, alt) => `<div class="${cls}" ${id ? `id="${id}"` : ""} ${style ? `style="${style}"` : ""} role="img" aria-label="${alt || "Zimmi, RevRing's blue chameleon"}">${zemiLayers()}</div>`;
   if ($("#zemi-dock-fig")) $("#zemi-dock-fig").innerHTML = zemiLayers();
+  // the mobile Zimmi strip pins itself right under the top bar, whatever height the bar ends up
+  const measureTopbar = () => { const tb = document.querySelector(".topbar"); if (tb) document.documentElement.style.setProperty("--topbar-h", tb.offsetHeight + "px"); };
+  measureTopbar(); window.addEventListener("resize", measureTopbar); window.addEventListener("load", measureTopbar);
   // Idle life: every few seconds Zimmi does one small thing. Never while reduced motion is on.
   const IDLE = [["blink2", 600, 3], ["look", 1500, 2], ["nod", 1000, 2], ["sway", 1300, 2], ["pose", 0, 7]];
   // what he says while he waits on the landing (after the greeting has been read). The words pick the pose.
