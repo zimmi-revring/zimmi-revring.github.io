@@ -756,11 +756,17 @@
   .door.good .door-list li::before { --dot: #38bdf8; }
   .door-cta { margin-top: 18px; align-self: flex-start; position: relative; z-index: 2; font-size: 17px; padding: 14px 24px; box-shadow: 0 10px 30px rgba(0,0,0,.35); }
   .door-alt { display: inline-block; margin: 10px 0 18px; color: #bfe5ff; font-size: 14px; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; position: relative; z-index: 2; align-self: flex-start; }
-  .door .zemi-door { position: absolute; right: -6px; bottom: -8px; height: 62%; width: fit-content; filter: drop-shadow(0 12px 24px rgba(0,0,0,.45)) hue-rotate(var(--rot, 0deg)) saturate(var(--sat, 1)); z-index: 0; }
-  .door.bad .zemi-door { opacity: .95; }
+  .door .zemi-door { position: absolute; right: -6px; bottom: -8px; height: 62%; width: fit-content; z-index: 0; }
+  /* the tint sits on the picture itself, not the wrapper: phones drop wrapper filters over layered images and Zimmi came out blue */
+  .door .zemi-door .zemi-layer > .zemi-img:first-child { filter: drop-shadow(0 12px 24px rgba(0,0,0,.45)) hue-rotate(var(--rot, 0deg)) saturate(var(--sat, 1)); }
+  .door .zemi-door .zemi-layer > .zemi-lids { filter: hue-rotate(var(--rot, 0deg)) saturate(var(--sat, 1)); }
+  .door .zemi-door .zemi-jaw, .door .zemi-door .zemi-shine { display: none; }
+  @media (max-width: 820px) { .door .zemi-door .zemi-layer > .zemi-img:first-child { filter: hue-rotate(var(--rot, 0deg)) saturate(var(--sat, 1)); } }
   @media (max-width: 820px) { .door { min-height: 0; padding-bottom: 0; } .door .zemi-door { position: static; height: 210px; margin: 14px auto 0; } .door-list { max-width: 100%; } .door-cta { align-self: stretch; text-align: center; } }
   @media (max-width: 520px) { .topnav { gap: 10px; font-size: 13px; } #nav-site { display: none; } }
   .sec-head { padding: 6px 4px 0; } .sec-head h3 { margin-bottom: 4px; } .sec-head .sub { color: var(--muted); font-size: 14px; margin: 0; }
+  .back-row { text-align: center; margin-top: 10px; }
+  .back-row button { background: none; border: 0; padding: 6px 10px; color: var(--muted); font-weight: 600; text-decoration: underline; font-size: 14px; cursor: pointer; }
   .breakdown-toggle { display: flex; justify-content: center; margin: 18px 0 6px; }
   .breakdown-toggle .btn { font-size: 16px; }
   .reasons.dark-on-light li { color: var(--ink-2); }
@@ -2709,6 +2715,7 @@
       </section>
 
       <div class="breakdown-toggle"><button type="button" class="btn btn-ghost btn-lg" id="show-breakdown" aria-expanded="false">Show the full breakdown: what I'm paying vs what I could pay</button></div>
+      <div class="back-row"><button type="button" id="back-answers">Go back and change an answer</button></div>
 
       <div class="report" id="breakdown" hidden>
         <section class="sec ledger-sec"><h3>What you pay vs what you could pay</h3><p class="sub">Base licenses only. Usage is metered on RevRing and is not counted on either side.</p>
@@ -2771,10 +2778,14 @@
     $("#copy-brief").addEventListener("click", async () => { try { await navigator.clipboard.writeText(brief); toast("Copied"); } catch (e) { toast("Select the text and copy it"); } });
     $("#share-copy").addEventListener("click", async () => { track("share", { via: "copy" }); try { await navigator.clipboard.writeText(shareText + " " + shareUrl); toast("Copied. Paste it anywhere."); } catch (e) { toast("Could not copy"); } });
     $("#restart").addEventListener("click", resetAll);
+    // back into the questions with everything still filled in; the report rebuilds when they finish again
+    const ba = $("#back-answers"); if (ba) ba.addEventListener("click", () => { track("back_to_answers", {}); state.screen = "survey"; state.step = Math.max(0, visibleQuestions().length - 1); save(); draw(); });
     const sp2 = $("#spin"); if (sp2) sp2.addEventListener("click", spinWheel);
     const zbad = $("#zemi-door-bad"), zgood = $("#zemi-door-good");
     if (zbad) { setPose(zbad, "worried"); zbad.style.cursor = "pointer"; zbad.addEventListener("click", () => flash(zbad, "flinch", 600)); }
     if (zgood) { setPose(zgood, "celebrate"); zgood.style.cursor = "pointer"; zgood.addEventListener("click", () => { flash(zgood, "hop", 700); const host = zgood.parentElement; const cc = centerIn(zgood, host); poof(host, cc.x, cc.y - cc.h * 0.3, 12); }); setTimeout(() => { const host = zgood.parentElement; if (!host || !document.body.contains(zgood)) return; const cc = centerIn(zgood, host); poof(host, cc.x, cc.y - cc.h * 0.25, 14); }, 900); talkFig = null; startIdle(zgood); }
+    // on a phone the sign-up opens in this tab so the back button returns to the report; on a desktop it opens beside it
+    if (window.matchMedia("(pointer: coarse)").matches) app.querySelectorAll('a[data-track="cta_build"], a[data-track="cta_review"]').forEach(a => a.removeAttribute("target"));
     const sb = $("#show-breakdown"), bd = $("#breakdown");
     track("results", fitProps(), true);
     if (sb && bd) sb.addEventListener("click", () => { const open = bd.hidden; if (open) track("breakdown_open", fitProps(), true); bd.hidden = !open; sb.setAttribute("aria-expanded", String(open)); sb.textContent = open ? "Hide the breakdown" : "Show the full breakdown: what I'm paying vs what I could pay"; if (open) bd.scrollIntoView({ behavior: REDUCE ? "auto" : "smooth", block: "start" }); });
