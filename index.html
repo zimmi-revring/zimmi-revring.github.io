@@ -2399,10 +2399,10 @@
     }
     let extrasHtml = "";
     (q.extras || []).forEach(x => {
-      if (x.showIf && !x.showIf(a)) return;
+      const hid = x.showIf && !x.showIf(a) ? " hidden" : "";
       const val = a[x.id] == null ? "" : a[x.id];
       if (x.kind === "chips") {
-        extrasHtml += `<div class="extra"><label>${esc(x.label)}</label><div class="chips" data-chips="${esc(x.id)}">${x.opts.map(([v, l]) => `<button type="button" class="chip" aria-pressed="${val === v}" data-v="${esc(v)}">${esc(l)}</button>`).join("")}</div></div>`;
+        extrasHtml += `<div class="extra" data-extra="${esc(x.id)}"${hid}><label>${esc(x.label)}</label><div class="chips" data-chips="${esc(x.id)}">${x.opts.map(([v, l]) => `<button type="button" class="chip" aria-pressed="${val === v}" data-v="${esc(v)}">${esc(l)}</button>`).join("")}</div></div>`;
         return;
       }
       const input = x.kind === "money"
@@ -2410,7 +2410,7 @@
         : x.kind === "number"
           ? `<input id="x-${x.id}" type="number" min="1" step="1" placeholder="e.g. 8" value="${esc(val)}" autocomplete="off">`
           : `<input id="x-${x.id}" type="text" value="${esc(val)}" autocomplete="off">`;
-      extrasHtml += `<div class="extra field"><label for="x-${x.id}">${esc(x.label)}</label>${input}${x.hint ? `<div class="hint">${esc(x.hint)}</div>` : ""}</div>`;
+      extrasHtml += `<div class="extra field" data-extra="${esc(x.id)}"${hid}><label for="x-${x.id}">${esc(x.label)}</label>${input}${x.hint ? `<div class="hint">${esc(x.hint)}</div>` : ""}</div>`;
     });
 
     let contactHtml = "";
@@ -2450,9 +2450,9 @@
     showDock(zemiLine, mood, q.id + ":" + (insight ? "r" : "i"), heat);
 
     // A tap on this same question updates the screen in place. Nothing is rebuilt, so the page never moves under the thumb.
-    const hasConditionalExtras = (q.extras || []).some(x => x.showIf);
     const refresh = () => {
       const a2 = F.withDerived(state.answers), sel2 = a2[q.id];
+      (q.extras || []).forEach(x => { if (!x.showIf) return; const el = app.querySelector(`[data-extra="${x.id}"]`); if (el) el.hidden = !x.showIf(a2); });
       const chosen2 = q.type === "multi" ? (Array.isArray(sel2) ? sel2 : []) : (sel2 ? [sel2] : []);
       const maxed2 = q.type === "multi" && q.max && chosen2.length >= q.max;
       app.querySelectorAll(".opt").forEach(b => {
@@ -2482,11 +2482,11 @@
         // Clear dependent answers when the CRM feel changes to none
         if (q.id === "crm_feel" && v === "none") { delete state.answers.crm_keep; delete state.answers.crm_cost; }
         if (q.id === "crm_feel") save();
-        if (hasConditionalExtras) renderSurvey(); else refresh();
+        refresh();
         // Auto-advance only when there is nothing to read. If a note shows, they click Continue.
         const note = F.INSIGHTS[q.id] ? F.INSIGHTS[q.id](F.withDerived(state.answers)) : null;
         if (!(q.extras && q.extras.length) && !note) setTimeout(next, 160);
-        else { const nb = $("#q-next"); if (nb) nb.focus({ preventScroll: true }); }
+        else if (window.matchMedia("(pointer: fine)").matches) { const nb = $("#q-next"); if (nb) nb.focus({ preventScroll: true }); }
       } else {
         let arr = Array.isArray(state.answers[q.id]) ? state.answers[q.id].slice() : [];
         if (arr.includes(v)) arr = arr.filter(x => x !== v);
