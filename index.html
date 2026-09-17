@@ -2355,8 +2355,10 @@
   let heroTimer = null;
 
   // ---------- Rendering: survey ----------
+  let lastStepDrawn = -1;
   function renderSurvey() {
     app.className = "survey-main";
+    const keepY = window.scrollY, stepChanged = lastStepDrawn !== state.step; lastStepDrawn = state.step;
     const qs = visibleQuestions();
     if (state.step >= qs.length) state.step = qs.length - 1;
     const q = qs[state.step];
@@ -2460,7 +2462,7 @@
         // Auto-advance only when there is nothing to read. If a note shows, they click Continue.
         const note = F.INSIGHTS[q.id] ? F.INSIGHTS[q.id](F.withDerived(state.answers)) : null;
         if (!(q.extras && q.extras.length) && !note) setTimeout(next, 160);
-        else { const nb = $("#q-next"); if (nb) nb.focus(); }
+        else { const nb = $("#q-next"); if (nb) nb.focus({ preventScroll: true }); }
       } else {
         let arr = Array.isArray(state.answers[q.id]) ? state.answers[q.id].slice() : [];
         if (arr.includes(v)) arr = arr.filter(x => x !== v);
@@ -2484,7 +2486,8 @@
         const el = $("#" + id); el.addEventListener("input", () => { state.answers[k] = el.value; save(); $("#q-next").disabled = !canContinue(q); });
       });
       $("#c-sms").addEventListener("change", e => { state.answers.sms_consent = e.target.checked; save(); });
-      $("#c-first").focus();
+      // desktop gets the cursor in the first field; phones would pop the keyboard over the form, so they tap when ready
+      if (window.matchMedia("(pointer: fine)").matches) $("#c-first").focus({ preventScroll: true });
     }
     $("#q-back").addEventListener("click", () => { if (state.step === 0) resetAll(); else { state.step -= 1; save(); draw(); } });
     $("#q-next").addEventListener("click", next);
@@ -2495,7 +2498,8 @@
       if (e.key === "Enter" && !(e.target && e.target.tagName === "BUTTON") && canContinue(q)) { e.preventDefault(); next(); return; }
       if (!typing && q.type !== "contact" && /^[1-9]$/.test(e.key)) { const b = app.querySelectorAll(".opt")[parseInt(e.key, 10) - 1]; if (b && !b.disabled) { e.preventDefault(); b.click(); } }
     };
-    window.scrollTo(0, 0);
+    // a new question starts at the top; a tap on the same question stays exactly where the thumb is
+    if (stepChanged) window.scrollTo(0, 0); else window.scrollTo(0, keepY);
   }
 
   function canContinue(q) {
@@ -2896,6 +2900,7 @@
 
   // ---------- Draw ----------
   function draw() {
+    if (state.screen !== "survey") lastStepDrawn = -1;
     if (state.screen === "survey") renderSurvey();
     else if (state.screen === "results" && state.fit) renderResults();
     else renderLanding();
