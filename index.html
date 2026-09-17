@@ -535,6 +535,12 @@
     #stage.survey-grid > .zemi-side .zemi-spec .spec-lbl { margin-top: 5px; font-size: 11.5px; text-align: left; }
     .meter, .qmeta .zc-chip, .mobile-only { display: none !important; }
     .qmeta { flex-wrap: wrap; }
+    /* the form step: Zimmi sits above the fields instead of floating over them while the keyboard is up */
+    #stage.survey-grid.contact-step > .zemi-side { position: static; box-shadow: none; padding-bottom: 4px; }
+    #stage.survey-grid.contact-step > .zemi-side .zemi-spec { display: none; }
+    #stage.survey-grid.contact-step > .zemi-side { grid-template-areas: "fig bubble"; }
+    /* when a field gets focus, the browser scrolls it below the pinned strip, not underneath it */
+    html { scroll-padding-top: calc(var(--topbar-h, 61px) + 150px); }
   }
   @media (pointer: coarse), (max-width: 640px) { .qfoot > span { visibility: hidden; } }
   @media (prefers-reduced-motion: reduce) { .zemi-side .zemi-fig.side, .zemi-side .zemi-bubble.side, .zemi-band.cool-down { animation: none; } .zemi-band.cool-down { filter: drop-shadow(0 12px 24px rgba(0,0,0,.45)); } }
@@ -2171,7 +2177,7 @@
       document.addEventListener("mousemove", e => { if (REDUCE || dock.hidden) return; const r = fig.getBoundingClientRect(); const cx = r.left + r.width / 2, cy = r.top + r.height / 2; const dx = Math.max(-1, Math.min(1, (e.clientX - cx) / 600)), dy = Math.max(-1, Math.min(1, (e.clientY - cy) / 600)); fig.style.setProperty("--lean", (dx * 4) + "deg"); fig.style.setProperty("--tx", (dx * 6) + "px"); fig.style.setProperty("--ty", (dy * 4) + "px"); });
     }
   }
-  function hideDock() { const dock = $("#zemi-dock"), stage = $("#stage"); if (!dock) return; dock.hidden = true; stage.classList.remove("survey-grid"); lastZemiKey = null; if (idleFig === $("#zemi-dock-fig")) { clearInterval(idleTimer); idleFig = null; } if (talkFig === $("#zemi-dock-fig")) talkFig = null; }
+  function hideDock() { const dock = $("#zemi-dock"), stage = $("#stage"); if (!dock) return; dock.hidden = true; stage.classList.remove("survey-grid", "contact-step"); lastZemiKey = null; if (idleFig === $("#zemi-dock-fig")) { clearInterval(idleTimer); idleFig = null; } if (talkFig === $("#zemi-dock-fig")) talkFig = null; }
 
   // ---------- Config ----------
   function readConfig() {
@@ -2448,6 +2454,7 @@
       <div class="qfoot"><span>${q.type !== "contact" ? "Keys 1 to " + Math.min(9, q.opts.length) + " answer. Enter continues." : ""}</span><button type="button" id="q-restart">Restart</button></div>
       ${leanHtml}`;
     showDock(zemiLine, mood, q.id + ":" + (insight ? "r" : "i"), heat);
+    $("#stage").classList.toggle("contact-step", isLast);
 
     // A tap on this same question updates the screen in place. Nothing is rebuilt, so the page never moves under the thumb.
     const refresh = () => {
