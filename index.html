@@ -929,7 +929,7 @@
   "webhookAuthHeader": "",
   "ctas": {
     "build": "Start RevRing",
-    "review": "Talk with Marc",
+    "review": "Reserve my seat",
     "email": "Email my report",
     "webinar": "Reserve my seat",
     "recs": "Get my recommendations",
@@ -961,7 +961,7 @@
     "title": "See RevRing live",
     "when": "",
     "url": "",
-    "blurb": "Marc walks through three real reports live, what to keep, what to cut, what changes day one."
+    "blurb": "The RevRing team walks through real reports live, what to keep, what to cut, what changes day one."
   }
 }
 </script>
@@ -2689,7 +2689,7 @@
     const fitLabel = "RevRing " + planName + (fit.crm === "add" ? " plus CRM" : " plus your CRM");
     const col = fit.color, blue = F.zemiColor(0);
     const sp = F.stackPlan(a, fit, CFG), op = F.opportunity(a, fit), bs = F.buildSheet(a, fit, CFG);
-    const ctas = Object.assign({ build: "Start RevRing", review: "Talk with Marc", email: "Email my report", webinar: "Reserve my seat", recs: "Get my recommendations", setup: "Have RevRing set it up with me" }, CFG.ctas || {});
+    const ctas = Object.assign({ build: "Start RevRing", review: "Reserve my seat", email: "Email my report", webinar: "Reserve my seat", recs: "Get my recommendations", setup: "Have RevRing set it up with me" }, CFG.ctas || {});
     const lead = fit.lead || "WARM";
 
     const bookUrl = withUtm(CFG.links.review || CFG.links.bookDemo, { name: [a.first_name, a.last_name].filter(Boolean).join(" "), email: a.email, diag: SID });
@@ -2712,7 +2712,7 @@
         </section>` : "";
     const choices = `<div class="choices">
         <a class="choice primary" href="${esc(signupUrl)}" target="_blank" rel="noopener"><b>${esc(ctas.build)}</b><span>Start ${esc(fitLabel)} with this build sheet. Your RevRing contact already has it.</span><span class="go">Go &rarr;</span></a>
-        <a class="choice" href="${esc(bookUrl)}" target="_blank" rel="noopener"><b>${esc(ctas.review)}</b><span>Walk through this report with a RevRing person before you decide anything.</span><span class="go">Pick a time &rarr;</span></a>
+        <a class="choice" href="${esc(bookUrl)}" target="_blank" rel="noopener"><b>${esc(ctas.review)}</b><span>See RevRing live with the team before you decide anything. Bring this report.</span><span class="go">Pick a time &rarr;</span></a>
         <button type="button" class="choice" id="cta-email"><b>${esc(ctas.email)}</b><span>Opens your email with the full report addressed to you and a copy to your RevRing contact.</span><span class="go">Send it &rarr;</span></button>
       </div>`;
 
@@ -2731,9 +2731,9 @@
     const setupUrl = withUtm(CFG.links.review || CFG.links.bookDemo, { name: [a.first_name, a.last_name].filter(Boolean).join(" "), email: a.email, diag: SID, setup: "1" });
     const webOn = webinarOn();
     const nextStep = lead === "HOT"
-      ? { line: "You said you're ready, so I'm not gonna make ya sit through a tour. Start RevRing now, or talk with Marc today and he builds it with you.", primary: ["cta_build", signupUrl, ctas.build], secondary: ["cta_review", bookUrl, ctas.review], tertiary: webOn ? ["cta_webinar", webinarUrl({ name: [a.first_name, a.last_name].filter(Boolean).join(" "), email: a.email }), "Or see it live first: " + ctas.webinar] : null }
+      ? { line: "You said you're ready, so I'm not gonna make ya sit through a tour. Start RevRing now, or grab a seat and see it live with the RevRing team first.", primary: ["cta_build", signupUrl, ctas.build], secondary: ["cta_review", bookUrl, ctas.review], tertiary: webOn ? ["cta_webinar", webinarUrl({ name: [a.first_name, a.last_name].filter(Boolean).join(" "), email: a.email }), "Or see it live first: " + ctas.webinar] : null }
       : lead === "WARM"
-        ? { line: webOn ? "You've identified " + opps.length + " opportunit" + (opps.length === 1 ? "y" : "ies") + " to improve your business. See how RevRing addresses them live, then decide." : "You've identified " + opps.length + " opportunit" + (opps.length === 1 ? "y" : "ies") + " to improve your business. Fifteen minutes with Marc and you'll see exactly how RevRing handles each one.", primary: webOn ? ["cta_webinar", webinarUrl({ name: [a.first_name, a.last_name].filter(Boolean).join(" "), email: a.email }), ctas.webinar] : ["cta_review", bookUrl, ctas.review], secondary: ["cta_build", signupUrl, ctas.build], tertiary: ["cta_setup", setupUrl, "Not ready to do it yourself? " + ctas.setup] }
+        ? { line: webOn ? "You've identified " + opps.length + " opportunit" + (opps.length === 1 ? "y" : "ies") + " to improve your business. See how RevRing addresses them live, then decide." : "You've identified " + opps.length + " opportunit" + (opps.length === 1 ? "y" : "ies") + " to improve your business. Grab a seat and see exactly how RevRing handles each one, live, then decide.", primary: webOn ? ["cta_webinar", webinarUrl({ name: [a.first_name, a.last_name].filter(Boolean).join(" "), email: a.email }), ctas.webinar] : ["cta_review", bookUrl, ctas.review], secondary: ["cta_build", signupUrl, ctas.build], tertiary: ["cta_setup", setupUrl, "Not ready to do it yourself? " + ctas.setup] }
         : { line: "No rush. Get the full recommendations below, keep them, and when the timing's right the fix is a click away.", primary: ["recs", "#breakdown", ctas.recs], secondary: webOn ? ["cta_webinar", webinarUrl({ name: [a.first_name, a.last_name].filter(Boolean).join(" "), email: a.email }), ctas.webinar] : ["cta_review", bookUrl, ctas.review], tertiary: ["cta_setup", setupUrl, "Or skip the homework: " + ctas.setup] };
     const cta = (k, cls) => k ? (k[0] === "recs" ? `<button type="button" class="${cls}" id="cta-recs">${esc(k[2])}</button>` : `<a class="${cls}" data-track="${k[0]}" href="${esc(k[1])}" target="_blank" rel="noopener">${esc(k[2])}</a>`) : "";
     const verdictHtml = `
