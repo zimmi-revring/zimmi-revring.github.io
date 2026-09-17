@@ -66,6 +66,36 @@
   .mini .r { display:grid; grid-template-columns:110px 1fr 40px; gap:8px; align-items:center; font-size:13px; padding:3px 0; }
   .mini .r .t { height:10px; background:var(--tint); border-radius:5px; overflow:hidden; } .mini .r .t i { display:block; height:100%; background:var(--primary); }
   .mini .r .n { text-align:right; font-weight:700; }
+  .m-only { display:none; }
+  .tablewrap { overflow-x:auto; -webkit-overflow-scrolling:touch; max-width:100%; }
+  /* Phones: numbers tables tighten up, people tables turn into cards, links wrap instead of stretching the page */
+  @media (max-width:700px) {
+    body { font-size:14px; }
+    .top { padding:12px 16px; } .top h1 { font-size:16px; } .top .sub { display:none; }
+    .wrap { padding:12px 12px 48px; }
+    .bar input[type=url] { flex-basis:100%; min-width:0; }
+    .grid { grid-template-columns:1fr 1fr; gap:8px; }
+    .kpi { padding:10px 12px; } .kpi .v { font-size:22px; }
+    .card { padding:14px 14px; border-radius:12px; }
+    .funnel .row { grid-template-columns:96px 1fr 34px 42px; gap:8px; font-size:12.5px; }
+    table { font-size:12.5px; }
+    th, td { padding:7px 5px; }
+    th { font-size:10.5px; letter-spacing:.04em; }
+    table.stack, table.stack tbody { display:block; }
+    table.stack tr { display:grid; grid-template-columns:1fr 1fr; gap:2px 10px; padding:10px 0; border-bottom:1px solid var(--line); }
+    table.stack tr:first-child { display:none; }
+    table.stack td { display:block; border:0; padding:2px 0; text-align:left; white-space:normal; overflow-wrap:anywhere; }
+    table.stack td::before { content:attr(data-label); display:block; font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); font-weight:700; }
+    table.stack td.wide { grid-column:1 / -1; order:-1; }
+    table.stack td.m-hide { display:none; }
+    .m-only { display:inline; }
+    table.stack td.wide::before { display:none; }
+    table.stack td.wide b { font-size:15px; }
+    .links .row { grid-template-columns:1fr auto; }
+    .links .row > div:nth-child(2) { grid-column:1 / -1; }
+    .links .row code { overflow-wrap:anywhere; word-break:normal; }
+    .split { gap:10px; }
+  }
 </style>
 </head>
 <body>
@@ -119,7 +149,8 @@
     </div>
     <div style="margin-top:10px"><label class="fine">Campaign codes, one per line as code | source | medium | campaign</label><textarea id="codes" rows="4" style="width:100%;padding:8px 10px;border:1.5px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);font:inherit;font-size:13px">s1 | sms | text | sept-blast-1
 e1 | email | email | sept-blast-1
-li | linkedin | social | zimmi</textarea></div>
+li | linkedin | social | zimmi
+fb | facebook | social | zimmi</textarea></div>
     <div id="linklist" style="margin-top:8px"></div>
     <p class="fine">Texts: use the short one. Email: either works, the full one shows up in any email tool's own click stats too. Add <b>&amp;start=1</b> to skip the landing page and open on question one.</p>
   </div>
@@ -210,8 +241,8 @@ li | linkedin | social | zimmi</textarea></div>
     if (!EVENTS.length) return;
 
     const views = uniq(evs.filter(e => e.event === "view").map(e => e.vid || e.sid)).length;
-    const sessions = count(evs, "view"), starts = count(evs, "start"), completes = count(evs, "complete"), builds = count(evs, "cta_build"), reviews = count(evs, "cta_review"), emails = count(evs, "cta_email"), signups = count(evs, "signup_complete"), breakdown = count(evs, "breakdown_open");
-    const kp = [["Visits", sessions, views + " unique " + (views === 1 ? "person" : "people")], ["Starts", starts, pct(starts, sessions) + " of visits"], ["Completions", completes, pct(completes, starts) + " of starts"], ["Build my stack clicks", builds, pct(builds, completes) + " of completions"], ["Review bookings clicked", reviews, ""], ["Reports emailed", emails, ""], ["Opened the breakdown", breakdown, pct(breakdown, completes) + " of completions"], ["Sign-ups", signups, pct(signups, completes) + " of completions"]];
+    const sessions = count(evs, "view"), starts = count(evs, "start"), completes = count(evs, "complete"), builds = count(evs, "cta_build"), reviews = count(evs, "cta_review"), emails = count(evs, "cta_email"), signups = count(evs, "signup_complete"), breakdown = count(evs, "breakdown_open"), webinar = count(evs, "cta_webinar");
+    const kp = [["Visits", sessions, views + " unique " + (views === 1 ? "person" : "people")], ["Starts", starts, pct(starts, sessions) + " of visits"], ["Completions", completes, pct(completes, starts) + " of starts"], ["Build my stack clicks", builds, pct(builds, completes) + " of completions"], ["Review bookings clicked", reviews, ""], ["Webinar seats clicked", webinar, ""], ["Reports emailed", emails, ""], ["Opened the breakdown", breakdown, pct(breakdown, completes) + " of completions"], ["Sign-ups", signups, pct(signups, completes) + " of completions"]];
     $("#kpis").innerHTML = kp.map(([l, v, d]) => `<div class="kpi"><div class="l">${esc(l)}</div><div class="v">${v.toLocaleString()}</div><div class="d">${esc(d)}</div></div>`).join("");
 
     // funnel
@@ -242,9 +273,9 @@ li | linkedin | social | zimmi</textarea></div>
       const keys = uniq(sub.map(keyFn)).sort();
       const rows = keys.map(k => { const g = sub.filter(e => keyFn(e) === k); return { k, v: count(g, "view"), s: count(g, "start"), c: count(g, "complete"), b: count(g, "cta_build"), su: count(g, "signup_complete") }; }).sort((a, b) => b.v - a.v);
       const tot = rows.reduce((t, r) => ({ v: t.v + r.v, s: t.s + r.s, c: t.c + r.c, b: t.b + r.b, su: t.su + r.su }), { v: 0, s: 0, c: 0, b: 0, su: 0 });
-      return `<table><tr><th>${label}</th><th class="n">Views</th><th class="n">Starts</th><th class="n">Completed</th><th class="n">Finish rate</th><th class="n">Build clicks</th><th class="n">Sign-ups</th></tr>
+      return `<div class="tablewrap"><table><tr><th>${label}</th><th class="n">Views</th><th class="n">Starts</th><th class="n">Completed</th><th class="n">Finish rate</th><th class="n">Build clicks</th><th class="n">Sign-ups</th></tr>
         ${rows.map(r => `<tr><td>${esc(r.k)}</td><td class="n">${r.v}</td><td class="n">${r.s}</td><td class="n">${r.c}</td><td class="n">${pct(r.c, r.s)}</td><td class="n">${r.b}</td><td class="n">${r.su}</td></tr>`).join("")}
-        ${rows.length > 1 ? `<tr class="tot"><td>All</td><td class="n">${tot.v}</td><td class="n">${tot.s}</td><td class="n">${tot.c}</td><td class="n">${pct(tot.c, tot.s)}</td><td class="n">${tot.b}</td><td class="n">${tot.su}</td></tr>` : ""}</table>`;
+        ${rows.length > 1 ? `<tr class="tot"><td>All</td><td class="n">${tot.v}</td><td class="n">${tot.s}</td><td class="n">${tot.c}</td><td class="n">${pct(tot.c, tot.s)}</td><td class="n">${tot.b}</td><td class="n">${tot.su}</td></tr>` : ""}</table></div>`;
     };
     $("#bycamp").innerHTML = group(evs, e => camp(e) + "  (" + src(e) + ")", "Campaign (source)");
     const repEvs = evs.filter(e => e.rep);
@@ -260,8 +291,8 @@ li | linkedin | social | zimmi</textarea></div>
     const comps = evs.filter(e => e.event === "complete").sort((a, b) => (b.ts > a.ts ? 1 : -1));
     const sus = evs.filter(e => e.event === "signup_complete").sort((a, b) => (b.ts > a.ts ? 1 : -1));
     const bySid = {}; comps.forEach(c => { bySid[c.sid] = c; });
-    $("#signups").innerHTML = sus.length ? `<table><tr><th>When</th><th>Who</th><th>Plan</th><th>Campaign</th><th>Rep</th></tr>${sus.slice(0, 50).map(s => { const c = bySid[s.sid] || {}; return `<tr><td>${esc((s.ts || "").slice(0, 16).replace("T", " "))}</td><td>${esc(s.first_name || c.first_name || "")} ${esc(s.email || c.email || "")}<br><span class="fine">${esc(s.company || c.company || "")}</span></td><td>${esc(s.plan || c.plan || "")}${(s.crm || c.crm) === "add" ? " plus CRM" : ""}</td><td>${esc(camp(s))}</td><td>${esc(s.rep || c.rep || "")}</td></tr>`; }).join("")}</table>` : `<p class="fine">No sign-ups recorded yet. Build my stack clicks are counted above; the sign-up itself needs the snippet on RevRing's success page.</p>`;
-    $("#recent").innerHTML = comps.length ? `<table><tr><th>When</th><th>Who</th><th>Recommended</th><th class="n">Seats</th><th>Lead</th><th>Zimmi</th><th>Source</th><th>Rep</th><th>Device</th></tr>${comps.slice(0, 60).map(c => `<tr><td>${esc((c.ts || "").slice(0, 16).replace("T", " "))}</td><td>${esc(c.first_name || "")}<br><span class="fine">${esc(c.email || "")}${c.company ? " · " + esc(c.company) : ""}</span></td><td>${c.plan ? "RevRing " + esc(c.plan.charAt(0).toUpperCase() + c.plan.slice(1)) + (c.crm === "add" ? " plus CRM" : "") : ""}</td><td class="n">${esc(c.seats || "")}</td><td><span class="tag ${esc((c.lead || "").toLowerCase())}">${esc(c.lead || "")}</span></td><td>${esc(c.color || "")}</td><td>${esc(camp(c))}<br><span class="fine">${esc(src(c))}</span></td><td>${esc(c.rep || "")}</td><td>${esc(c.device || "")}</td></tr>`).join("")}</table>` : `<p class="fine">No completions in this range.</p>`;
+    $("#signups").innerHTML = sus.length ? `<table class="stack"><tr><th>When</th><th>Who</th><th>Plan</th><th>Campaign</th><th>Rep</th></tr>${sus.slice(0, 50).map(s => { const c = bySid[s.sid] || {}; return `<tr><td data-label="When">${esc((s.ts || "").slice(0, 16).replace("T", " "))}</td><td class="wide" data-label="Who"><b>${esc(s.first_name || c.first_name || "")}</b> ${esc(s.email || c.email || "")}<br><span class="fine">${esc(s.company || c.company || "")}</span></td><td data-label="Plan">${esc(s.plan || c.plan || "")}${(s.crm || c.crm) === "add" ? " plus CRM" : ""}</td><td data-label="Campaign">${esc(camp(s))}</td><td data-label="Rep">${esc(s.rep || c.rep || "")}</td></tr>`; }).join("")}</table>` : `<p class="fine">No sign-ups recorded yet. Build my stack clicks are counted above; the sign-up itself needs the snippet on RevRing's success page.</p>`;
+    $("#recent").innerHTML = comps.length ? `<table class="stack"><tr><th>When</th><th>Who</th><th>Recommended</th><th class="n">Seats</th><th>Lead</th><th>Zimmi</th><th>Source</th><th>Rep</th><th>Device</th></tr>${comps.slice(0, 60).map(c => `<tr><td data-label="When">${esc((c.ts || "").slice(0, 16).replace("T", " "))}</td><td class="wide" data-label="Who"><b>${esc(c.first_name || "")}</b> <span class="m-only tag ${esc((c.lead || "").toLowerCase())}">${esc(c.lead || "")}</span><br><span class="fine">${esc(c.email || "")}${c.company ? " · " + esc(c.company) : ""}</span></td><td data-label="Recommended">${c.plan ? "RevRing " + esc(c.plan.charAt(0).toUpperCase() + c.plan.slice(1)) + (c.crm === "add" ? " plus CRM" : "") : ""}</td><td class="n" data-label="Seats">${esc(c.seats || "")}</td><td class="m-hide" data-label="Lead"><span class="tag ${esc((c.lead || "").toLowerCase())}">${esc(c.lead || "")}</span></td><td data-label="Zimmi">${esc(c.color || "")}</td><td data-label="Source">${esc(camp(c))}<br><span class="fine">${esc(src(c))}</span></td><td data-label="Rep">${esc(c.rep || "")}</td><td data-label="Device">${esc(c.device || "")}</td></tr>`).join("")}</table>` : `<p class="fine">No completions in this range.</p>`;
   }
 
   // link builder

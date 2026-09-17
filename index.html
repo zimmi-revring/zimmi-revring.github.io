@@ -765,6 +765,31 @@
   @media (max-width: 820px) { .door { min-height: 0; padding-bottom: 0; } .door .zemi-door { position: static; height: 210px; margin: 14px auto 0; } .door-list { max-width: 100%; } .door-cta { align-self: stretch; text-align: center; } }
   @media (max-width: 520px) { .topnav { gap: 10px; font-size: 13px; } #nav-site { display: none; } }
   .sec-head { padding: 6px 4px 0; } .sec-head h3 { margin-bottom: 4px; } .sec-head .sub { color: var(--muted); font-size: 14px; margin: 0; }
+  .verdict-sec { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); padding: 22px 24px; margin-bottom: 16px; }
+  .verdict-in { display: flex; gap: 18px; align-items: flex-start; }
+  .verdict-in .zemi-av { width: 64px; height: 64px; flex: 0 0 64px; }
+  .verdict-txt { min-width: 0; flex: 1; }
+  .verdict-txt h2 { margin: 4px 0 12px; font-size: clamp(19px, 2.4vw, 24px); line-height: 1.25; }
+  .opps { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; counter-reset: opp; }
+  .opps li { display: grid; grid-template-columns: 30px 1fr; gap: 10px; align-items: start; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-2); counter-increment: opp; }
+  .opps li::before { content: counter(opp); width: 26px; height: 26px; border-radius: 50%; background: var(--primary-strong); color: #fff; font-weight: 800; font-size: 13px; display: inline-flex; align-items: center; justify-content: center; grid-row: 1 / span 2; }
+  .opps li b { font-size: 15px; }
+  .opps li span { display: block; grid-column: 2; color: var(--ink-2); font-size: 14px; line-height: 1.45; }
+  .next-step { margin: 14px 0 10px; font-size: 15.5px; }
+  .next-ctas { display: flex; flex-wrap: wrap; gap: 10px; }
+  .next-ctas .btn { text-decoration: none; }
+  .next-alt { margin: 10px 0 0; font-size: 14px; }
+  .next-link { color: var(--primary); font-weight: 600; text-decoration: underline; background: none; border: 0; padding: 0; font: inherit; cursor: pointer; }
+  @media (max-width: 640px) { .verdict-sec { padding: 16px; } .verdict-in { gap: 12px; } .verdict-in .zemi-av { width: 48px; height: 48px; flex-basis: 48px; } .next-ctas .btn { width: 100%; text-align: center; } }
+  .webinar { margin-top: 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); padding: 18px 20px; }
+  .webinar-in { display: flex; align-items: center; justify-content: space-between; gap: 18px; flex-wrap: wrap; }
+  .webinar-txt { flex: 1 1 360px; min-width: 0; }
+  .webinar h3 { margin: 4px 0 2px; font-size: 19px; }
+  .webinar-when { margin: 0 0 6px; font-weight: 700; color: var(--primary-ink); }
+  .webinar p { margin: 0; color: var(--ink-2); }
+  .webinar .btn { flex: 0 0 auto; }
+  @media (max-width: 640px) { .webinar { padding: 16px; } .webinar .btn { width: 100%; text-align: center; } }
+  .hero-link { color: var(--accent); font-weight: 600; text-decoration: underline; }
   .back-row { text-align: center; margin-top: 10px; }
   .back-row button { background: none; border: 0; padding: 6px 10px; color: var(--muted); font-weight: 600; text-decoration: underline; font-size: 14px; cursor: pointer; }
   .breakdown-toggle { display: flex; justify-content: center; margin: 18px 0 6px; }
@@ -903,11 +928,14 @@
   "webhookUrl": "",
   "webhookAuthHeader": "",
   "ctas": {
-    "build": "Build my stack",
-    "review": "Book a diagnostic review",
-    "email": "Email my report"
+    "build": "Start RevRing",
+    "review": "Talk with Marc",
+    "email": "Email my report",
+    "webinar": "Reserve my seat",
+    "recs": "Get my recommendations",
+    "setup": "Have RevRing set it up with me"
   },
-  "eventsUrl": "https://script.google.com/macros/s/AKfycbyIOuV1orTO0CK1FmbiuDBvBRMN2ZQZyqaRLGtoReBrU4KqhGFt953_44q4_bLNoiGRPg/exec",
+  "eventsUrl": "https://script.google.com/macros/s/AKfycbxoeCk3t_QZeFVr7HODmtUnHh6L0wi6FuL9WpMTPZt7LH1zHtGq_00zAnZ85E0t6CKDaQ/exec",
   "campaigns": {
     "s1": {
       "source": "sms",
@@ -927,6 +955,13 @@
       "campaign": "zimmi",
       "rep": ""
     }
+  },
+  "webinar": {
+    "enabled": false,
+    "title": "See RevRing live",
+    "when": "",
+    "url": "",
+    "blurb": "Marc walks through three real reports live, what to keep, what to cut, what changes day one."
   }
 }
 </script>
@@ -2265,7 +2300,8 @@
     } catch (e) {}
     try { if (window.posthog && typeof window.posthog.capture === "function") window.posthog.capture("diag_" + event, payload); } catch (e) {}
   }
-  const fitProps = () => state.fit ? { plan: state.fit.plan, crm: state.fit.crm, seats: state.fit.calc.seats, lead: state.fit.lead, color: state.fit.color ? state.fit.color.name : null, savings: state.fit.calc.savings, current_per_user: state.fit.calc.currentPerUser } : {};
+  const fitProps = () => state.fit ? { plan: state.fit.plan, crm: state.fit.crm, seats: state.fit.calc.seats, lead: state.fit.lead, color: state.fit.color ? state.fit.color.name : null, savings: state.fit.calc.savings, current_per_user: state.fit.calc.currentPerUser,
+    pains: (state.answers.pains || []).join(","), dialing: state.answers.dialing || null, arq2: state.answers.arq2 || null, crm_name: state.answers.crm_name || null, dialer_name: state.answers.dialer_name || null } : {};
   // outbound clicks: any link with data-track fires an event before it opens
   document.addEventListener("click", e => { const a = e.target.closest && e.target.closest("[data-track]"); if (!a) return; track(a.dataset.track, Object.assign({ href: a.getAttribute("href") || null }, fitProps())); }, true);
 
@@ -2312,7 +2348,7 @@
         <div class="hero-copy">
         <div class="eyebrow">Free 60-second RevRing Business Diagnostic</div>
         <h1>How healthy is your business stack?</h1>
-        <p class="lead">You probably have a CRM. A dialer. Lead vendors. Texting. Quoting. Compliance. Some of it works. Some of it quietly costs you money and hours every month. Sixty seconds with Zimmi and you get what to keep, what to connect, what to consolidate and what to add, plus the setup that fixes it and what it costs.</p>
+        <p class="lead">Let's find where your business is losing time, opportunities or revenue. You probably have a CRM. A dialer. Lead vendors. Texting. Quoting. Compliance. Some of it works. Some of it quietly costs you money and hours every month. Sixty seconds with Zimmi and you get what to keep, what to connect, what to consolidate and what to add, plus the setup that fixes it and what it costs.</p>
         <div class="hero-game">
           <h2>Can you turn Zimmi blue?</h2>
           <p>He starts blue. Your answers move him. Red means the stack is held together with tape. Deep blue means it is tight. Most shops land somewhere in the middle, and the setup at the end is what turns him back.</p>
@@ -2325,7 +2361,7 @@
           <div><b>Consolidate</b><span>The pieces that overlap become one.</span></div>
           <div><b>Add</b><span>What you are missing turns on.</span></div>
         </div>
-        <div class="entry-one"><button type="button" class="btn btn-primary btn-lg" id="start-diag">Take the free diagnostic</button><span>Eleven taps. About a minute. Your report and your estimated opportunity are on the last screen.</span></div>
+        <div class="entry-one"><button type="button" class="btn btn-primary btn-lg" id="start-diag">Start my business diagnostic</button><span>Eleven taps. About a minute. Your report and your estimated opportunity are on the last screen.${webinarOn() ? ` Then see the fix live: <a class="hero-link" data-track="cta_webinar" href="${esc(webinarUrl())}" target="_blank" rel="noopener">${esc(CFG.webinar.title)}${CFG.webinar.when ? ", " + esc(CFG.webinar.when) : ""}</a>.` : ""}</span></div>
         </div>
         <div class="hero-figure"><div class="zemi-hello" id="hero-hello"></div>${zemiFigure("zemi-fig", "hero-zemi")}<div class="zemi-shadow" aria-hidden="true"></div></div>
       </section>`;
@@ -2653,7 +2689,8 @@
     const fitLabel = "RevRing " + planName + (fit.crm === "add" ? " plus CRM" : " plus your CRM");
     const col = fit.color, blue = F.zemiColor(0);
     const sp = F.stackPlan(a, fit, CFG), op = F.opportunity(a, fit), bs = F.buildSheet(a, fit, CFG);
-    const ctas = Object.assign({ build: "Build my stack", review: "Book a diagnostic review", email: "Email my report" }, CFG.ctas || {});
+    const ctas = Object.assign({ build: "Start RevRing", review: "Talk with Marc", email: "Email my report", webinar: "Reserve my seat", recs: "Get my recommendations", setup: "Have RevRing set it up with me" }, CFG.ctas || {});
+    const lead = fit.lead || "WARM";
 
     const bookUrl = withUtm(CFG.links.review || CFG.links.bookDemo, { name: [a.first_name, a.last_name].filter(Boolean).join(" "), email: a.email, diag: SID });
     const signupUrl = withUtm(CFG.links.signup, { plan: fit.plan, crm: fit.crm === "add" ? "revring" : "keep", seats: c.seats, diag: SID, rep: ATTR.first.rep || ATTR.latest.rep || undefined, c: ATTR.first.campaign_code || ATTR.latest.campaign_code || undefined });
@@ -2689,7 +2726,31 @@
     if (!today.length) today.push("A stack that runs on people remembering things");
     const fixesShort = fit.fixes.slice(0, 3).map(r => r.h);
     const seatsTxt = c.seats + " seat" + (c.seats === 1 ? "" : "s");
-    app.innerHTML = `
+    // Zimmi's verdict: what the answers mean and the one next action, decided by how ready they said they are
+    const opps = fit.fixes.slice(0, 3);
+    const setupUrl = withUtm(CFG.links.review || CFG.links.bookDemo, { name: [a.first_name, a.last_name].filter(Boolean).join(" "), email: a.email, diag: SID, setup: "1" });
+    const webOn = webinarOn();
+    const nextStep = lead === "HOT"
+      ? { line: "You said you're ready, so I'm not gonna make ya sit through a tour. Start RevRing now, or talk with Marc today and he builds it with you.", primary: ["cta_build", signupUrl, ctas.build], secondary: ["cta_review", bookUrl, ctas.review], tertiary: webOn ? ["cta_webinar", webinarUrl({ name: [a.first_name, a.last_name].filter(Boolean).join(" "), email: a.email }), "Or see it live first: " + ctas.webinar] : null }
+      : lead === "WARM"
+        ? { line: webOn ? "You've identified " + opps.length + " opportunit" + (opps.length === 1 ? "y" : "ies") + " to improve your business. See how RevRing addresses them live, then decide." : "You've identified " + opps.length + " opportunit" + (opps.length === 1 ? "y" : "ies") + " to improve your business. Fifteen minutes with Marc and you'll see exactly how RevRing handles each one.", primary: webOn ? ["cta_webinar", webinarUrl({ name: [a.first_name, a.last_name].filter(Boolean).join(" "), email: a.email }), ctas.webinar] : ["cta_review", bookUrl, ctas.review], secondary: ["cta_build", signupUrl, ctas.build], tertiary: ["cta_setup", setupUrl, "Not ready to do it yourself? " + ctas.setup] }
+        : { line: "No rush. Get the full recommendations below, keep them, and when the timing's right the fix is a click away.", primary: ["recs", "#breakdown", ctas.recs], secondary: webOn ? ["cta_webinar", webinarUrl({ name: [a.first_name, a.last_name].filter(Boolean).join(" "), email: a.email }), ctas.webinar] : ["cta_review", bookUrl, ctas.review], tertiary: ["cta_setup", setupUrl, "Or skip the homework: " + ctas.setup] };
+    const cta = (k, cls) => k ? (k[0] === "recs" ? `<button type="button" class="${cls}" id="cta-recs">${esc(k[2])}</button>` : `<a class="${cls}" data-track="${k[0]}" href="${esc(k[1])}" target="_blank" rel="noopener">${esc(k[2])}</a>`) : "";
+    const verdictHtml = `
+      <section class="verdict-sec">
+        <div class="verdict-in">
+          <img class="zemi-av" src="${ZEMI_AV}" alt="" style="--rot:${heatRot(col.heat)}">
+          <div class="verdict-txt">
+            <span class="eyebrow">What your answers mean</span>
+            <h2>Zimmi is ${esc(col.name)} on your stack, ${esc(name)}. Here's why, and what to do about it.</h2>
+            <ol class="opps">${opps.map((o, i) => `<li class="lit-in" style="animation-delay:${150 + i * 110}ms"><b>${esc(o.h)}</b><span>${esc(o.t)}</span></li>`).join("")}</ol>
+            <p class="next-step"><b>Your next step.</b> ${esc(nextStep.line)}</p>
+            <div class="next-ctas">${cta(nextStep.primary, "btn btn-primary btn-lg")}${cta(nextStep.secondary, "btn btn-ghost btn-lg")}</div>
+            ${nextStep.tertiary ? `<p class="next-alt">${cta(nextStep.tertiary, "next-link")}</p>` : ""}
+          </div>
+        </div>
+      </section>`;
+    app.innerHTML = verdictHtml + `
       <section class="band doors-band glow-once">
         <div class="eyebrow">Your business diagnostic</div>
         <h1>${esc(name)}, two doors.</h1>
@@ -2707,13 +2768,13 @@
             <h2>Get on board</h2>
             <p class="door-sub"><b>${esc(fitLabel)}</b> &middot; ${money(c.basePerUser)} per seat &middot; ${seatsTxt}</p>
             <ul class="door-list">${fixesShort.map(t => `<li>${esc(t)}: fixed</li>`).join("")}<li>Inbound leads open from sign-up, no A2P needed</li></ul>
-            <a class="btn btn-light btn-lg door-cta" data-track="cta_build" href="${esc(signupUrl)}" target="_blank" rel="noopener">${esc(ctas.build)}</a>
-            <a class="door-alt" data-track="cta_review" href="${esc(bookUrl)}" target="_blank" rel="noopener">${esc(ctas.review)}</a>
+            ${lead === "WARM" && webOn ? `<a class="btn btn-light btn-lg door-cta" data-track="cta_webinar" href="${esc(webinarUrl({ name: [a.first_name, a.last_name].filter(Boolean).join(" "), email: a.email }))}" target="_blank" rel="noopener">${esc(ctas.webinar)}</a><a class="door-alt" data-track="cta_build" href="${esc(signupUrl)}" target="_blank" rel="noopener">${esc(ctas.build)}</a>` : `<a class="btn btn-light btn-lg door-cta" data-track="cta_build" href="${esc(signupUrl)}" target="_blank" rel="noopener">${esc(ctas.build)}</a><a class="door-alt" data-track="cta_review" href="${esc(bookUrl)}" target="_blank" rel="noopener">${esc(ctas.review)}</a>`}
             ${zemiFigure("zemi-door", "zemi-door-good", "--rot:0deg", "Zimmi, deep blue")}
           </div>
         </div>
       </section>
 
+      ${webinarCard(fit, a)}
       <div class="breakdown-toggle"><button type="button" class="btn btn-ghost btn-lg" id="show-breakdown" aria-expanded="false">Show the full breakdown: what I'm paying vs what I could pay</button></div>
       <div class="back-row"><button type="button" id="back-answers">Go back and change an answer</button></div>
 
@@ -2763,7 +2824,7 @@
           <details class="brief" style="margin-top:14px"><summary>Plain-text copy of this report</summary><pre id="brief-text">${esc(brief)}</pre></details>
         </section>
 
-        <div class="sticky-cta" aria-hidden="false"><span class="sticky-txt">RevRing ${esc(planName)}${fit.crm === "add" ? " plus CRM" : ""} &middot; ${money(c.basePerUser)} / seat</span><a class="btn btn-primary btn-sm" data-track="cta_build" href="${esc(signupUrl)}" target="_blank" rel="noopener">${esc(ctas.build)}</a></div>
+        <div class="sticky-cta" aria-hidden="false"><span class="sticky-txt">RevRing ${esc(planName)}${fit.crm === "add" ? " plus CRM" : ""} &middot; ${money(c.basePerUser)} / seat</span>${nextStep.primary[0] === "recs" ? `<a class="btn btn-primary btn-sm" data-track="cta_build" href="${esc(signupUrl)}" target="_blank" rel="noopener">${esc(ctas.build)}</a>` : cta(nextStep.primary, "btn btn-primary btn-sm")}</div>
         <div class="util"><div class="links"><button type="button" id="restart">Start over</button><a href="${esc(withUtm(CFG.links.pricing))}" target="_blank" rel="noopener">Full pricing</a><a href="${esc(withUtm(CFG.links.site))}" target="_blank" rel="noopener">revring.com</a></div><span class="fineprint">Savings and ratios appear only when your own numbers support them.</span></div>
       </div>`;
 
@@ -2785,13 +2846,26 @@
     if (zbad) { setPose(zbad, "worried"); zbad.style.cursor = "pointer"; zbad.addEventListener("click", () => flash(zbad, "flinch", 600)); }
     if (zgood) { setPose(zgood, "celebrate"); zgood.style.cursor = "pointer"; zgood.addEventListener("click", () => { flash(zgood, "hop", 700); const host = zgood.parentElement; const cc = centerIn(zgood, host); poof(host, cc.x, cc.y - cc.h * 0.3, 12); }); setTimeout(() => { const host = zgood.parentElement; if (!host || !document.body.contains(zgood)) return; const cc = centerIn(zgood, host); poof(host, cc.x, cc.y - cc.h * 0.25, 14); }, 900); talkFig = null; startIdle(zgood); }
     // on a phone the sign-up opens in this tab so the back button returns to the report; on a desktop it opens beside it
-    if (window.matchMedia("(pointer: coarse)").matches) app.querySelectorAll('a[data-track="cta_build"], a[data-track="cta_review"]').forEach(a => a.removeAttribute("target"));
+    if (window.matchMedia("(pointer: coarse)").matches) app.querySelectorAll('a[data-track="cta_build"], a[data-track="cta_review"], a[data-track="cta_webinar"], a[data-track="cta_setup"]').forEach(a => a.removeAttribute("target"));
     const sb = $("#show-breakdown"), bd = $("#breakdown");
+    const recs = $("#cta-recs"); if (recs) recs.addEventListener("click", () => { track("cta_recs", fitProps(), true); if (bd.hidden) sb.click(); else bd.scrollIntoView({ behavior: REDUCE ? "auto" : "smooth", block: "start" }); });
     track("results", fitProps(), true);
     if (sb && bd) sb.addEventListener("click", () => { const open = bd.hidden; if (open) track("breakdown_open", fitProps(), true); bd.hidden = !open; sb.setAttribute("aria-expanded", String(open)); sb.textContent = open ? "Hide the breakdown" : "Show the full breakdown: what I'm paying vs what I could pay"; if (open) bd.scrollIntoView({ behavior: REDUCE ? "auto" : "smooth", block: "start" }); });
     window.scrollTo(0, 0);
   }
   // ---------- Bonus wheel (config driven, fair weighted random, one spin per run) ----------
+  // the live walkthrough invite: shows on the report and the landing page only when a date and link exist
+  const webinarOn = () => !!(CFG.webinar && CFG.webinar.enabled && CFG.webinar.url);
+  function webinarUrl(extra) { return withUtm(CFG.webinar.url, Object.assign({ diag: SID, rep: ATTR.first.rep || ATTR.latest.rep || undefined, c: ATTR.first.campaign_code || ATTR.latest.campaign_code || undefined }, extra || {})); }
+  function webinarCard(fit, a) {
+    if (!webinarOn()) return "";
+    const w = CFG.webinar, col = fit && fit.color ? fit.color.name : "";
+    return `<section class="webinar" id="webinar">
+      <div class="webinar-in">
+        <div class="webinar-txt"><span class="eyebrow">See the fix live</span><h3>${esc(w.title)}</h3>${w.when ? `<p class="webinar-when">${esc(w.when)}</p>` : ""}<p>You've identified ${fit && fit.fixes ? fit.fixes.length : "a few"} opportunit${fit && fit.fixes && fit.fixes.length === 1 ? "y" : "ies"} to improve your business. See how RevRing addresses them live. ${esc(w.blurb || "")}${col ? ` Bring your color. You're ${esc(col)}.` : ""}</p></div>
+        <a class="btn btn-primary btn-lg" data-track="cta_webinar" href="${esc(webinarUrl({ name: [a.first_name, a.last_name].filter(Boolean).join(" "), email: a.email }))}" target="_blank" rel="noopener">${esc((CFG.ctas || {}).webinar || "Save my seat")}</a>
+      </div></section>`;
+  }
   function wheelHtml(signupUrl, buildLabel) {
     const w = CFG.wheel, prizes = w.prizes;
     const n = prizes.length, seg = 360 / n;
@@ -2870,6 +2944,11 @@
         <div class="span2"><label for="a-prizes">Wheel prizes, one per line as label | weight</label><textarea id="a-prizes" rows="5" style="width:100%;padding:8px 10px;border:1.5px solid var(--line);border-radius:7px;background:var(--surface);font-size:13px">${esc(((cfg.wheel || {}).prizes || []).map(p => p.label + " | " + (p.weight || 1)).join("\n"))}</textarea></div>
         <div class="span2"><label for="a-wheelterms">Wheel terms, one per line</label><textarea id="a-wheelterms" rows="4" style="width:100%;padding:8px 10px;border:1.5px solid var(--line);border-radius:7px;background:var(--surface);font-size:13px">${esc(((cfg.wheel || {}).terms || []).join("\n"))}</textarea></div>
         <div class="span2">${f("review", "Diagnostic review booking link", cfg.links.review || cfg.links.bookDemo, "url")}</div>
+        <div><label for="a-webon">Live walkthrough (webinar) invite</label><select id="a-webon"><option value="no" ${!(cfg.webinar && cfg.webinar.enabled) ? "selected" : ""}>Off</option><option value="yes" ${cfg.webinar && cfg.webinar.enabled ? "selected" : ""}>On</option></select></div>
+        ${f("webtitle", "Webinar title", (cfg.webinar || {}).title, "text")}
+        ${f("webwhen", "Webinar date and time, as people should read it", (cfg.webinar || {}).when, "text")}
+        <div class="span2">${f("weburl", "Webinar registration link (Zoom webinar, Calendly, or a landing page)", (cfg.webinar || {}).url, "url")}</div>
+        <div class="span2">${f("webblurb", "Webinar one-liner", (cfg.webinar || {}).blurb, "text")}</div>
         ${f("ctabuild", "Primary choice label", (cfg.ctas || {}).build, "text")}${f("ctareview", "Review choice label", (cfg.ctas || {}).review, "text")}${f("ctaemail", "Email choice label", (cfg.ctas || {}).email, "text")}
         <div class="span2">${f("events", "Events collector URL (the tracker's Apps Script web app)", cfg.eventsUrl, "url")}</div>
         <div class="span2"><label for="a-camps">Short campaign codes, one per line as code | source | medium | campaign | rep</label><textarea id="a-camps" rows="4" style="width:100%;padding:8px 10px;border:1.5px solid var(--line);border-radius:7px;background:var(--surface);font-size:13px">${esc(Object.entries(cfg.campaigns || {}).map(([k, v]) => [k, v.source || "", v.medium || "", v.campaign || "", v.rep || ""].join(" | ")).join("\n"))}</textarea></div>
@@ -2896,6 +2975,7 @@
         links: { signup: t("signup"), bookDemo: t("book"), review: t("review") }, leadEmail: t("lead"), webhookUrl: t("hook"), webhookAuthHeader: t("hookauth"), offer: { proofLine: t("proof"), bonus: t("bonus") },
         eventsUrl: t("events"), campaigns: Object.fromEntries($("#a-camps").value.split("\n").map(l => l.split("|").map(x => x.trim())).filter(x => x[0]).map(x => [x[0], { source: x[1] || "link", medium: x[2] || "link", campaign: x[3] || x[0], rep: x[4] || "" }])),
         ctas: { build: t("ctabuild"), review: t("ctareview"), email: t("ctaemail") },
+        webinar: { enabled: $("#a-webon").value === "yes", title: t("webtitle"), when: t("webwhen"), url: t("weburl"), blurb: t("webblurb") },
         wheel: { enabled: $("#a-wheel").value === "yes", terms: $("#a-wheelterms").value.split("\n").map(l => l.trim()).filter(Boolean), prizes: $("#a-prizes").value.split("\n").map(l => l.trim()).filter(Boolean).map(l => { const [label, wt] = l.split("|").map(x => x.trim()); return { label, weight: parseFloat(wt) || 1 }; }) }
       });
     };
