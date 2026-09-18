@@ -425,7 +425,7 @@
   @media (prefers-reduced-motion: reduce) { .qcard.enter { animation: none; } }
 
   /* Zemi */
-  .hero-zemi { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(220px, .75fr); gap: 20px; align-items: end; padding-bottom: 0; }
+  .hero-zemi { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(300px, .9fr); gap: 20px; align-items: end; padding-bottom: 0; }
   .hero-copy { padding-bottom: clamp(28px, 5vw, 56px); }
   .hero-figure { position: relative; align-self: end; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; min-height: 320px; padding-top: 18px; }
   .zemi-fig { position: relative; display: block; height: clamp(260px, 28vw, 400px); width: fit-content; max-width: 100%; filter: drop-shadow(0 18px 30px rgba(0,0,0,.45)) hue-rotate(var(--rot, 0deg)) saturate(var(--sat, 1)); transition: filter .35s ease; }
@@ -521,7 +521,26 @@
   .zemi-side .zemi-fig.side.zinni-fig { --rot: 68deg; --sat: 1.1; height: 150px; animation: bob 4s ease-in-out 1.3s infinite; }
   .zemi-side.duet .zemi-fig.side:not(.zinni-fig) { height: 200px; }
   .zemi-side.duet .zemi-bubble.side.zinni-bubble { border-radius: 14px 14px 4px 14px; }
-  .zinni-fig .zemi-body { transform: scaleX(-1); }
+  .zinni-fig .zemi-layer { transform: scaleX(-1); }
+  /* landing: the two of them, his bubble over him, hers over her. On a phone his bubble sits above the pair and hers below. */
+  .hero-figure.duo { display: grid; grid-template-columns: 1fr 1fr; grid-template-areas: "hz hzn" "fz fzn" "sz szn"; column-gap: 8px; align-items: end; justify-items: center; }
+  .hero-figure.duo #hero-hello { grid-area: hz; margin: 0 0 14px; align-self: end; }
+  .hero-figure.duo #hero-zemi { grid-area: fz; height: clamp(230px, 22vw, 330px); }
+  .hero-figure.duo .zemi-shadow:not(.zinni-shadow) { grid-area: sz; }
+  .hero-figure.duo #hero-hello-z { grid-area: hzn; margin: 0 0 14px; align-self: end; }
+  .hero-figure.duo #hero-zinni { grid-area: fzn; height: clamp(200px, 19vw, 285px); --rot: 68deg; --sat: 1.1; animation-delay: 1.4s; }
+  .hero-figure.duo .zinni-shadow { grid-area: szn; }
+  .hero-figure.duo .zemi-fig.waiting { visibility: hidden; }
+  .zinni-hello { background: #f3e8ff; color: #4a1d7a; border-radius: 14px 14px 14px 4px; }
+  .zinni-hello::after { right: auto; left: 22px; border-top-color: #f3e8ff; }
+  @media (max-width: 760px) {
+    .hero-figure.duo { grid-template-columns: 1fr 1fr; grid-template-areas: "hz hz" "fz fzn" "sz szn" "hzn hzn"; column-gap: 4px; }
+    .hero-figure.duo #hero-zemi { height: 190px; }
+    .hero-figure.duo #hero-zinni { height: 165px; }
+    .hero-figure.duo #hero-hello, .hero-figure.duo #hero-hello-z { margin: 0 auto 8px; max-width: 320px; width: 100%; border-radius: 14px; }
+    .hero-figure.duo #hero-hello-z { margin: 10px auto 0; }
+    .hero-figure.duo .zinni-hello::after { display: none; }
+  }
   .zemi-side .zemi-bubble.side.zinni-bubble, .mood-warm .zemi-bubble.zinni-bubble, .mood-bright .zemi-bubble.zinni-bubble { background: #f3e8ff; border-color: #e2c9fb; color: #4a1d7a; border-radius: 14px 14px 4px 14px; }
   .zinni-bubble .zemi-name, .mood-warm .zinni-bubble .zemi-name, .mood-bright .zinni-bubble .zemi-name { color: #7e22ce; }
   .zinni-av { --rot: 68deg; transform: scaleX(-1); }
@@ -2079,18 +2098,20 @@
   if ($("#zinni-dock-fig")) $("#zinni-dock-fig").innerHTML = zemiLayers();
   // Zinni: the numbers half. Same chameleon, purple, facing him. She types on her own clock so the two never talk over each other.
   let zinniTimer = null, zinniLine = "";
-  function zinniSay(text, afterMs) {
-    const box = $("#zinni-dock"), fig = $("#zinni-dock-fig"), el = $("#zinni-dock-text"); if (!box || !el) return;
-    clearTimeout(zinniTimer);
-    const dock = $("#zemi-dock");
-    if (!text) { box.hidden = true; zinniLine = ""; el.textContent = ""; if (dock) dock.classList.remove("duet"); return; }
-    const wasHidden = box.hidden; box.hidden = false; if (dock) dock.classList.add("duet");
-    if (text === zinniLine && !wasHidden) return;
-    zinniLine = text;
+  function zinniType(el, fig, text, afterMs) {
+    clearTimeout(zinniTimer); zinniLine = text;
     if (REDUCE) { el.textContent = text; return; }
     el.textContent = "";
-    const start = () => { let i = 0; if (fig) fig.classList.add("talk"); const step = () => { i += 2; el.textContent = text.slice(0, i); if (i < text.length) zinniTimer = setTimeout(step, CHAR_MS * 2); else if (fig) fig.classList.remove("talk"); }; step(); };
+    const start = () => { let i = 0; if (fig) fig.classList.add("talk"); el.classList.add("typing"); const step = () => { i += 2; el.textContent = text.slice(0, i); if (i < text.length) zinniTimer = setTimeout(step, CHAR_MS * 2); else { el.classList.remove("typing"); if (fig) fig.classList.remove("talk"); } }; step(); };
     zinniTimer = setTimeout(start, afterMs || 0);
+  }
+  function zinniSay(text, afterMs) {
+    const box = $("#zinni-dock"), fig = $("#zinni-dock-fig"), el = $("#zinni-dock-text"); if (!box || !el) return;
+    const dock = $("#zemi-dock");
+    if (!text) { clearTimeout(zinniTimer); box.hidden = true; zinniLine = ""; el.textContent = ""; if (dock) dock.classList.remove("duet"); return; }
+    const wasHidden = box.hidden; box.hidden = false; if (dock) dock.classList.add("duet");
+    if (text === zinniLine && !wasHidden) return;
+    zinniType(el, fig, text, afterMs);
   }
   // the mobile Zimmi strip pins itself right under the top bar, whatever height the bar ends up
   const measureTopbar = () => { const tb = document.querySelector(".topbar"); if (tb) document.documentElement.style.setProperty("--topbar-h", tb.offsetHeight + "px"); };
@@ -2098,15 +2119,31 @@
   // Idle life: every few seconds Zimmi does one small thing. Never while reduced motion is on.
   const IDLE = [["blink2", 600, 3], ["look", 1500, 2], ["nod", 1000, 2], ["sway", 1300, 2], ["pose", 0, 7]];
   // what he says while he waits on the landing (after the greeting has been read). The words pick the pose.
-  const LANDING_LINES = ["Watch the hat.", "Nothin' up my sleeve. I don't got sleeves.", "Thinkin' about your stack. Somebody's gotta.", "Still here. Sixty seconds. You got sixty seconds.", "Red's bad. Blue's good. Let's see what you got.", "For my next trick, five logins become one. Tap start.", "Ay. Tap the button. I don't bite. I blend.", "Zinni's got the calculator. I got the hat. It works."];
-  let landingBubble = null, greetDone = false, lastLanding = -1;
+  // what the two of them say while they wait on the landing. z: Zimmi, n: Zinni, reply: she answers him.
+  const LANDING_LINES = [
+    { z: "Watch the hat." }, { z: "Nothin' up my sleeve. I don't got sleeves." }, { z: "Thinkin' about your stack. Somebody's gotta." },
+    { z: "Still here. Sixty seconds. You got sixty seconds.", n: "Sixty seconds. I timed it. Twice." },
+    { z: "Red's bad. Blue's good. Let's see what you got." },
+    { z: "For my next trick, five logins become one. Tap start.", n: "That's not a trick. That's arithmetic." },
+    { z: "Ay. Tap the button. I don't bite. I blend." },
+    { z: "Zinni's got the calculator. I got the hat. It works.", n: "One of us is load bearing." },
+    { n: "Two things I don't do. Guess, and round in our favor." }, { n: "He's the show. I'm the invoice." }, { n: "Bring your real numbers. I can tell." }, { n: "Four logins isn't a system. It's a habit." }
+  ];
+  let landingBubble = null, landingZinni = null, greetDone = false, lastLanding = -1;
   let idleTimer = null, idleFig = null;
   function idleOnce() {
     const fig = idleFig; if (!fig || !document.body.contains(fig) || document.hidden) return;
     const total = IDLE.reduce((t, x) => t + x[2], 0); let r = Math.random() * total, pick = IDLE[0];
     for (const x of IDLE) { r -= x[2]; if (r <= 0) { pick = x; break; } }
     const onLanding = !fig.classList.contains("side") && !fig.classList.contains("zemi-band");
-    if (pick[0] === "pose") { if (!onLanding || !greetDone || !landingBubble) return idleOnce(); let n; do { n = Math.floor(Math.random() * LANDING_LINES.length); } while (n === lastLanding); lastLanding = n; say(fig, landingBubble, LANDING_LINES[n], { pose: "neutral", move: "nod" }); return; }
+    if (pick[0] === "pose") {
+      if (!onLanding || !greetDone || !landingBubble) return idleOnce();
+      let n; do { n = Math.floor(Math.random() * LANDING_LINES.length); } while (n === lastLanding || (!landingZinni && !LANDING_LINES[n].z)); lastLanding = n;
+      const line = LANDING_LINES[n];
+      if (line.z) say(fig, landingBubble, line.z, { pose: "neutral", move: "nod" });
+      if (line.n && landingZinni) zinniType(landingZinni.bubble, landingZinni.fig, line.n, line.z ? line.z.length * CHAR_MS + 700 : 0);
+      return;
+    }
     fig.classList.add(pick[0]); setTimeout(() => fig.classList.remove(pick[0]), pick[1] + 40);
   }
   function startIdle(fig) {
@@ -2419,22 +2456,26 @@
         <div class="hero-offer"><span class="offer-tag">Free</span><span>No account, no card, no sales call. A minute from now you'll know if your stack is costing you money, and the report is yours to keep.</span></div>
         <div class="entry-one"><button type="button" class="btn btn-primary btn-lg" id="start-diag">Start my business diagnostic</button><span>Seven taps. About a minute. Your report and your estimated opportunity are on the last screen.${webinarOn() ? ` Then see the fix live: <a class="hero-link" data-track="cta_webinar" href="${esc(webinarUrl())}" target="_blank" rel="noopener">${esc(CFG.webinar.title)}${CFG.webinar.when ? ", " + esc(CFG.webinar.when) : ""}</a>.` : ""}</span></div>
         </div>
-        <div class="hero-figure"><div class="zemi-hello" id="hero-hello"></div>${zemiFigure("zemi-fig", "hero-zemi")}<div class="zemi-shadow" aria-hidden="true"></div></div>
+        <div class="hero-figure duo"><div class="zemi-hello" id="hero-hello"></div>${zemiFigure("zemi-fig", "hero-zemi")}<div class="zemi-shadow" aria-hidden="true"></div><div class="zemi-hello zinni-hello" id="hero-hello-z"></div>${zemiFigure("zemi-fig zinni-fig", "hero-zinni", "", "Zinni, RevRing's purple chameleon")}<div class="zemi-shadow zinni-shadow" aria-hidden="true"></div></div>
       </section>`;
-    const hf = app.querySelector(".zemi-fig"), hb = app.querySelector(".zemi-hello"), host = app.querySelector(".hero-figure");
-    const hello = "Ay, how you doin'. I'm Zimmi. Chameleon, part-time magician. Watch the hat. I change color with your stack. Red's bad. Blue's good. Zinni does the math. Sixty seconds, and I make the bad part disappear.";
+    const hf = $("#hero-zemi"), hb = $("#hero-hello"), host = app.querySelector(".hero-figure");
+    const zf = $("#hero-zinni"), zb = $("#hero-hello-z");
+    const hello = "Ay, how you doin'. I'm Zimmi. Chameleon, part-time magician. Watch the hat. I change color with your stack. Red's bad. Blue's good. Sixty seconds, and I make the bad part disappear.";
+    const helloZ = "And I'm Zinni. I do the math. He makes things disappear. I make them add up.";
     let leaving = false;
     const magicStart = () => {
       if (leaving) return; leaving = true;
       const btn = $("#start-diag"); if (btn) btn.disabled = true;
       if (REDUCE || !hf) return startMode("diag");
       clearInterval(idleTimer); talkFig = hf; typeInto(hb, "Watch this.");
+      if (zf && zb) zinniType(zb, zf, "Here we go.", 350);
       hf.classList.remove("tada", "trick", "look", "nod", "sway");
       setPose(hf, "wand");
-      const c = centerIn(hf, host);
+      const c = centerIn(hf, host), cz = zf ? centerIn(zf, host) : null;
       setTimeout(() => { void hf.offsetWidth; hf.classList.add("vanish"); }, 650);
       setTimeout(() => poof(host, c.x, c.y - 30, 18), 1290);
-      setTimeout(() => startMode("diag"), 1700);
+      if (zf) { setTimeout(() => { void zf.offsetWidth; zf.classList.add("vanish"); }, 950); setTimeout(() => poof(host, cz.x, cz.y - 20, 12), 1550); }
+      setTimeout(() => startMode("diag"), 1900);
     };
     $("#start-diag").addEventListener("click", magicStart);
     const rs = $("#resume"); if (rs) rs.addEventListener("click", () => { state = saved; save(); track("resume", { step: saved.step }); draw(); });
@@ -2442,16 +2483,24 @@
     if (hf) {
       hf.style.cursor = "pointer"; talkFig = hf; startIdle(hf);
       // entrance: he pops in out of a puff of smoke, then says hello
-      landingBubble = hb; greetDone = false; lastLanding = -1;
+      landingBubble = hb; landingZinni = zf && zb ? { fig: zf, bubble: zb } : null; greetDone = false; lastLanding = -1;
       flash(hf, "appear", 900); setTimeout(() => { const c = centerIn(hf, host); poof(host, c.x, c.y, 14); }, 60);
       setTimeout(() => say(hf, hb, hello, { pose: "neutral", move: "nod" }), REDUCE ? 0 : 950); currentLine = hello;
-      setTimeout(() => { greetDone = true; }, REDUCE ? 0 : 950 + hello.length * CHAR_MS + 3000);
+      // she pops in once he has said his piece, and gets the last word
+      const helloDone = REDUCE ? 0 : 950 + hello.length * CHAR_MS + 500;
+      if (zf && zb) { zf.classList.add("waiting"); setTimeout(() => { zf.classList.remove("waiting"); flash(zf, "appear", 900); setTimeout(() => { const c = centerIn(zf, host); poof(host, c.x, c.y, 12); }, 60); zinniType(zb, zf, helloZ, REDUCE ? 0 : 900); }, helloDone); }
+      setTimeout(() => { greetDone = true; }, helloDone + (REDUCE ? 0 : 900 + helloZ.length * CHAR_MS + 2500));
       // hover: a hat tip and a hello. click: a trick with a line that matches it.
       let lastTada = 0;
       const ACTS = ["Nothin' up my sleeve. I don't got sleeves.", "Every tap gets you closer. Blue is the goal.", "The hat's real. The magic's the setup.", "You tapped a chameleon. Bold move.", "I don't bite. I blend.", "Pick a card. Any card. Actually, pick the button."];
       let lastAct = -1;
       hf.addEventListener("mouseenter", () => { const now = Date.now(); if (now - lastTada < 3000 || leaving || !greetDone) return; lastTada = now; say(hf, hb, "Ay, how you doin'."); });
       hf.addEventListener("click", () => { if (leaving || !greetDone) return; lastTada = Date.now(); let n; do { n = Math.floor(Math.random() * ACTS.length); } while (n === lastAct); lastAct = n; say(hf, hb, ACTS[n], { move: "nod" }); });
+      if (zf && zb) {
+        const ZACTS = ["I count. That's the whole personality.", "You tapped the accountant. Bold.", "Numbers don't have feelings. I do, a little.", "Blue is the goal. Cheaper is the bonus.", "I show my work. Ask him if he does."];
+        let lastZ = -1; zf.style.cursor = "pointer";
+        zf.addEventListener("click", () => { if (leaving || !greetDone) return; let n; do { n = Math.floor(Math.random() * ZACTS.length); } while (n === lastZ); lastZ = n; flash(zf, "nod", 1000); zinniType(zb, zf, ZACTS[n], 0); });
+      }
     }
     // the dot on the landing spectrum drifts so people see the range
     if (!REDUCE) { const dot = $("#hero-dot"); let t = 0; const cols = F.ZEMI_COLORS; const tick = () => { if (!document.body.contains(dot)) return; t += 1; const k = (Math.sin(t / 22) + 1) / 2; const c = F.zemiColor(k); dot.style.left = (98 - k * 96) + "%"; dot.style.setProperty("--zc", c.hex); heroTimer = setTimeout(tick, 60); }; clearTimeout(heroTimer); heroTimer = setTimeout(tick, 900); }
