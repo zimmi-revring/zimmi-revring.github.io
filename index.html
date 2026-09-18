@@ -1334,13 +1334,51 @@
     worth: "Almost there. Now think about it. What would make a change actually worth it to you? Up to three.",
     report: "Where do I send ya report? It's on the next screen either way. I ain't holdin' it hostage."
   };
+  // Zinni: the numbers half. Sharp, quick, exact, and she does not let anyone off easy, Zimmi included. Every line is built from what the form already knows.
   const ZINNI = {
-    intro: "Hi. I'm Zinni. I count. What does the whole stack run per agent a month, and how many hours a week go to hopping between tools? Ballpark is fine. I show my work at the end.",
-    react: a => {
+    stack: a => {
+      const seats = seatCount(a), crm = crmDisplay(a), dialer = dialerDisplay(a);
+      const tools = (a.tools || []).filter(t => t !== "crm" && t !== "dialer" && t !== "missing");
+      const SHORT = { sms: "texting", email: "email", marketplace: "lead vendors", quoting: "quoting", pipeline: "a pipeline tool", recording: "call recording", scoring: "AI scoring", compliance: "DNC scrubbing", reporting: "a reporting dashboard", training: "a training platform", other: "something else" };
+      const list = [];
+      if (crm) list.push(crm + (num(a.crm_cost) ? " at about " + money(Number(a.crm_cost), 0) + " a user" : ""));
+      if (dialer) list.push(dialer + (crm ? " on top" : ""));
+      if (tools.length) { const names = tools.slice(0, 2).map(t => SHORT[t] || t); list.push("plus " + (tools.length > 2 ? names[0] + ", " + names[1] + " and " + (tools.length - 2) + " more" : names.join(" and "))); }
+      const sent = [seats === 1 ? "just you" : seats ? seats + " seats" : "a team"];
+      if (list.length) sent[0] += ", " + list.join(", ");
+      sent[0] += ".";
+      if (!crm && a.crm_name === "none") sent.push("No CRM, so a spreadsheet is doing a CRM's job.");
+      if (!dialer && a.dialer_name === "none") sent.push("No dialer, so cell phones.");
+      const bills = (crm ? 1 : 0) + (dialer ? 1 : 0) + tools.length;
+      return { text: sent.join(" "), bills };
+    },
+    intro: a => {
+      const st = ZINNI.stack(a);
+      const bills = st.bills >= 3 ? " " + ["", "", "", "Three", "Four", "Five", "Six", "Seven", "Eight"][Math.min(8, st.bills)] + " bills before anybody dials. Cute." : st.bills === 2 ? " Two bills before anybody dials." : "";
+      return "Finally. Zinni. I do the math, he does the hat. So far: " + st.text + bills + " What does all of it run per agent a month, and how many hours a week go to hopping between all of it? Ballpark is fine. I'll be exact later.";
+    },
+    react: (a, cfg) => {
       if (!a.cost) return null;
-      const h = { "10p": " Ten plus hours a week hopping tools. A selling day, gone. Counting it.", "5_10": " Five to ten hours a week hopping tools. Selling time. Counting it.", "2_5": " A few hours a week hopping tools. Adds up. Counting it.", u2: " Under two hours a week. Tight. Good.", none: " Almost no hours lost. I'll take your word for it.", unknown: " Hours lost, nobody counting. Most common answer I get. I'll flag it, I won't invent a number." }[a.hours] || "";
-      const c = a.cost === "unknown" ? "Not sure is an honest answer. I'll show the plan price straight and leave the savings line blank. No made-up number." : (a.spend_exact ? money(Number(a.spend_exact), 0) + " a month for the whole stack" : COST_LABEL[a.cost] + " per agent") + ". Noted. Goes next to one login on the last screen, base licenses only.";
-      return c + h;
+      const fit = computeFit(a, cfg), c = fit.calc, seats = c.seats;
+      const crm = crmDisplay(a);
+      const build = "RevRing " + cfg.plans[fit.plan].name + (fit.crm === "add" ? " with RevRing CRM" : crm ? " with " + crm + " connected" : "");
+      const seatsTxt = seats === 1 ? "one seat" : seats + " seats", forN = seats === 1 ? "" : " for " + seats;
+      let m;
+      if (c.currentPerUser == null) m = "Not sure. Honest, and I'd rather have honest than a guess. " + build + " is " + money(c.basePerUser) + " a seat, about " + money(c.baseMonthly, 0) + " a month" + forN + ". Find one invoice later and the savings line fills itself in. I'll wait.";
+      else {
+        const said = c.currentSource === "exact" ? money(c.currentMonthly, 0) + " a month across " + seatsTxt + " is " + money(c.currentPerUser, 0) + " a user." : COST_LABEL[a.cost] + " per agent. Call it " + money(c.currentPerUser, 0) + (seats > 1 ? ", times " + seats + " seats is about " + money(c.currentMonthly, 0) + " a month." : " a month.");
+        if (c.savings > 0) m = said + " " + build + " is " + money(c.basePerUser) + " a seat" + (seats > 1 ? ", " + money(c.baseMonthly, 0) + forN : "") + ". That's about " + money(c.savings, 0) + " a month back on licenses alone. You're welcome. It's in writing on the last screen.";
+        else m = said + " " + build + " is " + money(c.basePerUser) + " a seat, so on licenses you'd spend about " + money(Math.abs(c.savings), 0) + " more a month" + forN + ". I'm not going to pretend otherwise, I have standards. The case here is one login and the hours.";
+      }
+      const hm = c.hoursMonthly, team = hm != null ? Math.round(hm * seats) : null;
+      const each = seats > 1 ? " each" : "";
+      const h = { "10p": hm != null ? " Ten plus hours a week" + each + ". Call it " + hm + " a month" + (seats > 1 ? ", times " + seats + " seats is about " + team + " hours a month" : "") + ". Somebody's paying for that, and it's you. Counting it." : "",
+        "5_10": hm != null ? " Five to ten hours a week" + each + ". Call it " + hm + " a month" + (seats > 1 ? ", times " + seats + " seats is about " + team + " hours a month hopping between tabs. That's not a rounding error, that's a hire." : ". That's four selling days.") + " Counting it." : "",
+        "2_5": hm != null ? " Two to five hours a week" + each + ", call it " + hm + " a month" + (seats > 1 ? ", about " + team + " across the team" : "") + ". Adds up. Counting it." : "",
+        u2: " Under two hours a week. Tight. I'm impressed, and I don't say that.",
+        none: " Almost no hours lost. Fine. Then this is a money conversation only, and I'm good at those.",
+        unknown: " Hours lost, nobody counting. Most common answer I get, and the most expensive one. I'll flag it. I won't invent a number." }[a.hours] || "";
+      return m + h;
     }
   };
   const INSIGHTS = {
@@ -1350,7 +1388,7 @@
     seats: a => { const n = SEAT_MID[a.seats]; if (!n) return null; if (n === 1) return "Just you. Then the system does the paperwork and you do the talkin'. On the phones, where you belong."; if (n <= 5) return "Small crew. Consistency comes from the setup, not from naggin'. Noted."; if (n <= 10) return "Now managers matter. I'm writin' that down."; return "That's a floor. From here, seein' it matters as much as dialin' it."; },
     crm_feel: a => ({ love: "You love it. Then ya keep it. I connect to it, no charge. I'm not jealous. Okay, a little.", good: "Good enough is fine. I'll show ya what it looks like hooked up to me.", expensive: "Pricey, but it works. I'll put it next to my CRM and let you decide.", frustrating: "Frustratin'. Every click of that thing is a tax on your agents. I got a fix.", barely: "A CRM nobody opens is a bill, not a system. I can be the system.", none: "No CRM. So leads live in your head, and your head is a terrible pipeline. No offense. That's what mine's for." })[a.crm_feel] || null,
     crm_keep: a => ({ yes: "Keepin' it. Respect.", maybe: "Maybe. I'll show ya both roads.", no: "Consolidate. My favorite word." })[a.crm_keep] || null,
-    cost: a => { if (!a.cost) return null; return a.cost === "unknown" ? "Told ya. No judgment. She'll still build it straight." : "See that? Nothin' gets past her. That's why she does the numbers and I do the hat."; },
+    cost: a => { if (!a.cost) return null; return a.cost === "unknown" ? "Told ya. No judgment. She'll still build it straight, she just won't let me round." : "See that? Nothin' gets past her. I tried once. Once."; },
     arq2: a => ({ ready: "Ready. And look at that, I'm blue again. Next screen is your setup, and the button after that is the real thing.", numbers: "Numbers on the next screen. Real ones, from your answers, not mine.", team: "Bring the crew. Your report comes wit' a summary you can forward.", no: "No reason not to. Then the only thing left is the build." })[a.arq2] || null,
     crm_name: a => a.crm_name === "none" ? "Spreadsheets. I seen worse. Barely. Here's the thing: RevRing CRM puts contacts, pipeline, tasks and every call outcome in the same place ya dial, and the follow ups fire themselves. That's the whole fix for ya." : a.crm_name ? "Okay. Two ways this goes. Keep it, I hook to it for free and every call, text and recording writes back to the contact. Or fold it into RevRing CRM and the pipeline sits on the same screen as the dial. Tell me how it's goin' and I'll pick." : null,
     dialer_name: a => a.dialer_name === "none" ? "Cell phones. No recordings, no numbers you control, no coachin'. We fix that first." : a.dialer_name ? "Noted. I can sit right next to that on your setup call." : null,
@@ -2515,7 +2553,7 @@
       ${leanHtml}`;
     showDock(zemiLine, mood, q.id + ":" + (insight ? "r" : "i"), heat);
     // the money screen is a duet: Zimmi hands off, Zinni asks, Zinni answers. She waits for him to finish talking.
-    if (q.id === "cost") zinniSay(insight ? F.ZINNI.react(a) : F.ZINNI.intro, REDUCE ? 0 : zemiLine.length * CHAR_MS + 500); else zinniSay("");
+    if (q.id === "cost") zinniSay(insight ? F.ZINNI.react(a, CFG) : F.ZINNI.intro(a), REDUCE ? 0 : zemiLine.length * CHAR_MS + 500); else zinniSay("");
     $("#stage").classList.toggle("contact-step", isLast);
 
     // A tap on this same question updates the screen in place. Nothing is rebuilt, so the page never moves under the thumb.
@@ -2540,7 +2578,7 @@
       const leanHtml2 = lean2 && !isLast ? `<div class="lean"><span class="eyebrow">Building</span><b>RevRing ${esc(CFG.plans[lean2].name)}</b><span class="muted small">Keep going. The last answers set the details.</span></div>` : "";
       if (leanEl && !leanHtml2) leanEl.remove(); else if (leanEl) leanEl.outerHTML = leanHtml2; else if (leanHtml2) app.insertAdjacentHTML("beforeend", leanHtml2);
       showDock(insight2 || intro, F.zemiMood(a2), q.id + ":" + (insight2 ? "r" : "i"), heat2);
-      if (q.id === "cost") zinniSay(insight2 ? F.ZINNI.react(a2) : F.ZINNI.intro, REDUCE ? 0 : (insight2 || intro).length * CHAR_MS + 500);
+      if (q.id === "cost") zinniSay(insight2 ? F.ZINNI.react(a2, CFG) : F.ZINNI.intro(a2), REDUCE ? 0 : (insight2 || intro).length * CHAR_MS + 500);
     };
 
     lastTapped = null;
