@@ -475,6 +475,7 @@
     .hero-copy > .eyebrow { order: 1; font-size: 11px; }
     .hero-copy > h1 { order: 2; font-size: clamp(27px, 7.6vw, 34px); line-height: 1.12; max-width: none; margin-top: 8px; }
     .hero-figure { order: 3; min-height: 0; margin-top: 14px; padding-top: 0; }
+    .hero-copy > .hero-offer { order: 4; margin-top: 12px; font-size: 13.5px; }
     .hero-copy > .entry-one { order: 4; margin-top: 10px; padding-bottom: 6px; flex-direction: column; align-items: stretch; gap: 8px; }
     .hero-copy > .entry-one .btn { width: 100%; font-size: 17px; padding: 15px 20px; }
     .hero-copy > .entry-one span { text-align: center; font-size: 13px; }
@@ -647,6 +648,8 @@
   .entry-one { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; margin-top: 24px; }
   .entry-one .btn { font-size: 17px; padding: 15px 26px; }
   .entry-one span { font-size: 14px; color: var(--band-muted); }
+  .hero-offer { display: flex; align-items: flex-start; gap: 12px; margin-top: 18px; padding: 12px 14px; border-radius: 12px; background: rgba(255,255,255,.06); border: 1px dashed rgba(143,219,255,.55); font-size: 14px; line-height: 1.45; color: var(--band-muted); max-width: 58ch; }
+  .offer-tag { flex: 0 0 auto; margin-top: 1px; padding: 4px 10px; border-radius: 999px; background: #8fdbff; color: var(--navy); font-weight: 800; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; }
 
   /* Verdict: what color they turned Zimmi, and what turns him back */
   .verdict { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; margin-top: 14px; }
@@ -736,51 +739,30 @@
   .zemi-layer > .zemi-jaw, .zemi-layer > .zemi-shine, .zemi-layer > .zemi-lids { position: absolute; inset: 0; width: 100%; height: 100%; }
   .zemi-layer > .zemi-jaw { -webkit-mask-image: radial-gradient(ellipse var(--mrx, 15%) var(--mry, 6%) at var(--mx, 46.5%) var(--my, 30.8%), #000 45%, transparent 80%); mask-image: radial-gradient(ellipse var(--mrx, 15%) var(--mry, 6%) at var(--mx, 46.5%) var(--my, 30.8%), #000 45%, transparent 80%); }
 
-  /* ---------- Results: two doors ---------- */
-  .doors-band h1 { max-width: none !important; }
-  .doors-band .diag { max-width: none !important; }
-  .doors { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 22px; }
-  @media (max-width: 820px) { .doors { grid-template-columns: 1fr; } }
-  .door { position: relative; border-radius: 16px; padding: 22px 22px 0; overflow: hidden; min-height: 420px; display: flex; flex-direction: column; border: 1px solid rgba(255,255,255,.12); }
-  .door.bad { background: linear-gradient(160deg, rgba(239,68,68,.22), rgba(239,68,68,.06) 60%, rgba(0,0,0,0)); border-color: rgba(239,68,68,.45); }
-  .door.good { background: linear-gradient(160deg, rgba(22,132,232,.32), rgba(22,132,232,.1) 60%, rgba(0,0,0,0)); border-color: rgba(56,189,248,.6); box-shadow: 0 0 0 1px rgba(56,189,248,.25), 0 18px 50px rgba(22,132,232,.25); }
-  .door h2 { margin: 12px 0 2px; font-size: clamp(22px, 2.6vw, 30px); color: #fff; }
-  .door.bad h2 { color: #fecaca; }
-  .door.good h2 { color: #bfe5ff; }
-  .door-sub { color: var(--band-muted); font-size: 15px; margin: 0 0 12px; }
-  .door-sub b { color: #fff; }
-  .door-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; font-size: 14.5px; color: #e3ecf8; max-width: 60%; position: relative; z-index: 1; }
-  .door-list li { padding-left: 16px; position: relative; }
-  .door-list li::before { content: ""; position: absolute; left: 0; top: 8px; width: 7px; height: 7px; border-radius: 50%; background: var(--dot, #8fdbff); }
-  .door.bad .door-list li::before { --dot: #f87171; }
-  .door.good .door-list li::before { --dot: #38bdf8; }
-  .door-cta { margin-top: 18px; align-self: flex-start; position: relative; z-index: 2; font-size: 17px; padding: 14px 24px; box-shadow: 0 10px 30px rgba(0,0,0,.35); }
-  .door-alt { display: inline-block; margin: 10px 0 18px; color: #bfe5ff; font-size: 14px; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; position: relative; z-index: 2; align-self: flex-start; }
-  .door .zemi-door { position: absolute; right: -6px; bottom: -8px; height: 62%; width: fit-content; z-index: 0; }
-  /* the tint sits on the picture itself, not the wrapper: phones drop wrapper filters over layered images and Zimmi came out blue */
-  .door .zemi-door .zemi-layer > .zemi-img:first-child { filter: drop-shadow(0 12px 24px rgba(0,0,0,.45)) hue-rotate(var(--rot, 0deg)) saturate(var(--sat, 1)); }
-  .door .zemi-door .zemi-layer > .zemi-lids { filter: hue-rotate(var(--rot, 0deg)) saturate(var(--sat, 1)); }
-  .door .zemi-door .zemi-jaw, .door .zemi-door .zemi-shine { display: none; }
-  @media (max-width: 820px) { .door .zemi-door .zemi-layer > .zemi-img:first-child { filter: hue-rotate(var(--rot, 0deg)) saturate(var(--sat, 1)); } }
-  @media (max-width: 820px) { .door { min-height: 0; padding-bottom: 0; } .door .zemi-door { position: static; height: 210px; margin: 14px auto 0; } .door-list { max-width: 100%; } .door-cta { align-self: stretch; text-align: center; } }
+  /* ---------- Results: one card, two buttons ---------- */
+  .result h1 { max-width: none !important; margin: 6px 0 8px; font-size: clamp(24px, 3.4vw, 34px); line-height: 1.15; }
+  .result h1 b { color: var(--zc, #8fdbff); }
+  .result-top { display: flex; gap: 18px; align-items: flex-start; }
+  .result-top .zemi-av { width: 76px; height: 76px; flex: 0 0 76px; box-shadow: 0 8px 22px rgba(0,0,0,.4); }
+  .result-txt { min-width: 0; flex: 1; }
+  .result-line { margin: 0; font-size: 16px; line-height: 1.45; color: var(--band-muted); max-width: 60ch; }
+  .result-money { margin: 20px 0 0; font-size: 17px; line-height: 1.55; color: #fff; max-width: 64ch; padding: 14px 16px; border-radius: 12px; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.14); }
+  .result-money b { color: #8fdbff; }
+  .result-fixes { margin-top: 18px; }
+  .result-fixes .eyebrow { display: block; margin-bottom: 8px; }
+  .result-fixes ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+  .result-fixes li { display: inline-flex; align-items: center; gap: 8px; padding: 7px 13px; border-radius: 999px; background: rgba(22,132,232,.2); border: 1px solid rgba(56,189,248,.45); color: #e3ecf8; font-size: 14px; font-weight: 600; }
+  .result-fixes li::before { content: "\2713"; color: #8fdbff; font-weight: 800; }
+  .result-ctas { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
+  .result-ctas .btn { text-decoration: none; }
+  .result-ctas .btn-light { box-shadow: 0 10px 30px rgba(0,0,0,.35); }
+  .result-note { margin: 14px 0 0; font-size: 13.5px; line-height: 1.45; color: var(--band-muted); max-width: 64ch; }
+  .result-links { display: flex; justify-content: center; flex-wrap: wrap; gap: 4px 22px; margin-top: 14px; }
+  .result-links button { background: none; border: 0; padding: 6px 4px; color: var(--muted); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; font-size: 14px; cursor: pointer; }
+  .result-links button:hover { color: var(--ink); }
+  @media (max-width: 640px) { .result-top { gap: 12px; } .result-top .zemi-av { width: 56px; height: 56px; flex-basis: 56px; } .result-money { font-size: 16px; padding: 12px 14px; } .result-ctas .btn { width: 100%; text-align: center; } }
   @media (max-width: 520px) { .topnav { gap: 10px; font-size: 13px; } #nav-site { display: none; } }
   .sec-head { padding: 6px 4px 0; } .sec-head h3 { margin-bottom: 4px; } .sec-head .sub { color: var(--muted); font-size: 14px; margin: 0; }
-  .verdict-sec { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); padding: 22px 24px; margin-bottom: 16px; }
-  .verdict-in { display: flex; gap: 18px; align-items: flex-start; }
-  .verdict-in .zemi-av { width: 64px; height: 64px; flex: 0 0 64px; }
-  .verdict-txt { min-width: 0; flex: 1; }
-  .verdict-txt h2 { margin: 4px 0 12px; font-size: clamp(19px, 2.4vw, 24px); line-height: 1.25; }
-  .opps { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; counter-reset: opp; }
-  .opps li { display: grid; grid-template-columns: 30px 1fr; gap: 10px; align-items: start; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-2); counter-increment: opp; }
-  .opps li::before { content: counter(opp); width: 26px; height: 26px; border-radius: 50%; background: var(--primary-strong); color: #fff; font-weight: 800; font-size: 13px; display: inline-flex; align-items: center; justify-content: center; grid-row: 1 / span 2; }
-  .opps li b { font-size: 15px; }
-  .opps li span { display: block; grid-column: 2; color: var(--ink-2); font-size: 14px; line-height: 1.45; }
-  .next-step { margin: 14px 0 10px; font-size: 15.5px; }
-  .next-ctas { display: flex; flex-wrap: wrap; gap: 10px; }
-  .next-ctas .btn { text-decoration: none; }
-  .next-alt { margin: 10px 0 0; font-size: 14px; }
-  .next-link { color: var(--primary); font-weight: 600; text-decoration: underline; background: none; border: 0; padding: 0; font: inherit; cursor: pointer; }
-  @media (max-width: 640px) { .verdict-sec { padding: 16px; } .verdict-in { gap: 12px; } .verdict-in .zemi-av { width: 48px; height: 48px; flex-basis: 48px; } .next-ctas .btn { width: 100%; text-align: center; } }
   .webinar { margin-top: 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); padding: 18px 20px; }
   .webinar-in { display: flex; align-items: center; justify-content: space-between; gap: 18px; flex-wrap: wrap; }
   .webinar-txt { flex: 1 1 360px; min-width: 0; }
@@ -792,8 +774,6 @@
   .hero-link { color: var(--accent); font-weight: 600; text-decoration: underline; }
   .back-row { text-align: center; margin-top: 10px; }
   .back-row button { background: none; border: 0; padding: 6px 10px; color: var(--muted); font-weight: 600; text-decoration: underline; font-size: 14px; cursor: pointer; }
-  .breakdown-toggle { display: flex; justify-content: center; margin: 18px 0 6px; }
-  .breakdown-toggle .btn { font-size: 16px; }
   .reasons.dark-on-light li { color: var(--ink-2); }
   .reasons.dark-on-light li b { color: var(--ink); }
   .reasons.dark-on-light .n { background: var(--tint); color: var(--primary-ink); }
@@ -929,9 +909,9 @@
   "webhookAuthHeader": "",
   "ctas": {
     "build": "Start RevRing",
-    "review": "Reserve my seat",
+    "review": "See the live demo",
     "email": "Email my report",
-    "webinar": "Reserve my seat",
+    "webinar": "See the live demo",
     "recs": "Get my recommendations",
     "setup": "Have RevRing set it up with me"
   },
@@ -2354,6 +2334,7 @@
           <div><b>Consolidate</b><span>The pieces that overlap become one.</span></div>
           <div><b>Add</b><span>What you are missing turns on.</span></div>
         </div>
+        <div class="hero-offer"><span class="offer-tag">Free</span><span>No account, no card, no call. You keep the written report: what you pay per seat today, what one login would cost, and what to keep, connect, consolidate and add.</span></div>
         <div class="entry-one"><button type="button" class="btn btn-primary btn-lg" id="start-diag">Start my business diagnostic</button><span>Seven taps. About a minute. Your report and your estimated opportunity are on the last screen.${webinarOn() ? ` Then see the fix live: <a class="hero-link" data-track="cta_webinar" href="${esc(webinarUrl())}" target="_blank" rel="noopener">${esc(CFG.webinar.title)}${CFG.webinar.when ? ", " + esc(CFG.webinar.when) : ""}</a>.` : ""}</span></div>
         </div>
         <div class="hero-figure"><div class="zemi-hello" id="hero-hello"></div>${zemiFigure("zemi-fig", "hero-zemi")}<div class="zemi-shadow" aria-hidden="true"></div></div>
@@ -2735,94 +2716,49 @@
     const fitLabel = "RevRing " + planName + (fit.crm === "add" ? " plus CRM" : " plus your CRM");
     const col = fit.color, blue = F.zemiColor(0);
     const sp = F.stackPlan(a, fit, CFG), op = F.opportunity(a, fit), bs = F.buildSheet(a, fit, CFG);
-    const ctas = Object.assign({ build: "Start RevRing", review: "Reserve my seat", email: "Email my report", webinar: "Reserve my seat", recs: "Get my recommendations", setup: "Have RevRing set it up with me" }, CFG.ctas || {});
+    const ctas = Object.assign({ build: "Start RevRing", review: "See the live demo", email: "Email my report", webinar: "See the live demo", recs: "Get my recommendations", setup: "Have RevRing set it up with me" }, CFG.ctas || {});
     const lead = fit.lead || "WARM";
 
-    const bookUrl = withUtm(CFG.links.review || CFG.links.bookDemo, { name: [a.first_name, a.last_name].filter(Boolean).join(" "), email: a.email, diag: SID });
+    const fullName = [a.first_name, a.last_name].filter(Boolean).join(" ");
+    const bookUrl = withUtm(CFG.links.review || CFG.links.bookDemo, { name: fullName, email: a.email, diag: SID });
     const signupUrl = withUtm(CFG.links.signup, { plan: fit.plan, crm: fit.crm === "add" ? "revring" : "keep", seats: c.seats, diag: SID, rep: ATTR.first.rep || ATTR.latest.rep || undefined, c: ATTR.first.campaign_code || ATTR.latest.campaign_code || undefined });
     const brief = summaryText(fit);
     const shareUrl = location.href.split("#")[0].split("?")[0];
     const shareText = "Zimmi went " + col.name + " on my stack. Sixty seconds. See what color you get:";
-    const offer = CFG.offer || {};
-    const offerHtml = offer.points && offer.points.length ? `<section class="offer"><div class="eyebrow">How you start</div><h3>${esc(offer.headline || "Start today.")}</h3><ul class="offer-list">${offer.points.map(x => `<li>${esc(x)}</li>`).join("")}${offer.bonus ? `<li class="bonus">${esc(offer.bonus)}</li>` : ""}</ul>${offer.proofLine ? `<p class="fineprint">${esc(offer.proofLine)}</p>` : ""}</section>` : "";
     const kc = (key, title, sub, items, empty) => `<div class="kc ${key}"><div class="kc-h"><b>${title}</b><span>${items.length ? items.length : ""}</span></div><div class="kc-sub">${sub}</div>${items.length ? `<ul>${items.map((x, i) => `<li class="lit-in" style="animation-delay:${200 + i * 90}ms"><b>${esc(x.t)}</b><span>${esc(x.d)}</span></li>`).join("")}</ul>` : `<div class="kc-empty">${empty}</div>`}</div>`;
-    // Estimated opportunity: shown only when they gave a number that produces one. Nothing is shown for a blank.
-    const showDollars = op.dollars != null && op.dollars > 0, showHours = op.hours != null && op.hours > 0;
-    const oppHtml = (showDollars || showHours) ? `<section class="opp"><div class="eyebrow">Estimated opportunity</div>
-          <div class="opp-row">
-            ${showDollars ? `<div><div class="v num">${money(op.dollars, 0)}<small>/ month</small></div><div class="d">On base licenses, from your own numbers. Usage not included on either side.</div></div>` : ""}
-            ${showHours ? `<div><div class="v num">${op.hours}<small>hours / month</small></div><div class="d">Lost to switching between systems today, from what you said. That time goes back on the phone.</div></div>` : ""}
-          </div>
-          <details class="math"><summary>How this was calculated</summary><ol>${op.lines.filter(l => showDollars || !/^(Today|RevRing base|Difference|On base)/.test(l)).map(l => `<li>${esc(l)}</li>`).join("")}</ol></details>
-          <p class="fineprint" style="margin-top:12px">An estimate from your answers, not a quote. Nothing here is a guarantee.</p>
-        </section>` : "";
-    const choices = `<div class="choices">
-        <a class="choice primary" href="${esc(signupUrl)}" target="_blank" rel="noopener"><b>${esc(ctas.build)}</b><span>Start ${esc(fitLabel)} with this build sheet. Your RevRing contact already has it.</span><span class="go">Go &rarr;</span></a>
-        <a class="choice" href="${esc(bookUrl)}" target="_blank" rel="noopener"><b>${esc(ctas.review)}</b><span>See RevRing live with the team before you decide anything. Bring this report.</span><span class="go">Pick a time &rarr;</span></a>
-        <button type="button" class="choice" id="cta-email"><b>${esc(ctas.email)}</b><span>Opens your email with the full report addressed to you and a copy to your RevRing contact.</span><span class="go">Send it &rarr;</span></button>
-      </div>`;
-
-    // Two doors: stay with what you have (red) or get on board (blue). Everything else lives under the breakdown button.
-    const sysN = F.systemsKey(a) ? (F.systemsKey(a) === "5p" ? "5 or more" : F.systemsKey(a)) : null;
-    const today = [];
-    if (sysN) today.push(sysN + " system" + (sysN === "1" ? "" : "s") + ", " + sysN + " login" + (sysN === "1" ? "" : "s") + ", " + (sysN === "1" ? "one bill" : sysN + " bills"));
-    if (c.currentPerUser != null) today.push(money(c.currentPerUser, 0) + " per user a month" + (c.currentMonthly ? ", about " + money(c.currentMonthly, 0) + " for the team" : ""));
-    if (c.hoursMonthly != null && c.hoursMonthly > 0) today.push("About " + c.hoursMonthly + " hours a month lost to switching between it all"); else if (a.hours === "unknown") today.push("Hours lost to switching: significant, uncounted");
-    (a.pains || []).slice(0, 3).forEach(pn => today.push(F.PAIN_LABEL[pn]));
-    if (!today.length) today.push("A stack that runs on people remembering things");
-    const fixesShort = fit.fixes.slice(0, 3).map(r => r.h);
     const seatsTxt = c.seats + " seat" + (c.seats === 1 ? "" : "s");
-    // Zimmi's verdict: what the answers mean and the one next action, decided by how ready they said they are
-    const opps = fit.fixes.slice(0, 3);
-    const setupUrl = withUtm(CFG.links.review || CFG.links.bookDemo, { name: [a.first_name, a.last_name].filter(Boolean).join(" "), email: a.email, diag: SID, setup: "1" });
-    const webOn = webinarOn();
-    const nextStep = lead === "HOT"
-      ? { line: "You said you're ready, so I'm not gonna make ya sit through a tour. Start RevRing now, or grab a seat and see it live with the RevRing team first.", primary: ["cta_build", signupUrl, ctas.build], secondary: ["cta_review", bookUrl, ctas.review], tertiary: webOn ? ["cta_webinar", webinarUrl({ name: [a.first_name, a.last_name].filter(Boolean).join(" "), email: a.email }), "Or see it live first: " + ctas.webinar] : null }
-      : lead === "WARM"
-        ? { line: webOn ? "You've identified " + opps.length + " opportunit" + (opps.length === 1 ? "y" : "ies") + " to improve your business. See how RevRing addresses them live, then decide." : "You've identified " + opps.length + " opportunit" + (opps.length === 1 ? "y" : "ies") + " to improve your business. Grab a seat and see exactly how RevRing handles each one, live, then decide.", primary: webOn ? ["cta_webinar", webinarUrl({ name: [a.first_name, a.last_name].filter(Boolean).join(" "), email: a.email }), ctas.webinar] : ["cta_review", bookUrl, ctas.review], secondary: ["cta_build", signupUrl, ctas.build], tertiary: ["cta_setup", setupUrl, "Not ready to do it yourself? " + ctas.setup] }
-        : { line: "No rush. Get the full recommendations below, keep them, and when the timing's right the fix is a click away.", primary: ["recs", "#breakdown", ctas.recs], secondary: webOn ? ["cta_webinar", webinarUrl({ name: [a.first_name, a.last_name].filter(Boolean).join(" "), email: a.email }), ctas.webinar] : ["cta_review", bookUrl, ctas.review], tertiary: ["cta_setup", setupUrl, "Or skip the homework: " + ctas.setup] };
-    const cta = (k, cls) => k ? (k[0] === "recs" ? `<button type="button" class="${cls}" id="cta-recs">${esc(k[2])}</button>` : `<a class="${cls}" data-track="${k[0]}" href="${esc(k[1])}" target="_blank" rel="noopener">${esc(k[2])}</a>`) : "";
-    const verdictHtml = `
-      <section class="verdict-sec">
-        <div class="verdict-in">
-          <img class="zemi-av" src="${ZEMI_AV}" alt="" style="--rot:${heatRot(col.heat)}">
-          <div class="verdict-txt">
-            <span class="eyebrow">What your answers mean</span>
-            <h2>Zimmi is ${esc(col.name)} on your stack, ${esc(name)}. Here's why, and what to do about it.</h2>
-            <ol class="opps">${opps.map((o, i) => `<li class="lit-in" style="animation-delay:${150 + i * 110}ms"><b>${esc(o.h)}</b><span>${esc(o.t)}</span></li>`).join("")}</ol>
-            <p class="next-step"><b>Your next step.</b> ${esc(nextStep.line)}</p>
-            <div class="next-ctas">${cta(nextStep.primary, "btn btn-primary btn-lg")}${cta(nextStep.secondary, "btn btn-ghost btn-lg")}</div>
-            ${nextStep.tertiary ? `<p class="next-alt">${cta(nextStep.tertiary, "next-link")}</p>` : ""}
-          </div>
-        </div>
-      </section>`;
-    app.innerHTML = verdictHtml + `
-      <section class="band doors-band glow-once">
-        <div class="eyebrow">Your business diagnostic</div>
-        <h1>${esc(name)}, two doors.</h1>
-        <p class="diag">One's where you are. One's the fix. Pick.</p>
-        <div class="doors">
-          <div class="door bad">
-            <span class="zc-big" style="--zc:${col.hex}"><i></i>Today: Zimmi is <b>${esc(col.name)}</b></span>
-            <h2>Stay with what you have</h2>
-            <p class="door-sub">and keep struggling with it.</p>
-            <ul class="door-list">${today.map(t => `<li>${esc(t)}</li>`).join("")}</ul>
-            ${zemiFigure("zemi-door", "zemi-door-bad", "--rot:" + heatRot(col.heat) + ";--sat:" + (1 + 0.35 * col.heat), "Zimmi, " + col.name)}
-          </div>
-          <div class="door good">
-            <span class="zc-big" style="--zc:${blue.hex}"><i></i>With RevRing: Zimmi is <b>${esc(blue.name)}</b></span>
-            <h2>Get on board</h2>
-            <p class="door-sub"><b>${esc(fitLabel)}</b> &middot; ${money(c.basePerUser)} per seat &middot; ${seatsTxt}</p>
-            <ul class="door-list">${fixesShort.map(t => `<li>${esc(t)}: fixed</li>`).join("")}<li>Inbound leads open from sign-up, no A2P needed</li></ul>
-            ${lead === "WARM" && webOn ? `<a class="btn btn-light btn-lg door-cta" data-track="cta_webinar" href="${esc(webinarUrl({ name: [a.first_name, a.last_name].filter(Boolean).join(" "), email: a.email }))}" target="_blank" rel="noopener">${esc(ctas.webinar)}</a><a class="door-alt" data-track="cta_build" href="${esc(signupUrl)}" target="_blank" rel="noopener">${esc(ctas.build)}</a>` : `<a class="btn btn-light btn-lg door-cta" data-track="cta_build" href="${esc(signupUrl)}" target="_blank" rel="noopener">${esc(ctas.build)}</a><a class="door-alt" data-track="cta_review" href="${esc(bookUrl)}" target="_blank" rel="noopener">${esc(ctas.review)}</a>`}
-            ${zemiFigure("zemi-door", "zemi-door-good", "--rot:0deg", "Zimmi, deep blue")}
-          </div>
-        </div>
-      </section>
 
-      ${webinarCard(fit, a)}
-      <div class="breakdown-toggle"><button type="button" class="btn btn-ghost btn-lg" id="show-breakdown" aria-expanded="false">Show the full breakdown: what I'm paying vs what I could pay</button></div>
-      <div class="back-row"><button type="button" id="back-answers">Go back and change an answer</button></div>
+    // One card: the color, one line on it, the money in one sentence, what one login fixes, two buttons. Everything else is under the breakdown.
+    const cheaper = c.currentPerUser != null && c.savings > 0;
+    let moneyHtml = c.currentPerUser == null
+      ? `<b>${esc(fitLabel)}</b> is ${money(c.basePerUser)} a seat a month on one login, ${money(c.baseMonthly)} a month for ${seatsTxt}. You did not enter what you pay today, so there is no savings figure. That is the honest answer.`
+      : cheaper
+        ? `Today you pay about <b>${money(c.currentPerUser, 0)} per user</b> a month across your stack. <b>${esc(fitLabel)}</b> is ${money(c.basePerUser)} a seat on one login, about <b>${money(c.savings, 0)} a month less</b> on base licenses for ${seatsTxt}.`
+        : `<b>${esc(fitLabel)}</b> is ${money(c.basePerUser)} a seat a month against about ${money(c.currentPerUser, 0)} you pay today. The money side is not the argument here. One login and the hours are.`;
+    if (c.hoursMonthly != null && c.hoursMonthly > 0) moneyHtml += ` You also said about <b>${c.hoursMonthly} hours a month</b> go to switching between tools. Those come back.`;
+    const fixes = fit.fixes.slice(0, 3);
+    const webOn = webinarOn();
+    const demoUrl = webOn ? webinarUrl({ name: fullName, email: a.email }) : bookUrl;
+    const buildBtn = cls => `<a class="btn ${cls}" data-track="cta_build" href="${esc(signupUrl)}" target="_blank" rel="noopener">${esc(ctas.build)}</a>`;
+    const demoBtn = cls => `<a class="btn ${cls}" data-track="${webOn ? "cta_webinar" : "cta_review"}" href="${esc(demoUrl)}" target="_blank" rel="noopener">${esc(webOn ? ctas.webinar : ctas.review)}</a>`;
+    // ready to buy: sign-up first. Everyone else: see it live first, sign-up right beside it.
+    const hot = lead === "HOT";
+    app.innerHTML = `
+      <section class="band result glow-once">
+        <div class="result-top">
+          <img class="zemi-av" src="${ZEMI_AV}" alt="" style="--rot:${heatRot(col.heat)}">
+          <div class="result-txt">
+            <span class="eyebrow">Your result</span>
+            <h1 style="--zc:${col.hex}">Zimmi is <b>${esc(col.name)}</b> on your stack${a.first_name ? ", " + esc(a.first_name) : ""}.</h1>
+            <p class="result-line">${esc(col.line)}</p>
+          </div>
+        </div>
+        <p class="result-money">${moneyHtml}</p>
+        ${fixes.length ? `<div class="result-fixes"><span class="eyebrow">What one login fixes</span><ul>${fixes.map((r, i) => `<li class="lit-in" style="animation-delay:${150 + i * 110}ms">${esc(r.h)}</li>`).join("")}</ul></div>` : ""}
+        <div class="result-ctas">${hot ? buildBtn("btn-light btn-lg") + demoBtn("btn-outline-light btn-lg") : demoBtn("btn-light btn-lg") + buildBtn("btn-outline-light btn-lg")}</div>
+        <p class="result-note">${a.email ? `A written copy of this report goes to ${esc(a.email)}. ` : ""}Base licenses only. Usage is metered and listed in the breakdown.</p>
+      </section>
+      <div class="result-links"><button type="button" id="show-breakdown" aria-expanded="false">Show the full breakdown</button><button type="button" id="back-answers">Change an answer</button></div>
 
       <div class="report" id="breakdown" hidden>
         <section class="sec ledger-sec"><h3>What you pay vs what you could pay</h3><p class="sub">Base licenses only. Usage is metered on RevRing and is not counted on either side.</p>
@@ -2870,7 +2806,7 @@
           <details class="brief" style="margin-top:14px"><summary>Plain-text copy of this report</summary><pre id="brief-text">${esc(brief)}</pre></details>
         </section>
 
-        <div class="sticky-cta" aria-hidden="false"><span class="sticky-txt">RevRing ${esc(planName)}${fit.crm === "add" ? " plus CRM" : ""} &middot; ${money(c.basePerUser)} / seat</span>${nextStep.primary[0] === "recs" ? `<a class="btn btn-primary btn-sm" data-track="cta_build" href="${esc(signupUrl)}" target="_blank" rel="noopener">${esc(ctas.build)}</a>` : cta(nextStep.primary, "btn btn-primary btn-sm")}</div>
+        <div class="sticky-cta" aria-hidden="false"><span class="sticky-txt">RevRing ${esc(planName)}${fit.crm === "add" ? " plus CRM" : ""} &middot; ${money(c.basePerUser)} / seat</span>${hot ? buildBtn("btn-primary btn-sm") : demoBtn("btn-primary btn-sm")}</div>
         <div class="util"><div class="links"><button type="button" id="restart">Start over</button><a href="${esc(withUtm(CFG.links.pricing))}" target="_blank" rel="noopener">Full pricing</a><a href="${esc(withUtm(CFG.links.site))}" target="_blank" rel="noopener">revring.com</a></div><span class="fineprint">Savings and ratios appear only when your own numbers support them.</span></div>
       </div>`;
 
@@ -2881,22 +2817,17 @@
       location.href = href;
     };
     $("#email-brief").addEventListener("click", doEmail);
-    const ctaEmail = $("#cta-email"); if (ctaEmail) ctaEmail.addEventListener("click", doEmail);
     $("#copy-brief").addEventListener("click", async () => { try { await navigator.clipboard.writeText(brief); toast("Copied"); } catch (e) { toast("Select the text and copy it"); } });
     $("#share-copy").addEventListener("click", async () => { track("share", { via: "copy" }); try { await navigator.clipboard.writeText(shareText + " " + shareUrl); toast("Copied. Paste it anywhere."); } catch (e) { toast("Could not copy"); } });
     $("#restart").addEventListener("click", resetAll);
     // back into the questions with everything still filled in; the report rebuilds when they finish again
     const ba = $("#back-answers"); if (ba) ba.addEventListener("click", () => { track("back_to_answers", {}); state.screen = "survey"; state.step = Math.max(0, visibleQuestions().length - 1); save(); draw(); });
     const sp2 = $("#spin"); if (sp2) sp2.addEventListener("click", spinWheel);
-    const zbad = $("#zemi-door-bad"), zgood = $("#zemi-door-good");
-    if (zbad) { setPose(zbad, "worried"); zbad.style.cursor = "pointer"; zbad.addEventListener("click", () => flash(zbad, "flinch", 600)); }
-    if (zgood) { setPose(zgood, "celebrate"); zgood.style.cursor = "pointer"; zgood.addEventListener("click", () => { flash(zgood, "hop", 700); const host = zgood.parentElement; const cc = centerIn(zgood, host); poof(host, cc.x, cc.y - cc.h * 0.3, 12); }); setTimeout(() => { const host = zgood.parentElement; if (!host || !document.body.contains(zgood)) return; const cc = centerIn(zgood, host); poof(host, cc.x, cc.y - cc.h * 0.25, 14); }, 900); talkFig = null; startIdle(zgood); }
     // on a phone the sign-up opens in this tab so the back button returns to the report; on a desktop it opens beside it
     if (window.matchMedia("(pointer: coarse)").matches) app.querySelectorAll('a[data-track="cta_build"], a[data-track="cta_review"], a[data-track="cta_webinar"], a[data-track="cta_setup"]').forEach(a => a.removeAttribute("target"));
     const sb = $("#show-breakdown"), bd = $("#breakdown");
-    const recs = $("#cta-recs"); if (recs) recs.addEventListener("click", () => { track("cta_recs", fitProps(), true); if (bd.hidden) sb.click(); else bd.scrollIntoView({ behavior: REDUCE ? "auto" : "smooth", block: "start" }); });
     track("results", fitProps(), true);
-    if (sb && bd) sb.addEventListener("click", () => { const open = bd.hidden; if (open) track("breakdown_open", fitProps(), true); bd.hidden = !open; sb.setAttribute("aria-expanded", String(open)); sb.textContent = open ? "Hide the breakdown" : "Show the full breakdown: what I'm paying vs what I could pay"; if (open) bd.scrollIntoView({ behavior: REDUCE ? "auto" : "smooth", block: "start" }); });
+    if (sb && bd) sb.addEventListener("click", () => { const open = bd.hidden; if (open) track("breakdown_open", fitProps(), true); bd.hidden = !open; sb.setAttribute("aria-expanded", String(open)); sb.textContent = open ? "Hide the breakdown" : "Show the full breakdown"; if (open) bd.scrollIntoView({ behavior: REDUCE ? "auto" : "smooth", block: "start" }); });
     window.scrollTo(0, 0);
   }
   // ---------- Bonus wheel (config driven, fair weighted random, one spin per run) ----------
