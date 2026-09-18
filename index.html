@@ -1009,18 +1009,18 @@
   const TOOL_OPTS = [
     ["crm", "CRM"],
     ["dialer", "Dialer or phone system"],
-    ["sms", "Texting"],
-    ["email", "Email"],
+    ["sms", "Texting app"],
+    ["email", "Email or email marketing"],
     ["marketplace", "Lead vendors or a lead marketplace"],
-    ["quoting", "Quoting"],
-    ["pipeline", "Pipeline or task tracking"],
+    ["quoting", "Quoting tool"],
+    ["pipeline", "Pipeline or task tracker"],
     ["recording", "Call recording or transcription"],
     ["scoring", "AI call scoring or coaching"],
     ["compliance", "DNC or compliance scrubbing"],
-    ["reporting", "Reporting and analytics"],
-    ["training", "Training or bootcamp"],
+    ["reporting", "Reporting dashboard"],
+    ["training", "Training platform"],
     ["other", "Something else"],
-    ["missing", "We are missing several of these entirely"]
+    ["missing", "None of these. We do it by hand or not at all"]
   ];
 
   const PAIN_OPTS = [
@@ -1266,8 +1266,8 @@
     },
     {
       id: "tools", short: "Stack", section: "The rest of the stack", type: "multi",
-      q: "What else has its own login?",
-      help: "Besides the CRM and the dialer. Tap everything. The spreadsheet counts.",
+      q: "What else are you paying for?",
+      help: "Every separate tool or subscription besides the CRM and the dialer. Tap all that apply. A spreadsheet you rely on counts.",
       opts: TOOL_OPTS_DIAG, cols: 2
     },
     {
@@ -1318,7 +1318,7 @@
 
   // ---------- Zimmi's voice: what he says before an answer, and how he reacts after ----------
   const ZEMI_INTRO = {
-    tools: "First, ya stack. Tap everything with its own login. Yeah, the spreadsheet counts. I see you.",
+    tools: "Now the rest of the stack. Every separate thing you pay for. Yeah, the spreadsheet counts. I see you.",
     pains: "Now the stuff that actually hurts. Up to five, worst first. Lemme have it. I can take it.",
     dialing: "How do your people get somebody on the phone? No wrong answers here. Just different fixes.",
     seats: "How many humans we settin' up? Just you counts. Big crews count more.",
@@ -1344,7 +1344,7 @@
     crm_keep: a => ({ yes: "Keepin' it. Respect.", maybe: "Maybe. I'll show ya both roads.", no: "Consolidate. My favorite word." })[a.crm_keep] || null,
     cost: a => { if (!a.cost) return null; const h = { "10p": " And ten plus hours a week lost switchin' around? That's a whole sellin' day. I want it back for ya.", "5_10": " And five to ten hours a week lost switchin'? That's sellin' time. I want it back.", "2_5": " Plus a few hours a week switchin'. Adds up.", unknown: " And the hours lost are significant but nobody's countin'. Most common answer I hear." }[a.hours] || ""; return (a.cost === "unknown" ? "Don't know is an honest answer. You get the setup, not some made-up savings number." : "Noted. That goes right next to the RevRing base. No best-case baloney.") + h; },
     arq2: a => ({ ready: "Ready. And look at that, I'm blue again. Next screen is your setup, and the button after that is the real thing.", numbers: "Numbers on the next screen. Real ones, from your answers, not mine.", team: "Bring the crew. Your report comes wit' a summary you can forward.", no: "No reason not to. Then the only thing left is the build." })[a.arq2] || null,
-    crm_name: a => a.crm_name === "none" ? "Spreadsheets. I seen worse. Barely." : a.crm_name ? "Okay. I can hook up to that, so keepin' it is on the table." : null,
+    crm_name: a => a.crm_name === "none" ? "Spreadsheets. I seen worse. Barely. Here's the thing: RevRing CRM puts contacts, pipeline, tasks and every call outcome in the same place ya dial, and the follow ups fire themselves. That's the whole fix for ya." : a.crm_name ? "Okay. Two ways this goes. Keep it, I hook to it for free and every call, text and recording writes back to the contact. Or fold it into RevRing CRM and the pipeline sits on the same screen as the dial. Tell me how it's goin' and I'll pick." : null,
     dialer_name: a => a.dialer_name === "none" ? "Cell phones. No recordings, no numbers you control, no coachin'. We fix that first." : a.dialer_name ? "Noted. I can sit right next to that on your setup call." : null,
     worth: a => (a.worth || []).length ? "That's what your demo gets built around." : null
   };
@@ -2701,6 +2701,21 @@
     L.push("");
     L.push("THE BUILD");
     L.push(bsx.plan + (fit.crm === "add" ? " plus RevRing CRM" : crm ? " plus " + crm + ", connected" : "") + " at " + money(c.basePerUser) + " per seat per month. " + bsx.seatsLine);
+    L.push("");
+    L.push("WHERE YOUR CONTACTS LIVE");
+    if (fit.crm === "add") {
+      L.push("RevRing CRM, " + money(CFG.crmAddon.price) + " per seat on top of the plan" + (crm ? ", replacing " + crm + "." : "."));
+      L.push("- Contacts, policies, tasks, pipeline and every conversation on one record, in the same place your team dials.");
+      L.push("- Every call outcome lands on the contact by itself, with the recording attached. Nobody types it in.");
+      L.push("- Follow up texts, emails and tasks fire from pipeline stages and call outcomes, so the follow up stops depending on memory.");
+      L.push("- One pipeline for every agent, with stages set up the way your team sells.");
+      L.push("- Quote final expense, term and Medicare from the contact record without leaving the call.");
+    } else {
+      L.push("Keep " + (crm || "your CRM") + ". Connectors are included on every plan, no connector charge.");
+      L.push("- Calls, texts, recordings and dispositions write back to the contact in " + (crm || "your CRM") + " by themselves.");
+      L.push("- Your team dials from RevRing and works the pipeline where they already do.");
+      L.push("- If it ever stops earning its keep, RevRing CRM is " + money(CFG.crmAddon.price) + " per seat on the same login.");
+    }
     L.push("");
     L.push("THE MATH, BASE LICENSES ONLY");
     if (op.lines.length) op.lines.forEach(l => L.push(l)); else L.push(op.note);
