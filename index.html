@@ -516,6 +516,19 @@
   .mood-bright .zemi-bubble { background: var(--primary-strong); border-color: var(--primary-strong); color: #fff; }
   .mood-bright .zemi-name { color: #dff3ff; }
   .mobile-only { display: none; }
+  /* Zinni: same chameleon, purple, facing Zimmi. Only on the money screen. */
+  .zinni { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 100%; padding-top: 6px; border-top: 1px dashed var(--line); }
+  .zemi-side .zemi-fig.side.zinni-fig { --rot: 68deg; --sat: 1.1; height: 150px; animation: bob 4s ease-in-out 1.3s infinite; }
+  .zemi-side.duet .zemi-fig.side:not(.zinni-fig) { height: 200px; }
+  .zemi-side.duet .zemi-bubble.side.zinni-bubble { border-radius: 14px 14px 4px 14px; }
+  .zinni-fig .zemi-body { transform: scaleX(-1); }
+  .zemi-side .zemi-bubble.side.zinni-bubble, .mood-warm .zemi-bubble.zinni-bubble, .mood-bright .zemi-bubble.zinni-bubble { background: #f3e8ff; border-color: #e2c9fb; color: #4a1d7a; border-radius: 14px 14px 4px 14px; }
+  .zinni-bubble .zemi-name, .mood-warm .zinni-bubble .zemi-name, .mood-bright .zinni-bubble .zemi-name { color: #7e22ce; }
+  .zinni-av { --rot: 68deg; transform: scaleX(-1); }
+  .by-zinni { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 13px; color: var(--band-muted); }
+  .by-zinni .zemi-av { width: 30px; height: 30px; flex-basis: 30px; box-shadow: 0 2px 8px rgba(0,0,0,.35); }
+  .by-zinni b { color: #e9d5ff; }
+  .result-money p { margin: 0; }
   /* Phones and small tablets: Zimmi rides along as a compact strip pinned under the top bar, so every tap's reaction and color change stays in view */
   @media (max-width: 860px) {
     #stage.survey-grid { grid-template-columns: 1fr; gap: 12px; }
@@ -534,6 +547,12 @@
     #stage.survey-grid > .zemi-side .zemi-spec .spec-bar i { width: 14px; height: 14px; border-width: 2.5px; }
     #stage.survey-grid > .zemi-side .zemi-spec .spec-ends { display: none; }
     #stage.survey-grid > .zemi-side .zemi-spec .spec-lbl { margin-top: 5px; font-size: 11.5px; text-align: left; }
+    #stage.survey-grid > .zemi-side .zinni { grid-column: 1 / -1; display: grid; grid-template-columns: 84px minmax(0, 1fr); grid-template-areas: "zfig zbubble"; column-gap: 12px; align-items: center; padding-top: 6px; }
+    #stage.survey-grid > .zemi-side .zemi-fig.side.zinni-fig { grid-area: zfig; height: 74px; justify-self: center; }
+    #stage.survey-grid > .zemi-side .zemi-bubble.side.zinni-bubble { grid-area: zbubble; font-size: 12.5px; line-height: 1.3; padding: 7px 10px; }
+    #stage.survey-grid > .zemi-side.duet .zemi-fig.side:not(.zinni-fig) { height: 100px; }
+    #stage.survey-grid > .zemi-side .zemi-bubble.side.zinni-bubble { border-radius: 4px 12px 12px 12px; }
+    #stage.survey-grid > .zemi-side .zinni .zemi-name { display: block; font-size: 10px; margin-bottom: 1px; }
     .meter, .qmeta .zc-chip, .mobile-only { display: none !important; }
     .qmeta { flex-wrap: wrap; }
     /* the form step: Zimmi sits above the fields instead of floating over them while the keyboard is up */
@@ -746,7 +765,7 @@
   .result-top .zemi-av { width: 76px; height: 76px; flex: 0 0 76px; box-shadow: 0 8px 22px rgba(0,0,0,.4); }
   .result-txt { min-width: 0; flex: 1; }
   .result-line { margin: 0; font-size: 16px; line-height: 1.45; color: var(--band-muted); max-width: 60ch; }
-  .result-money { margin: 20px 0 0; font-size: 17px; line-height: 1.55; color: #fff; max-width: 64ch; padding: 14px 16px; border-radius: 12px; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.14); }
+  .result-money { margin: 20px 0 0; font-size: 17px; line-height: 1.55; color: #fff; max-width: 64ch; padding: 12px 16px 14px; border-radius: 12px; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.14); }
   .result-money b { color: #8fdbff; }
   .result-fixes { margin-top: 18px; }
   .result-fixes .eyebrow { display: block; margin-bottom: 8px; }
@@ -963,7 +982,7 @@
 <main class="page">
   <div id="stage" class="wrap-wide">
     <div id="app" aria-live="polite"></div>
-    <aside id="zemi-dock" class="zemi-side" hidden><div class="zemi-bubble side" id="zemi-dock-bubble"><span class="zemi-name">Zimmi</span><span id="zemi-dock-text"></span></div><div class="zemi-fig side" id="zemi-dock-fig" aria-hidden="true"></div><div class="zemi-spec" id="zemi-spec"><div class="spec-bar"><i id="zemi-spec-dot" style="left:100%"></i></div><div class="spec-ends"><span>Red</span><span>Blue</span></div><div class="spec-lbl">Zimmi is <b id="zemi-color-name">deep blue</b></div></div></aside>
+    <aside id="zemi-dock" class="zemi-side" hidden><div class="zemi-bubble side" id="zemi-dock-bubble"><span class="zemi-name">Zimmi</span><span id="zemi-dock-text"></span></div><div class="zemi-fig side" id="zemi-dock-fig" aria-hidden="true"></div><div class="zemi-spec" id="zemi-spec"><div class="spec-bar"><i id="zemi-spec-dot" style="left:100%"></i></div><div class="spec-ends"><span>Red</span><span>Blue</span></div><div class="spec-lbl">Zimmi is <b id="zemi-color-name">deep blue</b></div></div><div class="zinni" id="zinni-dock" hidden><div class="zemi-bubble side zinni-bubble" id="zinni-dock-bubble"><span class="zemi-name">Zinni</span><span id="zinni-dock-text"></span></div><div class="zemi-fig side zinni-fig" id="zinni-dock-fig" aria-hidden="true"></div></div></aside>
   </div>
 </main>
 
@@ -1303,7 +1322,7 @@
     dialing: "How do your people get somebody on the phone? No wrong answers here. Just different fixes.",
     seats: "How many humans we settin' up? Just you counts. Big crews count more.",
     crm_feel: "The CRM question. Be honest wit' me. I ain't gonna tell it.",
-    cost: "Ballpark what the whole stack runs ya per agent. You don't know? That's an honest answer too. No judgment.",
+    cost: "Now the money part. I don't do money. I got a partner for that. Zinni, you're up.",
     arq2: "Last one before I build. Say the parts that hurt got fixed and the parts that work stayed put. Where's that leave ya?",
     contact: "Where do I send ya setup? It's on the next screen either way. I ain't holdin' it hostage.",
     crm_name: "What's holdin' your contacts today? Spreadsheets count. Barely.",
@@ -1315,6 +1334,15 @@
     worth: "Almost there. Now think about it. What would make a change actually worth it to you? Up to three.",
     report: "Where do I send ya report? It's on the next screen either way. I ain't holdin' it hostage."
   };
+  const ZINNI = {
+    intro: "Hi. I'm Zinni. I count. What does the whole stack run per agent a month, and how many hours a week go to hopping between tools? Ballpark is fine. I show my work at the end.",
+    react: a => {
+      if (!a.cost) return null;
+      const h = { "10p": " Ten plus hours a week hopping tools. A selling day, gone. Counting it.", "5_10": " Five to ten hours a week hopping tools. Selling time. Counting it.", "2_5": " A few hours a week hopping tools. Adds up. Counting it.", u2: " Under two hours a week. Tight. Good.", none: " Almost no hours lost. I'll take your word for it.", unknown: " Hours lost, nobody counting. Most common answer I get. I'll flag it, I won't invent a number." }[a.hours] || "";
+      const c = a.cost === "unknown" ? "Not sure is an honest answer. I'll show the plan price straight and leave the savings line blank. No made-up number." : (a.spend_exact ? money(Number(a.spend_exact), 0) + " a month for the whole stack" : COST_LABEL[a.cost] + " per agent") + ". Noted. Goes next to one login on the last screen, base licenses only.";
+      return c + h;
+    }
+  };
   const INSIGHTS = {
     tools: a => { const t = (a.tools || []); const n = t.filter(x => x !== "missing" && x !== "other").length; if (t.includes("missing")) return "Missin' pieces. Honestly? Easier to fix than a pile of pieces that don't talk to each other. Trust me."; if (n >= 5) return n + " logins to make one call. You see me changin' color over here? That's why."; if (n >= 3) return n + " logins, " + n + " bills, " + n + " places a lead can hide. I'm gonna un-hide 'em."; if (n === 2) return "Two systems, one handoff. Handoffs are where notes go to die. Noted."; if (n === 1) return "One system. Either it does everything, or you got real good at workin' around it."; return null; },
     pains: a => { const n = (a.pains || []).length; if (!n) return null; if (n === 1) return "Got it. Keep goin' if there's more. Biggest one first."; if (n === 5) { const h = zemiHeat(a); return "Five. Look at me, I'm " + (h >= 0.9 ? "red" : h >= 0.6 ? "orange" : "turnin' colors") + ". Deep breath. We fix all five, in that order. Fuhgeddaboudit."; } return n + " picked. I'm buildin' in that order."; },
@@ -1322,7 +1350,7 @@
     seats: a => { const n = SEAT_MID[a.seats]; if (!n) return null; if (n === 1) return "Just you. Then the system does the paperwork and you do the talkin'. On the phones, where you belong."; if (n <= 5) return "Small crew. Consistency comes from the setup, not from naggin'. Noted."; if (n <= 10) return "Now managers matter. I'm writin' that down."; return "That's a floor. From here, seein' it matters as much as dialin' it."; },
     crm_feel: a => ({ love: "You love it. Then ya keep it. I connect to it, no charge. I'm not jealous. Okay, a little.", good: "Good enough is fine. I'll show ya what it looks like hooked up to me.", expensive: "Pricey, but it works. I'll put it next to my CRM and let you decide.", frustrating: "Frustratin'. Every click of that thing is a tax on your agents. I got a fix.", barely: "A CRM nobody opens is a bill, not a system. I can be the system.", none: "No CRM. So leads live in your head, and your head is a terrible pipeline. No offense. That's what mine's for." })[a.crm_feel] || null,
     crm_keep: a => ({ yes: "Keepin' it. Respect.", maybe: "Maybe. I'll show ya both roads.", no: "Consolidate. My favorite word." })[a.crm_keep] || null,
-    cost: a => { if (!a.cost) return null; const h = { "10p": " And ten plus hours a week lost switchin' around? That's a whole sellin' day. I want it back for ya.", "5_10": " And five to ten hours a week lost switchin'? That's sellin' time. I want it back.", "2_5": " Plus a few hours a week switchin'. Adds up.", unknown: " And the hours lost are significant but nobody's countin'. Most common answer I hear." }[a.hours] || ""; return (a.cost === "unknown" ? "Don't know is an honest answer. You get the setup, not some made-up savings number." : "Noted. That goes right next to the RevRing base. No best-case baloney.") + h; },
+    cost: a => { if (!a.cost) return null; return a.cost === "unknown" ? "Told ya. No judgment. She'll still build it straight." : "See that? Nothin' gets past her. That's why she does the numbers and I do the hat."; },
     arq2: a => ({ ready: "Ready. And look at that, I'm blue again. Next screen is your setup, and the button after that is the real thing.", numbers: "Numbers on the next screen. Real ones, from your answers, not mine.", team: "Bring the crew. Your report comes wit' a summary you can forward.", no: "No reason not to. Then the only thing left is the build." })[a.arq2] || null,
     crm_name: a => a.crm_name === "none" ? "Spreadsheets. I seen worse. Barely. Here's the thing: RevRing CRM puts contacts, pipeline, tasks and every call outcome in the same place ya dial, and the follow ups fire themselves. That's the whole fix for ya." : a.crm_name ? "Okay. Two ways this goes. Keep it, I hook to it for free and every call, text and recording writes back to the contact. Or fold it into RevRing CRM and the pipeline sits on the same screen as the dial. Tell me how it's goin' and I'll pick." : null,
     dialer_name: a => a.dialer_name === "none" ? "Cell phones. No recordings, no numbers you control, no coachin'. We fix that first." : a.dialer_name ? "Noted. I can sit right next to that on your setup call." : null,
@@ -1977,7 +2005,7 @@
 
   root.FIT = {
     POST_QUESTIONS, PRE_QUESTIONS, DIAG_QUESTIONS, withDerived, zemiColor, ZEMI_COLORS, stackPlan, opportunity, PAIN_LABEL, TOOL_LABEL, SEAT_LABEL, DIAL_LABEL, CRM_FEEL_LABEL, WORTH_LABEL, FEATURE_BANK, SYSTEMS_NUM, COST_MID, COST_LABEL, HOURS_LABEL, crmDisplay, dialerDisplay,
-    computeFit, buildPayload, classifyLead, scores, money, num, seatCount, leaning, INSIGHTS, ZEMI_INTRO, zemiMood, zemiHeat, sideBySide, stackScore, buildSheet, transformation, systemsKey
+    computeFit, buildPayload, classifyLead, scores, money, num, seatCount, leaning, INSIGHTS, ZEMI_INTRO, ZINNI, zemiMood, zemiHeat, sideBySide, stackScore, buildSheet, transformation, systemsKey
   };
 })(typeof window !== "undefined" ? window : globalThis);
 
@@ -2010,13 +2038,29 @@
   function zemiLayers() { return `<div class="zemi-body">${neutralLayer()}</div>`; }
   const zemiFigure = (cls, id, style, alt) => `<div class="${cls}" ${id ? `id="${id}"` : ""} ${style ? `style="${style}"` : ""} role="img" aria-label="${alt || "Zimmi, RevRing's blue chameleon"}">${zemiLayers()}</div>`;
   if ($("#zemi-dock-fig")) $("#zemi-dock-fig").innerHTML = zemiLayers();
+  if ($("#zinni-dock-fig")) $("#zinni-dock-fig").innerHTML = zemiLayers();
+  // Zinni: the numbers half. Same chameleon, purple, facing him. She types on her own clock so the two never talk over each other.
+  let zinniTimer = null, zinniLine = "";
+  function zinniSay(text, afterMs) {
+    const box = $("#zinni-dock"), fig = $("#zinni-dock-fig"), el = $("#zinni-dock-text"); if (!box || !el) return;
+    clearTimeout(zinniTimer);
+    const dock = $("#zemi-dock");
+    if (!text) { box.hidden = true; zinniLine = ""; el.textContent = ""; if (dock) dock.classList.remove("duet"); return; }
+    const wasHidden = box.hidden; box.hidden = false; if (dock) dock.classList.add("duet");
+    if (text === zinniLine && !wasHidden) return;
+    zinniLine = text;
+    if (REDUCE) { el.textContent = text; return; }
+    el.textContent = "";
+    const start = () => { let i = 0; if (fig) fig.classList.add("talk"); const step = () => { i += 2; el.textContent = text.slice(0, i); if (i < text.length) zinniTimer = setTimeout(step, CHAR_MS * 2); else if (fig) fig.classList.remove("talk"); }; step(); };
+    zinniTimer = setTimeout(start, afterMs || 0);
+  }
   // the mobile Zimmi strip pins itself right under the top bar, whatever height the bar ends up
   const measureTopbar = () => { const tb = document.querySelector(".topbar"); if (tb) document.documentElement.style.setProperty("--topbar-h", tb.offsetHeight + "px"); };
   measureTopbar(); window.addEventListener("resize", measureTopbar); window.addEventListener("load", measureTopbar);
   // Idle life: every few seconds Zimmi does one small thing. Never while reduced motion is on.
   const IDLE = [["blink2", 600, 3], ["look", 1500, 2], ["nod", 1000, 2], ["sway", 1300, 2], ["pose", 0, 7]];
   // what he says while he waits on the landing (after the greeting has been read). The words pick the pose.
-  const LANDING_LINES = ["Watch the hat.", "Nothin' up my sleeve. I don't got sleeves.", "Thinkin' about your stack. Somebody's gotta.", "Still here. Sixty seconds. You got sixty seconds.", "Red's bad. Blue's good. Let's see what you got.", "For my next trick, five logins become one. Tap start.", "Ay. Tap the button. I don't bite. I blend."];
+  const LANDING_LINES = ["Watch the hat.", "Nothin' up my sleeve. I don't got sleeves.", "Thinkin' about your stack. Somebody's gotta.", "Still here. Sixty seconds. You got sixty seconds.", "Red's bad. Blue's good. Let's see what you got.", "For my next trick, five logins become one. Tap start.", "Ay. Tap the button. I don't bite. I blend.", "Zinni's got the calculator. I got the hat. It works."];
   let landingBubble = null, greetDone = false, lastLanding = -1;
   let idleTimer = null, idleFig = null;
   function idleOnce() {
@@ -2191,7 +2235,7 @@
       document.addEventListener("mousemove", e => { if (REDUCE || dock.hidden) return; const r = fig.getBoundingClientRect(); const cx = r.left + r.width / 2, cy = r.top + r.height / 2; const dx = Math.max(-1, Math.min(1, (e.clientX - cx) / 600)), dy = Math.max(-1, Math.min(1, (e.clientY - cy) / 600)); fig.style.setProperty("--lean", (dx * 4) + "deg"); fig.style.setProperty("--tx", (dx * 6) + "px"); fig.style.setProperty("--ty", (dy * 4) + "px"); });
     }
   }
-  function hideDock() { const dock = $("#zemi-dock"), stage = $("#stage"); if (!dock) return; dock.hidden = true; stage.classList.remove("survey-grid", "contact-step"); lastZemiKey = null; if (idleFig === $("#zemi-dock-fig")) { clearInterval(idleTimer); idleFig = null; } if (talkFig === $("#zemi-dock-fig")) talkFig = null; }
+  function hideDock() { const dock = $("#zemi-dock"), stage = $("#stage"); if (!dock) return; dock.hidden = true; zinniSay(""); stage.classList.remove("survey-grid", "contact-step"); lastZemiKey = null; if (idleFig === $("#zemi-dock-fig")) { clearInterval(idleTimer); idleFig = null; } if (talkFig === $("#zemi-dock-fig")) talkFig = null; }
 
   // ---------- Config ----------
   function readConfig() {
@@ -2334,13 +2378,13 @@
           <div><b>Consolidate</b><span>The pieces that overlap become one.</span></div>
           <div><b>Add</b><span>What you are missing turns on.</span></div>
         </div>
-        <div class="hero-offer"><span class="offer-tag">Free</span><span>No account, no card, no call. You keep the written report: what you pay per seat today, what one login would cost, and what to keep, connect, consolidate and add.</span></div>
+        <div class="hero-offer"><span class="offer-tag">Free</span><span>No account, no card, no sales call. A minute from now you'll know if your stack is costing you money, and the report is yours to keep.</span></div>
         <div class="entry-one"><button type="button" class="btn btn-primary btn-lg" id="start-diag">Start my business diagnostic</button><span>Seven taps. About a minute. Your report and your estimated opportunity are on the last screen.${webinarOn() ? ` Then see the fix live: <a class="hero-link" data-track="cta_webinar" href="${esc(webinarUrl())}" target="_blank" rel="noopener">${esc(CFG.webinar.title)}${CFG.webinar.when ? ", " + esc(CFG.webinar.when) : ""}</a>.` : ""}</span></div>
         </div>
         <div class="hero-figure"><div class="zemi-hello" id="hero-hello"></div>${zemiFigure("zemi-fig", "hero-zemi")}<div class="zemi-shadow" aria-hidden="true"></div></div>
       </section>`;
     const hf = app.querySelector(".zemi-fig"), hb = app.querySelector(".zemi-hello"), host = app.querySelector(".hero-figure");
-    const hello = "Ay, how you doin'. I'm Zimmi. Chameleon, part-time magician. Watch the hat. I change color with your stack. Red's bad. Blue's good. Sixty seconds, and I make the bad part disappear.";
+    const hello = "Ay, how you doin'. I'm Zimmi. Chameleon, part-time magician. Watch the hat. I change color with your stack. Red's bad. Blue's good. Zinni does the math. Sixty seconds, and I make the bad part disappear.";
     let leaving = false;
     const magicStart = () => {
       if (leaving) return; leaving = true;
@@ -2470,6 +2514,8 @@
       <div class="qfoot"><span>${q.type !== "contact" ? "Keys 1 to " + Math.min(9, q.opts.length) + " answer. Enter continues." : ""}</span><button type="button" id="q-restart">Restart</button></div>
       ${leanHtml}`;
     showDock(zemiLine, mood, q.id + ":" + (insight ? "r" : "i"), heat);
+    // the money screen is a duet: Zimmi hands off, Zinni asks, Zinni answers. She waits for him to finish talking.
+    if (q.id === "cost") zinniSay(insight ? F.ZINNI.react(a) : F.ZINNI.intro, REDUCE ? 0 : zemiLine.length * CHAR_MS + 500); else zinniSay("");
     $("#stage").classList.toggle("contact-step", isLast);
 
     // A tap on this same question updates the screen in place. Nothing is rebuilt, so the page never moves under the thumb.
@@ -2494,6 +2540,7 @@
       const leanHtml2 = lean2 && !isLast ? `<div class="lean"><span class="eyebrow">Building</span><b>RevRing ${esc(CFG.plans[lean2].name)}</b><span class="muted small">Keep going. The last answers set the details.</span></div>` : "";
       if (leanEl && !leanHtml2) leanEl.remove(); else if (leanEl) leanEl.outerHTML = leanHtml2; else if (leanHtml2) app.insertAdjacentHTML("beforeend", leanHtml2);
       showDock(insight2 || intro, F.zemiMood(a2), q.id + ":" + (insight2 ? "r" : "i"), heat2);
+      if (q.id === "cost") zinniSay(insight2 ? F.ZINNI.react(a2) : F.ZINNI.intro, REDUCE ? 0 : (insight2 || intro).length * CHAR_MS + 500);
     };
 
     lastTapped = null;
@@ -2526,11 +2573,12 @@
         app.querySelectorAll(`.chips[data-chips="${x.id}"] .chip`).forEach(ch => ch.addEventListener("click", () => {
           state.answers[x.id] = state.answers[x.id] === ch.dataset.v ? undefined : ch.dataset.v; save();
           app.querySelectorAll(`.chips[data-chips="${x.id}"] .chip`).forEach(c2 => c2.setAttribute("aria-pressed", String(c2.dataset.v === state.answers[x.id])));
+          if (q.id === "cost") refresh();
         }));
         return;
       }
       const el = $("#x-" + x.id);
-      if (el) el.addEventListener("input", () => { state.answers[x.id] = el.value; save(); $("#q-next").disabled = !canContinue(q); });
+      if (el) el.addEventListener("input", () => { state.answers[x.id] = el.value; save(); $("#q-next").disabled = !canContinue(q); if (q.id === "cost" && x.id === "spend_exact") { clearTimeout(el._zt); el._zt = setTimeout(refresh, 700); } });
     });
     if (isLast) {
       [["c-first", "first_name"], ["c-last", "last_name"], ["c-email", "email"], ["c-mobile", "mobile"], ["c-company", "company"]].forEach(([id, k]) => {
@@ -2753,7 +2801,7 @@
             <p class="result-line">${esc(col.line)}</p>
           </div>
         </div>
-        <p class="result-money">${moneyHtml}</p>
+        <div class="result-money"><div class="by-zinni"><img class="zemi-av zinni-av" src="${ZEMI_AV}" alt=""><span><b>Zinni</b> ran the numbers</span></div><p>${moneyHtml}</p></div>
         ${fixes.length ? `<div class="result-fixes"><span class="eyebrow">What one login fixes</span><ul>${fixes.map((r, i) => `<li class="lit-in" style="animation-delay:${150 + i * 110}ms">${esc(r.h)}</li>`).join("")}</ul></div>` : ""}
         <div class="result-ctas">${hot ? buildBtn("btn-light btn-lg") + demoBtn("btn-outline-light btn-lg") : demoBtn("btn-light btn-lg") + buildBtn("btn-outline-light btn-lg")}</div>
         <p class="result-note">${a.email ? `A written copy of this report goes to ${esc(a.email)}. ` : ""}Base licenses only. Usage is metered and listed in the breakdown.</p>
