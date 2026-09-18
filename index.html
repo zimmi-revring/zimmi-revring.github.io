@@ -518,9 +518,13 @@
   .mobile-only { display: none; }
   /* Zinni: same chameleon, purple, facing Zimmi. Only on the money screen. */
   .zinni { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 100%; padding-top: 6px; border-top: 1px dashed var(--line); }
-  .zemi-side .zemi-fig.side.zinni-fig { --rot: 68deg; --sat: 1.1; height: 150px; animation: bob 4s ease-in-out 1.3s infinite; }
-  .zemi-side.duet .zemi-fig.side:not(.zinni-fig) { height: 200px; }
-  .zemi-side.duet .zemi-bubble.side.zinni-bubble { border-radius: 14px 14px 4px 14px; }
+  .zemi-side .zemi-fig.side.zinni-fig { --rot: 68deg; --sat: 1.1; height: 300px; animation: bob 4s ease-in-out 1.3s infinite; }
+  /* swapped: she takes the top spot, he waits at the bottom under his color bar */
+  .zemi-side.duet .zinni { order: -1; border-top: 0; border-bottom: 1px dashed var(--line); padding: 0 0 10px; }
+  .zemi-side.duet .zemi-fig.side:not(.zinni-fig) { height: 150px; }
+  .zemi-side.duet .zemi-bubble.side.zinni-bubble { border-radius: 14px 14px 14px 4px; }
+  .zemi-fig.swap-out { animation: vanish .7s cubic-bezier(.5, 0, .8, .3) forwards !important; }
+  .zemi-fig.swap-in { animation: appear .75s cubic-bezier(.2, .9, .3, 1.15) both !important; }
   .zinni-fig .zemi-layer { transform: scaleX(-1); }
   /* landing: the two of them, his bubble over him, hers over her. On a phone his bubble sits above the pair and hers below. */
   .hero-figure.duo { display: grid; grid-template-columns: 1fr 1fr; grid-template-areas: "hz hzn" "fz fzn" "sz szn"; column-gap: 8px; align-items: end; justify-items: center; }
@@ -567,9 +571,12 @@
     #stage.survey-grid > .zemi-side .zemi-spec .spec-ends { display: none; }
     #stage.survey-grid > .zemi-side .zemi-spec .spec-lbl { margin-top: 5px; font-size: 11.5px; text-align: left; }
     #stage.survey-grid > .zemi-side .zinni { grid-column: 1 / -1; display: grid; grid-template-columns: 84px minmax(0, 1fr); grid-template-areas: "zfig zbubble"; column-gap: 12px; align-items: center; padding-top: 6px; }
-    #stage.survey-grid > .zemi-side .zemi-fig.side.zinni-fig { grid-area: zfig; height: 74px; justify-self: center; }
-    #stage.survey-grid > .zemi-side .zemi-bubble.side.zinni-bubble { grid-area: zbubble; font-size: 12.5px; line-height: 1.3; padding: 7px 10px; }
-    #stage.survey-grid > .zemi-side.duet .zemi-fig.side:not(.zinni-fig) { height: 100px; }
+    #stage.survey-grid > .zemi-side .zemi-fig.side.zinni-fig { grid-area: zfig; height: 100px; justify-self: center; }
+    #stage.survey-grid > .zemi-side .zemi-bubble.side.zinni-bubble { grid-area: zbubble; font-size: 13px; line-height: 1.32; padding: 8px 11px; }
+    #stage.survey-grid > .zemi-side.duet { grid-template-areas: "zn zn" "fig bubble" "fig spec"; }
+    #stage.survey-grid > .zemi-side.duet .zinni { grid-area: zn; padding: 0 0 6px; border-top: 0; border-bottom: 1px dashed var(--line); }
+    #stage.survey-grid > .zemi-side.duet .zemi-fig.side:not(.zinni-fig) { height: 70px; }
+    #stage.survey-grid > .zemi-side.duet .zemi-bubble.side:not(.zinni-bubble) { font-size: 12.5px; padding: 7px 10px; min-height: 0; }
     #stage.survey-grid > .zemi-side .zemi-bubble.side.zinni-bubble { border-radius: 4px 12px 12px 12px; }
     #stage.survey-grid > .zemi-side .zinni .zemi-name { display: block; font-size: 10px; margin-bottom: 1px; }
     .meter, .qmeta .zc-chip, .mobile-only { display: none !important; }
@@ -2107,11 +2114,29 @@
   }
   function zinniSay(text, afterMs) {
     const box = $("#zinni-dock"), fig = $("#zinni-dock-fig"), el = $("#zinni-dock-text"); if (!box || !el) return;
-    const dock = $("#zemi-dock");
-    if (!text) { clearTimeout(zinniTimer); box.hidden = true; zinniLine = ""; el.textContent = ""; if (dock) dock.classList.remove("duet"); return; }
-    const wasHidden = box.hidden; box.hidden = false; if (dock) dock.classList.add("duet");
-    if (text === zinniLine && !wasHidden) return;
+    if (!text) { clearTimeout(zinniTimer); zinniLine = ""; el.textContent = ""; return; }
+    if (text === zinniLine && !box.hidden) return;
     zinniType(el, fig, text, afterMs);
+  }
+  // The money screen swap: both of them spin out in a puff, and come back with her on top and him small at the bottom. Reverse on the way out.
+  let duetOn = false, zinniPending = null;
+  function setDuet(on, then) {
+    const dock = $("#zemi-dock"), zf = $("#zemi-dock-fig"), nf = $("#zinni-dock-fig"), box = $("#zinni-dock");
+    if (!dock || !box) return;
+    if (duetOn === on) { if (then) then(); return; }
+    duetOn = on;
+    const apply = () => { dock.classList.toggle("duet", on); box.hidden = !on; if (!on) zinniSay(""); };
+    if (REDUCE || dock.hidden) { apply(); if (then) then(); return; }
+    if (on) box.hidden = false;
+    [zf, nf].forEach(f => flash(f, "swap-out", 700));
+    const c1 = centerIn(zf, dock), c2 = centerIn(nf, dock);
+    setTimeout(() => { poof(dock, c1.x, c1.y, 9); poof(dock, c2.x, c2.y, 9); }, 380);
+    setTimeout(() => {
+      apply();
+      [zf, nf].forEach(f => { if (f && !(f === nf && !on)) flash(f, "swap-in", 750); });
+      setTimeout(() => { const d1 = centerIn(zf, dock); poof(dock, d1.x, d1.y, 8); if (on) { const d2 = centerIn(nf, dock); poof(dock, d2.x, d2.y, 8); } }, 60);
+      if (then) setTimeout(then, 450);
+    }, 690);
   }
   // the mobile Zimmi strip pins itself right under the top bar, whatever height the bar ends up
   const measureTopbar = () => { const tb = document.querySelector(".topbar"); if (tb) document.documentElement.style.setProperty("--topbar-h", tb.offsetHeight + "px"); };
@@ -2310,7 +2335,7 @@
       document.addEventListener("mousemove", e => { if (REDUCE || dock.hidden) return; const r = fig.getBoundingClientRect(); const cx = r.left + r.width / 2, cy = r.top + r.height / 2; const dx = Math.max(-1, Math.min(1, (e.clientX - cx) / 600)), dy = Math.max(-1, Math.min(1, (e.clientY - cy) / 600)); fig.style.setProperty("--lean", (dx * 4) + "deg"); fig.style.setProperty("--tx", (dx * 6) + "px"); fig.style.setProperty("--ty", (dy * 4) + "px"); });
     }
   }
-  function hideDock() { const dock = $("#zemi-dock"), stage = $("#stage"); if (!dock) return; dock.hidden = true; zinniSay(""); stage.classList.remove("survey-grid", "contact-step"); lastZemiKey = null; if (idleFig === $("#zemi-dock-fig")) { clearInterval(idleTimer); idleFig = null; } if (talkFig === $("#zemi-dock-fig")) talkFig = null; }
+  function hideDock() { const dock = $("#zemi-dock"), stage = $("#stage"); if (!dock) return; dock.hidden = true; zinniSay(""); duetOn = false; dock.classList.remove("duet"); const zb = $("#zinni-dock"); if (zb) zb.hidden = true; stage.classList.remove("survey-grid", "contact-step"); lastZemiKey = null; if (idleFig === $("#zemi-dock-fig")) { clearInterval(idleTimer); idleFig = null; } if (talkFig === $("#zemi-dock-fig")) talkFig = null; }
 
   // ---------- Config ----------
   function readConfig() {
@@ -2601,8 +2626,12 @@
       <div class="qfoot"><span>${q.type !== "contact" ? "Keys 1 to " + Math.min(9, q.opts.length) + " answer. Enter continues." : ""}</span><button type="button" id="q-restart">Restart</button></div>
       ${leanHtml}`;
     showDock(zemiLine, mood, q.id + ":" + (insight ? "r" : "i"), heat);
-    // the money screen is a duet: Zimmi hands off, Zinni asks, Zinni answers. She waits for him to finish talking.
-    if (q.id === "cost") zinniSay(insight ? F.ZINNI.react(a, CFG) : F.ZINNI.intro(a), REDUCE ? 0 : zemiLine.length * CHAR_MS + 500); else zinniSay("");
+    // the money screen is a duet: Zimmi hands off, they swap places, Zinni asks, Zinni answers. She waits for him to finish talking.
+    if (q.id === "cost") {
+      zinniPending = insight ? F.ZINNI.react(a, CFG) : F.ZINNI.intro(a);
+      if (!duetOn) setTimeout(() => setDuet(true, () => { if (zinniPending) zinniSay(zinniPending, 0); }), REDUCE ? 0 : zemiLine.length * CHAR_MS + 350);
+      else zinniSay(zinniPending, REDUCE ? 0 : zemiLine.length * CHAR_MS + 500);
+    } else if (duetOn) setDuet(false);
     $("#stage").classList.toggle("contact-step", isLast);
 
     // A tap on this same question updates the screen in place. Nothing is rebuilt, so the page never moves under the thumb.
@@ -2627,7 +2656,7 @@
       const leanHtml2 = lean2 && !isLast ? `<div class="lean"><span class="eyebrow">Building</span><b>RevRing ${esc(CFG.plans[lean2].name)}</b><span class="muted small">Keep going. The last answers set the details.</span></div>` : "";
       if (leanEl && !leanHtml2) leanEl.remove(); else if (leanEl) leanEl.outerHTML = leanHtml2; else if (leanHtml2) app.insertAdjacentHTML("beforeend", leanHtml2);
       showDock(insight2 || intro, F.zemiMood(a2), q.id + ":" + (insight2 ? "r" : "i"), heat2);
-      if (q.id === "cost") zinniSay(insight2 ? F.ZINNI.react(a2, CFG) : F.ZINNI.intro(a2), REDUCE ? 0 : (insight2 || intro).length * CHAR_MS + 500);
+      if (q.id === "cost") { zinniPending = insight2 ? F.ZINNI.react(a2, CFG) : F.ZINNI.intro(a2); if (duetOn) zinniSay(zinniPending, REDUCE ? 0 : (insight2 || intro).length * CHAR_MS + 500); }
     };
 
     lastTapped = null;
