@@ -1249,28 +1249,20 @@
       id: "crm_name", short: "CRM", section: "Your CRM", type: "single",
       q: "What is holding your contacts today?",
       opts: CRM_NAME_OPTS, cols: 2,
-      extras: [{ id: "crm_other", kind: "text", label: "Which one?", hint: "", showIf: a => a.crm_name === "other" }]
-    },
-    {
-      id: "crm_feel", short: "Feel", section: "Your CRM", type: "single",
-      q: "How do you feel about it?",
-      opts: CRM_FEEL_OPTS_DIAG, cols: 2,
-      showIf: a => !!a.crm_name && a.crm_name !== "none",
       extras: [
-        { id: "crm_keep", kind: "chips", label: "Would you keep it if RevRing connected to it at no extra charge?", opts: [["yes", "Keep it"], ["maybe", "Maybe"], ["no", "Rather consolidate"]] },
-        { id: "crm_cost", kind: "money", label: "Roughly what does it cost per user a month?", hint: "Optional." }
+        { id: "crm_other", kind: "text", label: "Which one?", hint: "", showIf: a => a.crm_name === "other" },
+        { id: "crm_feel", kind: "chips", label: "And how is that going?", opts: [["love", "Love it, keeping it"], ["good", "Good enough, would keep it"], ["frustrating", "Frustrating"], ["barely", "Barely use it"]], showIf: a => !!a.crm_name && a.crm_name !== "none" },
+        { id: "crm_cost", kind: "money", label: "Roughly what it costs per user a month", hint: "Optional.", showIf: a => !!a.crm_name && a.crm_name !== "none" }
       ]
     },
     {
       id: "dialer_name", short: "Dialer", section: "Your dialer", type: "single",
       q: "What are you dialing on?",
       opts: DIALER_NAME_OPTS, cols: 2,
-      extras: [{ id: "dialer_other", kind: "text", label: "Which one?", hint: "", showIf: a => a.dialer_name === "other" }]
-    },
-    {
-      id: "dialing", short: "Calling", section: "How you call", type: "single",
-      q: "How does your team call?",
-      opts: DIAL_OPTS
+      extras: [
+        { id: "dialer_other", kind: "text", label: "Which one?", hint: "", showIf: a => a.dialer_name === "other" },
+        { id: "dialing", kind: "chips", label: "How does the team call?", opts: [["inbound", "Mostly inbound"], ["outbound_1to1", "One to one outbound"], ["power", "Power dialing"], ["multiline", "Multi-line dialing"], ["blended", "A mix of both"], ["inefficient", "Not efficiently yet"]] }
+      ]
     },
     {
       id: "tools", short: "Stack", section: "The rest of the stack", type: "multi",
@@ -1294,18 +1286,9 @@
         { id: "spend_exact", kind: "money", label: "Total monthly spend for the whole team, if you know it", hint: "Optional. Turns the estimate into real math." }
       ]
     },
-    {
-      id: "worth", short: "Worth", section: "What matters", type: "multi", max: 3,
-      q: "What would make a change worth it?",
-      help: "Up to three.",
-      opts: WORTH_OPTS, cols: 2
-    },
-    {
-      id: "arq2", short: "Go", section: "Where you are", type: "single",
-      q: "If the parts that hurt got fixed and the parts that work stayed put, where are you?",
-      opts: [["ready", "Ready to move"], ["numbers", "Show me the numbers"], ["team", "Need my team in on it"], ["no", "No reason not to, just looking"]]
-    },
-    { id: "contact", short: "Report", section: "Your report", type: "contact", q: "Where do we send your report?", help: "It is on the next screen either way. A copy goes to your RevRing contact so nobody repeats this conversation." }
+    { id: "contact", short: "Report", section: "Your report", type: "contact", q: "Where do we send your report?", help: "It is on the next screen either way. A copy goes to your RevRing contact so nobody repeats this conversation.",
+      extras: [{ id: "arq2", kind: "chips", label: "Say the parts that hurt got fixed and the parts that work stayed put. Where does that leave you?", opts: [["ready", "Ready to move"], ["numbers", "Show me the numbers"], ["team", "Need my team in on it"], ["no", "No reason not to, just looking"]] }]
+    }
   ];
   // Fill in the tools the name questions already answered, so counts and consolidation are right.
   function withDerived(a) {
@@ -1314,6 +1297,8 @@
     if (a.crm_name && a.crm_name !== "none" && !tools.includes("crm")) tools.push("crm");
     if (a.dialer_name && a.dialer_name !== "none" && !tools.includes("dialer")) tools.push("dialer");
     if (a.crm_name === "none" && !a.crm_feel) out.crm_feel = "none";
+    // the seven screen version asks one tap about the CRM instead of a feel question plus a keep question: derive the keep answer from it
+    if (!a.crm_keep && a.crm_feel) out.crm_keep = (a.crm_feel === "love" || a.crm_feel === "good") ? "yes" : (a.crm_feel === "frustrating" || a.crm_feel === "barely") ? "no" : a.crm_keep;
     out.tools = tools;
     return out;
   }
@@ -2369,7 +2354,7 @@
           <div><b>Consolidate</b><span>The pieces that overlap become one.</span></div>
           <div><b>Add</b><span>What you are missing turns on.</span></div>
         </div>
-        <div class="entry-one"><button type="button" class="btn btn-primary btn-lg" id="start-diag">Start my business diagnostic</button><span>Eleven taps. About a minute. Your report and your estimated opportunity are on the last screen.${webinarOn() ? ` Then see the fix live: <a class="hero-link" data-track="cta_webinar" href="${esc(webinarUrl())}" target="_blank" rel="noopener">${esc(CFG.webinar.title)}${CFG.webinar.when ? ", " + esc(CFG.webinar.when) : ""}</a>.` : ""}</span></div>
+        <div class="entry-one"><button type="button" class="btn btn-primary btn-lg" id="start-diag">Start my business diagnostic</button><span>Seven taps. About a minute. Your report and your estimated opportunity are on the last screen.${webinarOn() ? ` Then see the fix live: <a class="hero-link" data-track="cta_webinar" href="${esc(webinarUrl())}" target="_blank" rel="noopener">${esc(CFG.webinar.title)}${CFG.webinar.when ? ", " + esc(CFG.webinar.when) : ""}</a>.` : ""}</span></div>
         </div>
         <div class="hero-figure"><div class="zemi-hello" id="hero-hello"></div>${zemiFigure("zemi-fig", "hero-zemi")}<div class="zemi-shadow" aria-hidden="true"></div></div>
       </section>`;
@@ -2536,14 +2521,18 @@
       lastTapped = v;
       if (q.type === "single") {
         state.answers[q.id] = v; save();
-        // Clear dependent answers when the CRM feel changes to none
-        if (q.id === "crm_feel" && v === "none") { delete state.answers.crm_keep; delete state.answers.crm_cost; }
-        if (q.id === "crm_feel") save();
+        // No CRM means the CRM follow-ups do not apply
+        if (q.id === "crm_name" && v === "none") { delete state.answers.crm_feel; delete state.answers.crm_keep; delete state.answers.crm_cost; save(); }
         refresh();
         // Auto-advance only when there is nothing to read. If a note shows, they click Continue.
         const note = F.INSIGHTS[q.id] ? F.INSIGHTS[q.id](F.withDerived(state.answers)) : null;
         if (!(q.extras && q.extras.length) && !note) setTimeout(next, 160);
-        else if (window.matchMedia("(pointer: fine)").matches) { const nb = $("#q-next"); if (nb) nb.focus({ preventScroll: true }); }
+        else {
+          // the one tap follow-up sits under a long list on phones: bring the first visible one into view so nobody misses it
+          const firstExtra = Array.from(app.querySelectorAll(".extra")).find(el => !el.hidden);
+          if (firstExtra && window.matchMedia("(max-width: 720px)").matches) setTimeout(() => firstExtra.scrollIntoView({ behavior: "smooth", block: "center" }), 120);
+          if (window.matchMedia("(pointer: fine)").matches) { const nb = $("#q-next"); if (nb) nb.focus({ preventScroll: true }); }
+        }
       } else {
         let arr = Array.isArray(state.answers[q.id]) ? state.answers[q.id].slice() : [];
         if (arr.includes(v)) arr = arr.filter(x => x !== v);
