@@ -4,156 +4,179 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>Diagnostic Tracker</title>
+<title>RevRing Diagnostic Tracker</title>
 <link rel="icon" type="image/png" href="favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
 <style>
-  :root { --navy:#041327; --primary:#0284c7; --strong:#1684e8; --accent:#06b6d4; --ink:#0f172a; --ink2:#334155; --muted:#64748b; --line:#e2e8f0; --bg:#f6f9fc; --surface:#fff; --tint:#f0f9ff; --red:#ef4444; --amber:#f59e0b; --green:#22c55e; --font:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; }
-  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --ink:#e6eefc; --ink2:#c7d4ea; --muted:#8ea2c2; --line:#223656; --bg:#071426; --surface:#0c1a30; --tint:#0e2340; --primary:#38bdf8; } }
+  :root { --navy:#0b1f3a; --navy-2:#132b4d; --primary:#1d6fd1; --accent:#0e9aa7; --ink:#111827; --ink2:#374151; --muted:#6b7280; --line:#e3e8ef; --line-2:#cbd5e1; --bg:#f3f5f8; --surface:#ffffff; --tint:#eef3fa; --red:#c0392b; --amber:#b7791f; --green:#1f8a4c; --font:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --ink:#e5eaf3; --ink2:#c3cbd9; --muted:#8b96a8; --line:#243652; --line-2:#334a6b; --bg:#0a1424; --surface:#101d33; --tint:#15243d; --primary:#5aa2ff; --accent:#3cc1cd; --red:#f07167; --amber:#e0a94a; --green:#4ccb7f; } }
   * { box-sizing: border-box; }
-  body { margin:0; background:var(--bg); color:var(--ink); font-family:var(--font); font-size:14.5px; line-height:1.45; }
+  html, body { margin:0; }
+  body { background:var(--bg); color:var(--ink); font-family:var(--font); font-size:14px; line-height:1.45; -webkit-font-smoothing:antialiased; }
   a { color:var(--primary); }
-  .top { background:var(--navy); color:#fff; padding:14px 20px; display:flex; flex-wrap:wrap; gap:12px 18px; align-items:center; }
-  .top h1 { margin:0; font-size:18px; letter-spacing:-.01em; }
-  .top .sub { color:#b6c6dc; font-size:13px; }
-  .wrap { max-width:1180px; margin:0 auto; padding:18px 16px 60px; }
-  .bar { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:14px; }
-  .bar input[type=url], .bar input[type=text], .bar select { padding:9px 11px; border:1.5px solid var(--line); border-radius:8px; background:var(--surface); color:var(--ink); font:inherit; }
-  .bar input[type=url] { flex:1 1 360px; min-width:240px; }
-  .btn { padding:9px 14px; border-radius:8px; border:1.5px solid var(--line); background:var(--surface); color:var(--ink); font:inherit; font-weight:600; cursor:pointer; }
-  .btn.primary { background:var(--strong); border-color:var(--strong); color:#fff; }
-  .btn.sm { padding:6px 10px; font-size:13px; }
-  .seg { display:inline-flex; border:1.5px solid var(--line); border-radius:8px; overflow:hidden; }
-  .seg button { border:0; background:var(--surface); color:var(--ink2); padding:8px 12px; font:inherit; font-weight:600; cursor:pointer; }
-  .seg button.on { background:var(--strong); color:#fff; }
-  .status { font-size:13px; color:var(--muted); }
-  .status.bad { color:var(--red); }
-  .grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:10px; margin:6px 0 16px; }
-  .kpi { background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:12px 14px; }
-  .kpi .l { font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); font-weight:700; }
-  .kpi .v { font-size:26px; font-weight:800; letter-spacing:-.02em; margin-top:4px; }
-  .kpi .d { font-size:12px; color:var(--muted); }
-  .card { background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:16px 18px; margin-bottom:14px; }
-  .card h2 { margin:0 0 4px; font-size:16px; }
-  .card .sub { color:var(--muted); font-size:13px; margin:0 0 12px; }
+  .num, td.n, th.n, .kpi .v, .funnel .n, .funnel .p, .funnel .d { font-variant-numeric: tabular-nums; }
+  .top { background:var(--navy); color:#fff; padding:0 24px; height:56px; display:flex; align-items:center; gap:18px; border-bottom:1px solid var(--navy-2); }
+  .top .brand { display:flex; align-items:baseline; gap:10px; }
+  .top h1 { margin:0; font-size:15px; font-weight:600; letter-spacing:-.01em; }
+  .top .sub { color:#9fb3cf; font-size:12.5px; }
+  .top .right { margin-left:auto; display:flex; align-items:center; gap:14px; font-size:12.5px; color:#9fb3cf; }
+  .top .right .dot { width:8px; height:8px; border-radius:50%; background:#4ccb7f; display:inline-block; margin-right:6px; }
+  .top .right .dot.bad { background:#f07167; }
+  .top .right .dot.wait { background:#e0a94a; }
+  .top button { background:transparent; color:#dbe6f6; border:1px solid #2b4a75; border-radius:6px; padding:6px 10px; font:inherit; font-size:12.5px; font-weight:500; cursor:pointer; }
+  .top button:hover { background:var(--navy-2); }
+  .wrap { max-width:1200px; margin:0 auto; padding:18px 24px 64px; }
+  .bar { display:flex; flex-wrap:wrap; gap:8px 10px; align-items:center; margin-bottom:16px; }
+  .bar select, .bar input[type=url], .bar input[type=text] { padding:7px 10px; border:1px solid var(--line-2); border-radius:6px; background:var(--surface); color:var(--ink); font:inherit; font-size:13px; }
+  .seg { display:inline-flex; border:1px solid var(--line-2); border-radius:6px; overflow:hidden; background:var(--surface); }
+  .seg button { border:0; border-right:1px solid var(--line-2); background:transparent; color:var(--ink2); padding:7px 12px; font:inherit; font-size:13px; font-weight:500; cursor:pointer; }
+  .seg button:last-child { border-right:0; }
+  .seg button.on { background:var(--navy); color:#fff; }
+  .check { display:inline-flex; align-items:center; gap:6px; font-size:13px; color:var(--ink2); padding:0 4px; }
+  .check input { margin:0; }
+  .bar .spacer { flex:1; }
+  .grid { display:grid; grid-template-columns:repeat(4, 1fr); gap:10px; margin:0 0 16px; }
+  @media (max-width:900px) { .grid { grid-template-columns:repeat(2, 1fr); } }
+  .kpi { background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:12px 14px; }
+  .kpi .l { font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); font-weight:600; }
+  .kpi .v { font-size:26px; font-weight:700; letter-spacing:-.02em; margin-top:2px; line-height:1.15; }
+  .kpi .d { font-size:12px; color:var(--muted); margin-top:2px; }
+  .kpi.hot .v { color:var(--red); }
+  .card { background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:14px 16px 16px; margin-bottom:14px; }
+  .card h2 { margin:0; font-size:13.5px; font-weight:600; letter-spacing:-.005em; }
+  .card .sub { color:var(--muted); font-size:12.5px; margin:2px 0 12px; }
   .two { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
-  @media (max-width:860px) { .two { grid-template-columns:1fr; } }
-  .funnel .row { display:grid; grid-template-columns:150px 1fr 70px 60px; gap:10px; align-items:center; padding:5px 0; font-size:13.5px; }
-  .funnel .row .track { height:14px; background:var(--tint); border-radius:7px; overflow:hidden; }
-  .funnel .row .track i { display:block; height:100%; background:var(--strong); border-radius:7px; }
+  @media (max-width:900px) { .two { grid-template-columns:1fr; } }
+  .funnel .row { display:grid; grid-template-columns:190px 1fr 56px 56px 64px; gap:10px; align-items:center; padding:5px 0; font-size:13px; border-bottom:1px solid var(--line); }
+  .funnel .row.head { color:var(--muted); font-size:11px; letter-spacing:.06em; text-transform:uppercase; font-weight:600; border-bottom:1px solid var(--line-2); padding-bottom:6px; }
+  .funnel .row:last-child { border-bottom:0; }
+  .funnel .row .track { height:10px; background:var(--tint); border-radius:2px; overflow:hidden; }
+  .funnel .row .track i { display:block; height:100%; background:var(--primary); }
   .funnel .row.q .track i { background:var(--accent); }
   .funnel .row.win .track i { background:var(--green); }
-  .funnel .n { text-align:right; font-weight:700; }
-  .funnel .p { text-align:right; color:var(--muted); font-size:12.5px; }
-  table { width:100%; border-collapse:collapse; font-size:13.5px; }
-  th, td { text-align:left; padding:8px 8px; border-bottom:1px solid var(--line); vertical-align:top; }
-  th { font-size:11.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); }
+  .funnel .n { text-align:right; font-weight:600; }
+  .funnel .p { text-align:right; color:var(--muted); }
+  .funnel .d { text-align:right; color:var(--red); }
+  .funnel .d.zero { color:var(--muted); }
+  table { width:100%; border-collapse:collapse; font-size:13px; }
+  th, td { text-align:left; padding:7px 8px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); font-weight:600; border-bottom:1px solid var(--line-2); }
   td.n, th.n { text-align:right; white-space:nowrap; }
-  tr.tot td { font-weight:700; border-top:2px solid var(--line); }
-  .tag { display:inline-block; padding:2px 8px; border-radius:999px; font-size:12px; font-weight:700; }
-  .tag.hot { background:#fee2e2; color:#b91c1c; } .tag.warm { background:#fef3c7; color:#b45309; } .tag.nurture { background:#e2e8f0; color:#334155; }
-  .chip { display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:6px; vertical-align:middle; }
-  .empty { padding:26px; text-align:center; color:var(--muted); border:1.5px dashed var(--line); border-radius:12px; }
-  .drop { border:1.5px dashed var(--line); border-radius:10px; padding:10px 12px; font-size:13px; color:var(--muted); }
-  .drop.over { border-color:var(--strong); background:var(--tint); }
+  tr.tot td { font-weight:600; border-top:1px solid var(--line-2); border-bottom:0; }
+  .tag { display:inline-block; padding:1px 7px; border-radius:4px; font-size:11px; font-weight:600; letter-spacing:.03em; }
+  .tag.hot { background:#fde8e6; color:#9b2c20; } .tag.warm { background:#fff1d6; color:#8a5a0a; } .tag.nurture { background:#e7ebf1; color:#3b4a5e; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .tag.hot { background:#4a1d19; color:#f7b1a9; } :root:not([data-theme="light"]) .tag.warm { background:#4a3410; color:#f2cf86; } :root:not([data-theme="light"]) .tag.nurture { background:#1f2d42; color:#b9c6d8; } }
+  .chip { display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:6px; vertical-align:middle; }
+  .swatch { display:inline-block; width:10px; height:10px; border-radius:2px; margin-right:7px; vertical-align:-1px; border:1px solid rgba(0,0,0,.15); }
+  .empty { padding:28px; text-align:center; color:var(--muted); border:1px dashed var(--line-2); border-radius:8px; background:var(--surface); }
+  .drop { border:1px dashed var(--line-2); border-radius:6px; padding:8px 12px; font-size:12.5px; color:var(--muted); }
+  .drop.over { border-color:var(--primary); background:var(--tint); }
   svg text { font-family:var(--font); }
-  .links input { width:100%; padding:8px 10px; border:1.5px solid var(--line); border-radius:8px; background:var(--surface); color:var(--ink); font:inherit; }
-  .links .row { display:grid; grid-template-columns:90px 1fr auto; gap:8px; align-items:center; padding:6px 0; border-bottom:1px solid var(--line); }
-  .links .row code { font-size:12.5px; word-break:break-all; color:var(--ink2); }
+  .links input, .links textarea { width:100%; padding:7px 10px; border:1px solid var(--line-2); border-radius:6px; background:var(--surface); color:var(--ink); font:inherit; font-size:13px; }
+  .links .row { display:grid; grid-template-columns:70px 1fr auto; gap:8px; align-items:center; padding:6px 0; border-bottom:1px solid var(--line); }
+  .links .row code { font-size:12px; word-break:break-all; color:var(--ink2); }
+  .btn { padding:7px 12px; border-radius:6px; border:1px solid var(--line-2); background:var(--surface); color:var(--ink); font:inherit; font-size:13px; font-weight:500; cursor:pointer; }
+  .btn.primary { background:var(--navy); border-color:var(--navy); color:#fff; }
+  .btn.sm { padding:5px 9px; font-size:12px; }
   .fine { font-size:12.5px; color:var(--muted); }
   .hidden { display:none !important; }
   .split { display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; }
-  @media (max-width:860px) { .split { grid-template-columns:1fr; } }
-  .mini .r { display:grid; grid-template-columns:110px 1fr 40px; gap:8px; align-items:center; font-size:13px; padding:3px 0; }
-  .mini .r .t { height:10px; background:var(--tint); border-radius:5px; overflow:hidden; } .mini .r .t i { display:block; height:100%; background:var(--primary); }
-  .mini .r .n { text-align:right; font-weight:700; }
+  @media (max-width:900px) { .split { grid-template-columns:1fr; } }
+  .mini .r { display:grid; grid-template-columns:150px 1fr 36px; gap:8px; align-items:center; font-size:13px; padding:3px 0; }
+  .mini .r .t { height:8px; background:var(--tint); border-radius:2px; overflow:hidden; } .mini .r .t i { display:block; height:100%; background:var(--primary); }
+  .mini .r .n { text-align:right; font-weight:600; }
   .m-only { display:none; }
   .tablewrap { overflow-x:auto; -webkit-overflow-scrolling:touch; max-width:100%; }
-  /* Phones: numbers tables tighten up, people tables turn into cards, links wrap instead of stretching the page */
+  details.source { margin-top:8px; }
+  details.source summary { cursor:pointer; color:var(--muted); font-size:12.5px; }
+  details.source .inner { margin-top:10px; display:grid; gap:10px; }
+  .foot { margin-top:18px; font-size:12px; color:var(--muted); }
   @media (max-width:700px) {
-    body { font-size:14px; }
-    .top { padding:12px 16px; } .top h1 { font-size:16px; } .top .sub { display:none; }
+    .top { padding:0 14px; height:50px; } .top .sub { display:none; } .top .right .txt { display:none; }
     .wrap { padding:12px 12px 48px; }
-    .bar input[type=url] { flex-basis:100%; min-width:0; }
-    .grid { grid-template-columns:1fr 1fr; gap:8px; }
+    .grid { gap:8px; }
     .kpi { padding:10px 12px; } .kpi .v { font-size:22px; }
-    .card { padding:14px 14px; border-radius:12px; }
-    .funnel .row { grid-template-columns:96px 1fr 34px 42px; gap:8px; font-size:12.5px; }
+    .card { padding:12px 12px 14px; }
+    .funnel .row { grid-template-columns:110px 1fr 40px 44px 44px; gap:6px; font-size:12px; }
     table { font-size:12.5px; }
-    th, td { padding:7px 5px; }
-    th { font-size:10.5px; letter-spacing:.04em; }
+    th, td { padding:6px 5px; }
     table.stack, table.stack tbody { display:block; }
     table.stack tr { display:grid; grid-template-columns:1fr 1fr; gap:2px 10px; padding:10px 0; border-bottom:1px solid var(--line); }
     table.stack tr:first-child { display:none; }
     table.stack td { display:block; border:0; padding:2px 0; text-align:left; white-space:normal; overflow-wrap:anywhere; }
-    table.stack td::before { content:attr(data-label); display:block; font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); font-weight:700; }
+    table.stack td::before { content:attr(data-label); display:block; font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); font-weight:600; }
     table.stack td.wide { grid-column:1 / -1; order:-1; }
     table.stack td.m-hide { display:none; }
     .m-only { display:inline; }
     table.stack td.wide::before { display:none; }
-    table.stack td.wide b { font-size:15px; }
     .links .row { grid-template-columns:1fr auto; }
     .links .row > div:nth-child(2) { grid-column:1 / -1; }
     .links .row code { overflow-wrap:anywhere; word-break:normal; }
-    .split { gap:10px; }
+    .mini .r { grid-template-columns:120px 1fr 32px; }
   }
 </style>
 </head>
 <body>
 <header class="top">
-  <h1>RevRing Business Diagnostic: tracker</h1>
-  <span class="sub">Every view, start, question, completion, click and sign-up, by campaign and by rep.</span>
+  <div class="brand"><h1>RevRing Business Diagnostic</h1><span class="sub">Tracker</span></div>
+  <div class="right"><span class="txt" id="status"><span class="dot wait"></span>Loading</span><button type="button" id="load">Refresh</button></div>
 </header>
 <div class="wrap">
   <div class="bar">
-    <input id="src" type="url" placeholder="Paste the events collector URL (Apps Script web app, ends in /exec)">
-    <button class="btn primary" id="load">Load</button>
-    <label class="fine"><input type="checkbox" id="auto" checked> refresh every minute</label>
-    <span class="status" id="status">No data loaded yet.</span>
-  </div>
-  <div class="bar">
     <span class="seg" id="range"><button data-d="1">Today</button><button data-d="7">7 days</button><button data-d="30" class="on">30 days</button><button data-d="0">All time</button></span>
     <select id="f-source"><option value="">All sources</option></select>
-    <select id="f-camp"><option value="">All campaign codes</option></select>
+    <select id="f-camp"><option value="">All campaigns</option></select>
     <select id="f-rep"><option value="">All reps</option></select>
     <select id="f-device"><option value="">All devices</option><option value="mobile">Mobile</option><option value="desktop">Desktop</option></select>
-    <div class="drop" id="drop">or drop an export here (.json from the collector, or .csv from the sheet)</div>
+    <label class="check"><input type="checkbox" id="hidetest" checked> Hide internal tests</label>
+    <span class="spacer"></span>
+    <label class="check"><input type="checkbox" id="auto" checked> Auto refresh</label>
   </div>
 
-  <div id="empty" class="empty">Paste the collector URL above and press Load. Until the collector exists, this page has nothing to count.</div>
+  <div id="empty" class="empty">No data loaded. Open the tracker from its private link, or set the collector address under Data source below.</div>
 
   <div id="dash" class="hidden">
     <div class="grid" id="kpis"></div>
 
     <div class="two">
-      <div class="card funnel"><h2>Funnel</h2><p class="sub">Unique people at each step. Percent is of everyone who saw the page.</p><div id="funnel"></div></div>
-      <div class="card"><h2>By day</h2><p class="sub">Views, starts and completions.</p><div id="daily"></div></div>
+      <div class="card funnel"><h2>Funnel</h2><p class="sub">People reaching each screen. A person counts for every screen up to the furthest one they reached. Dropped is how many stopped on that screen.</p><div id="funnel"></div></div>
+      <div class="card"><h2>By day</h2><p class="sub">Visits, starts and completions, local time.</p><div id="daily"></div></div>
     </div>
 
-    <div class="card"><h2>By campaign</h2><p class="sub">This is the table for the text and email blasts. One row per campaign code or source.</p><div id="bycamp"></div></div>
+    <div class="card"><h2>By campaign</h2><p class="sub">One row per campaign code and source. This is the table for the text and email sends.</p><div id="bycamp"></div></div>
     <div class="card"><h2>By rep</h2><p class="sub">Links that carried a rep name.</p><div id="byrep"></div></div>
 
     <div class="split">
-      <div class="card mini"><h2>Device</h2><div id="bydevice"></div></div>
-      <div class="card mini"><h2>Plan recommended</h2><div id="byplan"></div></div>
-      <div class="card mini"><h2>Zimmi's color</h2><div id="bycolor"></div></div>
+      <div class="card mini"><h2>Device</h2><p class="sub">Visits</p><div id="bydevice"></div></div>
+      <div class="card mini"><h2>Plan recommended</h2><p class="sub">Completions</p><div id="byplan"></div></div>
+      <div class="card mini"><h2>Result color</h2><p class="sub">Completions</p><div id="bycolor"></div></div>
     </div>
 
-    <div class="card"><h2>Sign-ups</h2><p class="sub">People who created an account after the diagnostic. Needs the one-line snippet on the sign-up success page (see the guide).</p><div id="signups"></div></div>
-    <div class="card"><h2>Recent completions</h2><p class="sub">Newest first. Lead status is HOT, WARM or NURTURE from their answers.</p><div id="recent"></div></div>
+    <div class="card"><h2>Completions</h2><p class="sub">Newest first. Lead status comes from their answers.</p><div id="recent"></div></div>
+    <div class="card"><h2>Sign-ups</h2><p class="sub">Accounts created after the diagnostic. Needs the one-line snippet on the sign-up success page.</p><div id="signups"></div></div>
   </div>
 
-  <div class="card links"><h2>Tracking links for the blasts</h2><p class="sub">Short links for texts, full links for email. Each code is set in the diagnostic's Admin panel under short campaign codes.</p>
+  <div class="card links"><h2>Tracking links</h2><p class="sub">Short links for texts, full links for email. Add &amp;start=1 to skip the landing page and open on question one.</p>
     <div class="two">
       <div><label class="fine">Diagnostic address</label><input id="base" type="url" value="https://zimmi-revring.github.io/"></div>
       <div><label class="fine">Rep (optional, goes on the link as rep=)</label><input id="rep" type="text" placeholder="christian"></div>
     </div>
-    <div style="margin-top:10px"><label class="fine">Campaign codes, one per line as code | source | medium | campaign</label><textarea id="codes" rows="4" style="width:100%;padding:8px 10px;border:1.5px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);font:inherit;font-size:13px">s1 | sms | text | sept-blast-1
+    <div style="margin-top:10px"><label class="fine">Campaign codes, one per line as code | source | medium | campaign</label><textarea id="codes" rows="4">s1 | sms | text | sept-blast-1
 e1 | email | email | sept-blast-1
 li | linkedin | social | zimmi
 fb | facebook | social | zimmi</textarea></div>
     <div id="linklist" style="margin-top:8px"></div>
-    <p class="fine">Texts: use the short one. Email: either works, the full one shows up in any email tool's own click stats too. Add <b>&amp;start=1</b> to skip the landing page and open on question one.</p>
   </div>
+
+  <details class="source"><summary>Data source</summary>
+    <div class="inner">
+      <input id="src" type="url" placeholder="Events collector address (Apps Script web app, ends in /exec?key=...)">
+      <div class="drop" id="drop">Or drop an export here: .json from the collector, or .csv from the events sheet.</div>
+      <p class="fine">Internal tests are sessions with the campaign code "test", or a name or email that contains "test" or "example.com".</p>
+    </div>
+  </details>
+  <p class="foot">Times are shown in your local time zone. Counts are unique sessions, so someone who ran the diagnostic twice in one sitting counts once.</p>
 </div>
 
 <script>
@@ -163,10 +186,13 @@ fb | facebook | social | zimmi</textarea></div>
   const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const store = { get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} } };
   let EVENTS = [], rangeDays = 30, timer = null;
-  const QORDER = ["seats", "crm_name", "crm_feel", "dialer_name", "dialing", "tools", "pains", "cost", "worth", "arq2", "contact"];
-  const QLABEL = { seats: "Q1 team", crm_name: "Q2 CRM", crm_feel: "Q3 CRM feel", dialer_name: "Q4 dialer", dialing: "Q5 calling", tools: "Q6 stack", pains: "Q7 pains", cost: "Q8 cost", worth: "Q9 worth", arq2: "Q10 where", contact: "Q11 report" };
 
-  // a private link can carry the collector address after # so it never hits any server: tracker.html#src=...&base=...
+  // the seven screens of the current form. Older sessions sent extra ids (crm_feel, dialing, worth, arq2); they map onto the screen that holds them now.
+  const SCREENS = [["seats", "1. Team"], ["crm_name", "2. CRM"], ["dialer_name", "3. Dialer"], ["tools", "4. Rest of the stack"], ["pains", "5. What hurts"], ["cost", "6. Cost and hours"], ["contact", "7. Name and email"]];
+  const SCREEN_IDX = { seats: 1, crm_name: 2, crm_feel: 2, crm_keep: 2, dialer_name: 3, dialing: 3, tools: 4, pains: 5, cost: 6, worth: 6, contact: 7, arq2: 7 };
+  const COLOR_HEX = { "deep blue": "#1684e8", "light blue": "#38bdf8", green: "#22c55e", yellow: "#eab308", orange: "#f97316", red: "#ef4444" };
+
+  // a private link carries the collector address after # so it never hits any server: tracker.html#src=...&base=...
   try {
     const h = new URLSearchParams(location.hash.replace(/^#/, ""));
     if (h.get("src")) store.set("trk_src", h.get("src"));
@@ -176,24 +202,25 @@ fb | facebook | social | zimmi</textarea></div>
   $("#base").value = store.get("trk_base", $("#base").value);
   $("#codes").value = store.get("trk_codes", $("#codes").value);
   $("#rep").value = store.get("trk_rep", "");
+  $("#hidetest").checked = store.get("trk_hidetest", true);
 
-  function status(msg, bad) { const el = $("#status"); el.textContent = msg; el.className = "status" + (bad ? " bad" : ""); }
+  function status(msg, kind) { $("#status").innerHTML = `<span class="dot ${kind || ""}"></span>${esc(msg)}`; }
   async function load() {
-    const url = $("#src").value.trim(); if (!url) return status("Paste the collector URL first.", true);
-    store.set("trk_src", url); status("Loading...");
+    const url = $("#src").value.trim(); if (!url) return status("No collector address", "bad");
+    store.set("trk_src", url); status("Refreshing", "wait");
     try {
       const r = await fetch(url + (url.includes("?") ? "&" : "?") + "t=" + Date.now(), { cache: "no-store" });
       const j = await r.json();
-      if (!j || !Array.isArray(j.events)) throw new Error("unexpected response");
-      EVENTS = j.events; status("Loaded " + EVENTS.length + " events at " + new Date().toLocaleTimeString() + ".");
+      if (!j || !Array.isArray(j.events)) throw new Error(j && j.error === "key" ? "the read key was refused" : "unexpected response");
+      EVENTS = j.events; status("Updated " + new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) + " · " + EVENTS.length + " events");
       render();
-    } catch (e) { status("Could not load. Check the URL is the web app /exec link and the deployment allows Anyone. (" + (e.message || e) + ")", true); }
+    } catch (e) { status("Could not load: " + (e.message || e), "bad"); }
   }
   $("#load").addEventListener("click", load);
-  $("#src").addEventListener("keydown", e => { if (e.key === "Enter") load(); });
+  $("#src").addEventListener("change", load);
   function schedule() { clearInterval(timer); if ($("#auto").checked) timer = setInterval(() => { if ($("#src").value.trim()) load(); }, 60000); }
   $("#auto").addEventListener("change", schedule); schedule();
-  if ($("#src").value.trim()) load();
+  if ($("#src").value.trim()) load(); else { status("No collector address", "bad"); $("details.source").open = true; }
 
   // drop a file: JSON from the collector, or CSV exported from the sheet
   const drop = $("#drop");
@@ -204,8 +231,8 @@ fb | facebook | social | zimmi</textarea></div>
     try {
       if (/^\s*[\[{]/.test(txt)) { const j = JSON.parse(txt); EVENTS = Array.isArray(j) ? j : (j.events || []); }
       else EVENTS = csv(txt);
-      status("Loaded " + EVENTS.length + " events from " + f.name + "."); render();
-    } catch (err) { status("Could not read that file.", true); }
+      status("Loaded " + EVENTS.length + " events from " + f.name); render();
+    } catch (err) { status("Could not read that file", "bad"); }
   });
   function csv(t) {
     const rows = []; let row = [], cell = "", q = false;
@@ -217,82 +244,143 @@ fb | facebook | social | zimmi</textarea></div>
   // filters
   $("#range").addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; $("#range").querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b)); rangeDays = parseInt(b.dataset.d, 10); render(); });
   ["f-source", "f-camp", "f-rep", "f-device"].forEach(id => $("#" + id).addEventListener("change", render));
+  $("#hidetest").addEventListener("change", () => { store.set("trk_hidetest", $("#hidetest").checked); render(); });
   function fillSelect(id, values, label) { const sel = $("#" + id); const cur = sel.value; sel.innerHTML = `<option value="">${label}</option>` + values.map(v => `<option value="${esc(v)}">${esc(v)}</option>`).join(""); sel.value = values.includes(cur) ? cur : ""; }
 
-  const day = ts => (ts || "").slice(0, 10);
+  const pad = n => (n < 10 ? "0" : "") + n;
+  const localDay = d => d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
+  const day = ts => { const d = new Date(ts); return isNaN(d) ? "" : localDay(d); };
+  const when = ts => { const d = new Date(ts); return isNaN(d) ? "" : d.toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }); };
   const uniq = arr => arr.filter((v, i, a) => a.indexOf(v) === i);
   const src = e => e.utm_source || (e.referrer ? "referral" : "direct");
   const camp = e => e.campaign_code || e.utm_campaign || "(none)";
+  const isTestEvent = e => /^test$/i.test(String(e.campaign_code || "")) || /test|example\.com/i.test(String(e.email || "")) || /^test/i.test(String(e.first_name || "").trim());
+  let hiddenSessions = 0;
 
   function filtered() {
-    const since = rangeDays ? Date.now() - rangeDays * 864e5 : 0;
+    let since = 0;
+    if (rangeDays === 1) { const d = new Date(); d.setHours(0, 0, 0, 0); since = d.getTime(); }
+    else if (rangeDays) since = Date.now() - rangeDays * 864e5;
     const fs = $("#f-source").value, fc = $("#f-camp").value, fr = $("#f-rep").value, fd = $("#f-device").value;
-    return EVENTS.filter(e => e.event && e.ts && (!since || new Date(e.ts).getTime() >= since) && (!fs || src(e) === fs) && (!fc || camp(e) === fc) && (!fr || (e.rep || "") === fr) && (!fd || e.device === fd));
+    const testSids = new Set();
+    if ($("#hidetest").checked) EVENTS.forEach(e => { if (isTestEvent(e)) testSids.add(e.sid); });
+    hiddenSessions = testSids.size;
+    return EVENTS.filter(e => e.event && e.ts && e.sid && !testSids.has(e.sid) && (!since || new Date(e.ts).getTime() >= since) && (!fs || src(e) === fs) && (!fc || camp(e) === fc) && (!fr || (e.rep || "") === fr) && (!fd || e.device === fd));
   }
   const count = (evs, name) => uniq(evs.filter(e => e.event === name).map(e => e.sid)).length;
+  const countAny = (evs, names) => uniq(evs.filter(e => names.includes(e.event)).map(e => e.sid)).length;
   const pct = (a, b) => b ? Math.round(a / b * 100) + "%" : "0%";
+  const CLICKS = ["cta_build", "cta_webinar", "cta_review", "cta_setup"];
+
+  // how far each session got: 0 saw the page, 1..7 the screens, 8 got the report
+  function furthest(evs) {
+    const far = {};
+    evs.forEach(e => {
+      let k = 0;
+      if (e.event === "start") k = 1;
+      else if (e.event === "question") k = SCREEN_IDX[e.qid] || 1;
+      else if (e.event === "complete" || e.event === "results" || CLICKS.includes(e.event) || e.event === "breakdown_open" || e.event === "signup_complete") k = 8;
+      if (far[e.sid] == null || k > far[e.sid]) far[e.sid] = k;
+    });
+    return far;
+  }
+  function medianFinish(evs) {
+    const st = {}, fin = {};
+    evs.forEach(e => { const t = new Date(e.ts).getTime(); if (e.event === "start") { if (st[e.sid] == null || t < st[e.sid]) st[e.sid] = t; } if (e.event === "complete") { if (fin[e.sid] == null || t < fin[e.sid]) fin[e.sid] = t; } });
+    const d = Object.keys(fin).filter(s => st[s] != null && fin[s] > st[s]).map(s => (fin[s] - st[s]) / 1000).filter(x => x < 3600).sort((a, b) => a - b);
+    if (!d.length) return null;
+    const m = d[Math.floor(d.length / 2)];
+    return m >= 60 ? Math.floor(m / 60) + "m " + pad(Math.round(m % 60)) + "s" : Math.round(m) + "s";
+  }
 
   function render() {
     fillSelect("f-source", uniq(EVENTS.map(src)).sort(), "All sources");
-    fillSelect("f-camp", uniq(EVENTS.map(camp)).sort(), "All campaign codes");
+    fillSelect("f-camp", uniq(EVENTS.map(camp)).sort(), "All campaigns");
     fillSelect("f-rep", uniq(EVENTS.map(e => e.rep).filter(Boolean)).sort(), "All reps");
     const evs = filtered();
     $("#empty").classList.toggle("hidden", EVENTS.length > 0); $("#dash").classList.toggle("hidden", EVENTS.length === 0);
     if (!EVENTS.length) return;
+    $("#hidetest").parentElement.lastChild.textContent = " Hide internal tests" + (hiddenSessions ? " (" + hiddenSessions + ")" : "");
 
-    const views = uniq(evs.filter(e => e.event === "view").map(e => e.vid || e.sid)).length;
-    const sessions = count(evs, "view"), starts = count(evs, "start"), completes = count(evs, "complete"), builds = count(evs, "cta_build"), reviews = count(evs, "cta_review"), emails = count(evs, "cta_email"), signups = count(evs, "signup_complete"), breakdown = count(evs, "breakdown_open"), webinar = count(evs, "cta_webinar");
-    const kp = [["Visits", sessions, views + " unique " + (views === 1 ? "person" : "people")], ["Starts", starts, pct(starts, sessions) + " of visits"], ["Completions", completes, pct(completes, starts) + " of starts"], ["Start RevRing clicks", builds, pct(builds, completes) + " of completions"], ["Webinar seats clicked", reviews + webinar, pct(reviews + webinar, completes) + " of completions"], ["Reports emailed", emails, ""], ["Opened the breakdown", breakdown, pct(breakdown, completes) + " of completions"], ["Sign-ups", signups, pct(signups, completes) + " of completions"]];
-    $("#kpis").innerHTML = kp.map(([l, v, d]) => `<div class="kpi"><div class="l">${esc(l)}</div><div class="v">${v.toLocaleString()}</div><div class="d">${esc(d)}</div></div>`).join("");
+    const far = furthest(evs);
+    const sessions = Object.keys(far).length;
+    const people = uniq(evs.map(e => e.vid || e.sid)).length;
+    const reached = k => Object.values(far).filter(v => v >= k).length;
+    const starts = reached(1), completes = count(evs, "complete"), builds = count(evs, "cta_build"), demos = countAny(evs, ["cta_webinar", "cta_review"]), clicks = countAny(evs, CLICKS), signups = count(evs, "signup_complete"), breakdown = count(evs, "breakdown_open");
+    const hot = uniq(evs.filter(e => e.event === "complete" && e.lead === "HOT").map(e => e.sid)).length;
+    const med = medianFinish(evs);
+    const kp = [
+      ["Visits", sessions, people + " unique " + (people === 1 ? "person" : "people"), ""],
+      ["Starts", starts, pct(starts, sessions) + " of visits", ""],
+      ["Completions", completes, pct(completes, starts) + " of starts", ""],
+      ["Hot leads", hot, pct(hot, completes) + " of completions", "hot"],
+      ["Demo clicks", demos, pct(demos, completes) + " of completions", ""],
+      ["Start RevRing clicks", builds, pct(builds, completes) + " of completions", ""],
+      ["Sign-ups", signups, pct(signups, completes) + " of completions", ""],
+      ["Median time to finish", med || "–", med ? "start to report" : "no timed completions yet", ""]
+    ];
+    $("#kpis").innerHTML = kp.map(([l, v, d, cls]) => `<div class="kpi ${cls}"><div class="l">${esc(l)}</div><div class="v">${typeof v === "number" ? v.toLocaleString() : esc(v)}</div><div class="d">${esc(d)}</div></div>`).join("");
 
-    // funnel
-    const steps = [["Saw the page", sessions, ""], ["Started", starts, ""]];
-    QORDER.forEach(q => steps.push([QLABEL[q], uniq(evs.filter(e => e.event === "question" && e.qid === q).map(e => e.sid)).length, "q"]));
-    steps.push(["Got their report", completes, "win"], ["Clicked Start RevRing", builds, "win"], ["Signed up", signups, "win"]);
+    // funnel: every screen, monotonic, with drop-off
+    const steps = [["Saw the page", sessions, ""]];
+    SCREENS.forEach(([id, label], i) => steps.push([label, reached(i + 1), "q"]));
+    steps.push(["Got their report", completes, "win"], ["Clicked a next step", clicks, "win"], ["Signed up", signups, "win"]);
     const max = Math.max(1, sessions);
-    $("#funnel").innerHTML = steps.map(([l, n, cls]) => `<div class="row ${cls}"><span>${esc(l)}</span><span class="track"><i style="width:${Math.round(n / max * 100)}%"></i></span><span class="n">${n}</span><span class="p">${pct(n, sessions)}</span></div>`).join("");
+    let html = `<div class="row head"><span>Step</span><span></span><span class="n">People</span><span class="p">Of visits</span><span class="d">Dropped</span></div>`;
+    html += steps.map(([l, n, cls], i) => {
+      const next = i < steps.length - 1 ? steps[i + 1][1] : null;
+      const dropped = next != null && i < steps.length - 3 ? Math.max(0, n - next) : null;   // drop-off stops at the report; clicks and sign-ups are not required steps
+      return `<div class="row ${cls}"><span>${esc(l)}</span><span class="track"><i style="width:${Math.round(n / max * 100)}%"></i></span><span class="n">${n}</span><span class="p">${pct(n, sessions)}</span><span class="d ${dropped ? "" : "zero"}">${dropped == null ? "" : dropped ? "-" + dropped : "0"}</span></div>`;
+    }).join("");
+    $("#funnel").innerHTML = html;
 
-    // daily chart (inline svg)
-    const days = []; const nDays = rangeDays || 30; const today = new Date(); today.setHours(0, 0, 0, 0);
-    for (let i = nDays - 1; i >= 0; i--) { const d = new Date(today.getTime() - i * 864e5); days.push(d.toISOString().slice(0, 10)); }
-    const byDay = k => days.map(d => uniq(evs.filter(e => e.event === k && day(e.ts) === d).map(e => e.sid)).length);
-    const sV = byDay("view"), sS = byDay("start"), sC = byDay("complete");
-    const W = 520, H = 170, padL = 30, padR = 18, padB = 22, mx = Math.max(1, ...sV);
-    const x = i => padL + i * ((W - padL - padR) / Math.max(1, days.length - 1)), y = v => H - padB - v / mx * (H - padB - 10);
+    // daily chart, local days
+    const days = []; const nDays = rangeDays === 1 ? 1 : (rangeDays || 30); const today = new Date(); today.setHours(0, 0, 0, 0);
+    for (let i = nDays - 1; i >= 0; i--) { const d = new Date(today.getTime() - i * 864e5); days.push(localDay(d)); }
+    const byDayK = k => days.map(d => uniq(evs.filter(e => e.event === k && day(e.ts) === d).map(e => e.sid)).length);
+    const sV = days.map(d => uniq(evs.filter(e => day(e.ts) === d).map(e => e.sid)).length), sS = byDayK("start"), sC = byDayK("complete");
+    const W = 520, H = 180, padL = 30, padR = 14, padB = 22, mx = Math.max(1, ...sV);
+    const x = i => days.length === 1 ? W / 2 : padL + i * ((W - padL - padR) / (days.length - 1)), y = v => H - padB - v / mx * (H - padB - 12);
     const line = arr => arr.map((v, i) => (i ? "L" : "M") + x(i).toFixed(1) + " " + y(v).toFixed(1)).join(" ");
+    const dots = (arr, col) => arr.map((v, i) => `<circle cx="${x(i).toFixed(1)}" cy="${y(v).toFixed(1)}" r="2.6" fill="${col}"/>`).join("");
     const ticks = [0, Math.round(mx / 2), mx].filter((v, i, a) => a.indexOf(v) === i);
-    const lab = days.length <= 8 ? days.map((d, i) => [i, d.slice(5)]) : [[0, days[0].slice(5)], [Math.floor(days.length / 2), days[Math.floor(days.length / 2)].slice(5)], [days.length - 1, days[days.length - 1].slice(5)]];
-    $("#daily").innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Views, starts and completions by day">
+    const fmt = d => d.slice(5).replace("-", "/").replace(/^0/, "").replace("/0", "/");
+    const lab = days.length <= 8 ? days.map((d, i) => [i, fmt(d)]) : [[0, fmt(days[0])], [Math.floor(days.length / 2), fmt(days[Math.floor(days.length / 2)])], [days.length - 1, fmt(days[days.length - 1])]];
+    $("#daily").innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Visits, starts and completions by day">
       ${ticks.map(t => `<line x1="${padL}" x2="${W - padR}" y1="${y(t)}" y2="${y(t)}" stroke="var(--line)"/><text x="${padL - 6}" y="${y(t) + 4}" font-size="10" text-anchor="end" fill="var(--muted)">${t}</text>`).join("")}
-      <path d="${line(sV)}" fill="none" stroke="#1684e8" stroke-width="2.2"/><path d="${line(sS)}" fill="none" stroke="#06b6d4" stroke-width="2.2"/><path d="${line(sC)}" fill="none" stroke="#22c55e" stroke-width="2.2"/>
-      ${lab.map(([i, t], k) => `<text x="${x(i)}" y="${H - 6}" font-size="10" text-anchor="${k === 0 ? "start" : k === lab.length - 1 ? "end" : "middle"}" fill="var(--muted)">${t}</text>`).join("")}
-    </svg><div class="fine"><span class="chip" style="background:#1684e8"></span>Views <span class="chip" style="background:#06b6d4;margin-left:10px"></span>Starts <span class="chip" style="background:#22c55e;margin-left:10px"></span>Completions</div>`;
+      <path d="${line(sV)}" fill="none" stroke="#1d6fd1" stroke-width="2"/><path d="${line(sS)}" fill="none" stroke="#0e9aa7" stroke-width="2"/><path d="${line(sC)}" fill="none" stroke="#1f8a4c" stroke-width="2"/>
+      ${dots(sV, "#1d6fd1")}${dots(sS, "#0e9aa7")}${dots(sC, "#1f8a4c")}
+      ${lab.map(([i, t], k) => `<text x="${x(i)}" y="${H - 6}" font-size="10" text-anchor="${days.length === 1 ? "middle" : k === 0 ? "start" : k === lab.length - 1 ? "end" : "middle"}" fill="var(--muted)">${t}</text>`).join("")}
+    </svg><div class="fine"><span class="chip" style="background:#1d6fd1"></span>Visits <span class="chip" style="background:#0e9aa7;margin-left:10px"></span>Starts <span class="chip" style="background:#1f8a4c;margin-left:10px"></span>Completions</div>`;
 
     // by campaign and by rep
     const group = (sub, keyFn, label) => {
       const keys = uniq(sub.map(keyFn)).sort();
-      const rows = keys.map(k => { const g = sub.filter(e => keyFn(e) === k); return { k, v: count(g, "view"), s: count(g, "start"), c: count(g, "complete"), b: count(g, "cta_build"), su: count(g, "signup_complete") }; }).sort((a, b) => b.v - a.v);
-      const tot = rows.reduce((t, r) => ({ v: t.v + r.v, s: t.s + r.s, c: t.c + r.c, b: t.b + r.b, su: t.su + r.su }), { v: 0, s: 0, c: 0, b: 0, su: 0 });
-      return `<div class="tablewrap"><table><tr><th>${label}</th><th class="n">Views</th><th class="n">Starts</th><th class="n">Completed</th><th class="n">Finish rate</th><th class="n">Build clicks</th><th class="n">Sign-ups</th></tr>
-        ${rows.map(r => `<tr><td>${esc(r.k)}</td><td class="n">${r.v}</td><td class="n">${r.s}</td><td class="n">${r.c}</td><td class="n">${pct(r.c, r.s)}</td><td class="n">${r.b}</td><td class="n">${r.su}</td></tr>`).join("")}
-        ${rows.length > 1 ? `<tr class="tot"><td>All</td><td class="n">${tot.v}</td><td class="n">${tot.s}</td><td class="n">${tot.c}</td><td class="n">${pct(tot.c, tot.s)}</td><td class="n">${tot.b}</td><td class="n">${tot.su}</td></tr>` : ""}</table></div>`;
+      const rows = keys.map(k => { const g = sub.filter(e => keyFn(e) === k); const f = furthest(g); return { k, v: Object.keys(f).length, s: Object.values(f).filter(x => x >= 1).length, c: count(g, "complete"), h: uniq(g.filter(e => e.event === "complete" && e.lead === "HOT").map(e => e.sid)).length, d: countAny(g, ["cta_webinar", "cta_review"]), b: count(g, "cta_build"), su: count(g, "signup_complete") }; }).sort((a, b) => b.v - a.v);
+      const tot = rows.reduce((t, r) => ({ v: t.v + r.v, s: t.s + r.s, c: t.c + r.c, h: t.h + r.h, d: t.d + r.d, b: t.b + r.b, su: t.su + r.su }), { v: 0, s: 0, c: 0, h: 0, d: 0, b: 0, su: 0 });
+      const tr = r => `<td class="n">${r.v}</td><td class="n">${r.s}</td><td class="n">${r.c}</td><td class="n">${pct(r.c, r.s)}</td><td class="n">${r.h}</td><td class="n">${r.d}</td><td class="n">${r.b}</td><td class="n">${r.su}</td>`;
+      return `<div class="tablewrap"><table><tr><th>${label}</th><th class="n">Visits</th><th class="n">Starts</th><th class="n">Completed</th><th class="n">Finish rate</th><th class="n">Hot</th><th class="n">Demo</th><th class="n">Start RevRing</th><th class="n">Sign-ups</th></tr>
+        ${rows.map(r => `<tr><td>${esc(r.k)}</td>${tr(r)}</tr>`).join("")}
+        ${rows.length > 1 ? `<tr class="tot"><td>All</td>${tr(tot)}</tr>` : ""}</table></div>`;
     };
     $("#bycamp").innerHTML = group(evs, e => camp(e) + "  (" + src(e) + ")", "Campaign (source)");
     const repEvs = evs.filter(e => e.rep);
-    $("#byrep").innerHTML = repEvs.length ? group(repEvs, e => e.rep, "Rep") : `<p class="fine">No links with a rep name yet. Add rep=name to a link and it shows up here.</p>`;
+    $("#byrep").innerHTML = repEvs.length ? group(repEvs, e => e.rep, "Rep") : `<p class="fine">No links with a rep name in this range.</p>`;
 
     // small splits
-    const mini = (id, keyFn, evName) => { const g = evs.filter(e => e.event === evName); const keys = uniq(g.map(keyFn).filter(Boolean)); const rows = keys.map(k => [k, uniq(g.filter(e => keyFn(e) === k).map(e => e.sid)).length]).sort((a, b) => b[1] - a[1]); const m = Math.max(1, ...rows.map(r => r[1])); $("#" + id).innerHTML = rows.length ? rows.map(([k, n]) => `<div class="r"><span>${esc(k)}</span><span class="t"><i style="width:${Math.round(n / m * 100)}%"></i></span><span class="n">${n}</span></div>`).join("") : `<p class="fine">Nothing yet.</p>`; };
-    mini("bydevice", e => e.device, "view");
+    const mini = (id, keyFn, evName, swatch) => { const g = evName ? evs.filter(e => e.event === evName) : evs; const keys = uniq(g.map(keyFn).filter(Boolean)); const rows = keys.map(k => [k, uniq(g.filter(e => keyFn(e) === k).map(e => e.sid)).length]).sort((a, b) => b[1] - a[1]); const m = Math.max(1, ...rows.map(r => r[1])); $("#" + id).innerHTML = rows.length ? rows.map(([k, n]) => `<div class="r"><span>${swatch && COLOR_HEX[k] ? `<span class="swatch" style="background:${COLOR_HEX[k]}"></span>` : ""}${esc(k)}</span><span class="t"><i style="width:${Math.round(n / m * 100)}%"></i></span><span class="n">${n}</span></div>`).join("") : `<p class="fine">Nothing in this range.</p>`; };
+    mini("bydevice", e => e.device, null);
     mini("byplan", e => e.plan ? "RevRing " + e.plan.charAt(0).toUpperCase() + e.plan.slice(1) + (e.crm === "add" ? " plus CRM" : "") : null, "complete");
-    mini("bycolor", e => e.color, "complete");
+    mini("bycolor", e => e.color, "complete", true);
 
-    // sign-ups and recent completions
-    const comps = evs.filter(e => e.event === "complete").sort((a, b) => (b.ts > a.ts ? 1 : -1));
+    // completions and sign-ups, one row per session, newest first
+    const seen = new Set();
+    const comps = evs.filter(e => e.event === "complete").sort((a, b) => (b.ts > a.ts ? 1 : -1)).filter(c => { if (seen.has(c.sid)) return false; seen.add(c.sid); return true; });
     const sus = evs.filter(e => e.event === "signup_complete").sort((a, b) => (b.ts > a.ts ? 1 : -1));
     const bySid = {}; comps.forEach(c => { bySid[c.sid] = c; });
-    $("#signups").innerHTML = sus.length ? `<table class="stack"><tr><th>When</th><th>Who</th><th>Plan</th><th>Campaign</th><th>Rep</th></tr>${sus.slice(0, 50).map(s => { const c = bySid[s.sid] || {}; return `<tr><td data-label="When">${esc((s.ts || "").slice(0, 16).replace("T", " "))}</td><td class="wide" data-label="Who"><b>${esc(s.first_name || c.first_name || "")}</b> ${esc(s.email || c.email || "")}<br><span class="fine">${esc(s.company || c.company || "")}</span></td><td data-label="Plan">${esc(s.plan || c.plan || "")}${(s.crm || c.crm) === "add" ? " plus CRM" : ""}</td><td data-label="Campaign">${esc(camp(s))}</td><td data-label="Rep">${esc(s.rep || c.rep || "")}</td></tr>`; }).join("")}</table>` : `<p class="fine">No sign-ups recorded yet. Start RevRing clicks are counted above; the sign-up itself needs the snippet on RevRing's success page.</p>`;
-    $("#recent").innerHTML = comps.length ? `<table class="stack"><tr><th>When</th><th>Who</th><th>Recommended</th><th class="n">Seats</th><th>Lead</th><th>Zimmi</th><th>Source</th><th>Rep</th><th>Device</th></tr>${comps.slice(0, 60).map(c => `<tr><td data-label="When">${esc((c.ts || "").slice(0, 16).replace("T", " "))}</td><td class="wide" data-label="Who"><b>${esc(c.first_name || "")}</b> <span class="m-only tag ${esc((c.lead || "").toLowerCase())}">${esc(c.lead || "")}</span><br><span class="fine">${esc(c.email || "")}${c.company ? " · " + esc(c.company) : ""}</span></td><td data-label="Recommended">${c.plan ? "RevRing " + esc(c.plan.charAt(0).toUpperCase() + c.plan.slice(1)) + (c.crm === "add" ? " plus CRM" : "") : ""}</td><td class="n" data-label="Seats">${esc(c.seats || "")}</td><td class="m-hide" data-label="Lead"><span class="tag ${esc((c.lead || "").toLowerCase())}">${esc(c.lead || "")}</span></td><td data-label="Zimmi">${esc(c.color || "")}</td><td data-label="Source">${esc(camp(c))}<br><span class="fine">${esc(src(c))}</span></td><td data-label="Rep">${esc(c.rep || "")}</td><td data-label="Device">${esc(c.device || "")}</td></tr>`).join("")}</table>` : `<p class="fine">No completions in this range.</p>`;
+    const clickedBy = {}; evs.forEach(e => { if (CLICKS.includes(e.event)) clickedBy[e.sid] = e.event === "cta_build" ? "Start RevRing" : e.event === "cta_setup" ? "Setup call" : "Demo"; });
+    $("#recent").innerHTML = comps.length ? `<table class="stack"><tr><th>When</th><th>Who</th><th>Lead</th><th>Result</th><th>Recommended</th><th class="n">Seats</th><th>Clicked</th><th>Campaign</th><th>Rep</th><th>Device</th></tr>${comps.slice(0, 80).map(c => `<tr><td data-label="When">${esc(when(c.ts))}</td><td class="wide" data-label="Who"><b>${esc(c.first_name || "")}</b> <span class="m-only tag ${esc((c.lead || "").toLowerCase())}">${esc(c.lead || "")}</span><br><span class="fine">${esc(c.email || "")}${c.company ? " · " + esc(c.company) : ""}</span></td><td class="m-hide" data-label="Lead"><span class="tag ${esc((c.lead || "").toLowerCase())}">${esc(c.lead || "")}</span></td><td data-label="Result">${COLOR_HEX[c.color] ? `<span class="swatch" style="background:${COLOR_HEX[c.color]}"></span>` : ""}${esc(c.color || "")}</td><td data-label="Recommended">${c.plan ? "RevRing " + esc(c.plan.charAt(0).toUpperCase() + c.plan.slice(1)) + (c.crm === "add" ? " plus CRM" : "") : ""}</td><td class="n" data-label="Seats">${esc(c.seats || "")}</td><td data-label="Clicked">${esc(clickedBy[c.sid] || "")}</td><td data-label="Campaign">${esc(camp(c))}<br><span class="fine">${esc(src(c))}</span></td><td data-label="Rep">${esc(c.rep || "")}</td><td data-label="Device">${esc(c.device || "")}</td></tr>`).join("")}</table>` : `<p class="fine">No completions in this range.</p>`;
+    $("#signups").innerHTML = sus.length ? `<table class="stack"><tr><th>When</th><th>Who</th><th>Plan</th><th>Campaign</th><th>Rep</th></tr>${sus.slice(0, 50).map(s => { const c = bySid[s.sid] || {}; return `<tr><td data-label="When">${esc(when(s.ts))}</td><td class="wide" data-label="Who"><b>${esc(s.first_name || c.first_name || "")}</b> ${esc(s.email || c.email || "")}<br><span class="fine">${esc(s.company || c.company || "")}</span></td><td data-label="Plan">${esc(s.plan || c.plan || "")}${(s.crm || c.crm) === "add" ? " plus CRM" : ""}</td><td data-label="Campaign">${esc(camp(s))}</td><td data-label="Rep">${esc(s.rep || c.rep || "")}</td></tr>`; }).join("")}</table>` : `<p class="fine">No sign-ups recorded in this range. Start RevRing clicks are counted above; the sign-up itself needs the snippet on RevRing's success page.</p>`;
   }
 
   // link builder
