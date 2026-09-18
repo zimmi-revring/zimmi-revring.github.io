@@ -1053,6 +1053,7 @@
     ["400p", "$400 or more"],
     ["unknown", "I do not know"]
   ];
+  const COST_LABEL = Object.fromEntries(COST_OPTS);
   const COST_MID = { u50: 35, "50_99": 75, "100_149": 125, "150_249": 200, "250_399": 325, "400p": 450, unknown: null };
 
   const SEAT_OPTS = [
@@ -1133,6 +1134,7 @@
     ["10p", "10 or more hours"],
     ["unknown", "No idea, but it is significant"]
   ];
+  const HOURS_LABEL = Object.fromEntries(HOURS_OPTS);
   const HOURS_WEEK = { none: 0, u2: 1, "2_5": 3.5, "5_10": 7.5, "10p": 12, unknown: null };
 
   // ---------- Question definitions ----------
@@ -1875,7 +1877,7 @@
     if (!connect.length) connect.push({ t: "Your lists and your numbers", d: "Numbers bought inside RevRing, lists imported and DNC scrubbed on the setup call." });
 
     // Consolidate: what RevRing takes over
-    const label = { crm: fit.crm === "add" ? crmName + " into RevRing CRM" : "CRM", dialer: dialerName ? dialerName + " (your dialer)" : "Dialer", sms: "Texting", quoting: "Quoting", pipeline: "Pipeline and task tracking", recording: "Call recording", scoring: "AI call scoring", compliance: "DNC scrubbing", reporting: "Reporting and analytics", marketplace: "Part of your lead vendor spend" };
+    const label = { crm: fit.crm === "add" ? crmName + " into RevRing CRM" : "CRM", dialer: dialerName ? (dialerName === "your dialer" ? "Your dialer" : dialerName + " (your dialer)") : "Dialer", sms: "Texting", quoting: "Quoting", pipeline: "Pipeline and task tracking", recording: "Call recording", scoring: "AI call scoring", compliance: "DNC scrubbing", reporting: "Reporting and analytics", marketplace: "Part of your lead vendor spend" };
     const why = { crm: fit.crm_reason, dialer: (pro ? "Multi-line predictive dialing" : "Power and predictive dialing") + " with voicemail drop is in the plan. One less bill and one less login, once setup and A2P verification are done.", sms: "Texting runs from the same desktop as the call at published per-segment rates, once A2P registration clears.", quoting: "Final expense, term, Medicare Advantage and Medicare Supplement quotes inside the platform.", pipeline: "Pipeline lives in RevRing CRM on the same screen as the dialer, so the stages finally mean something.", recording: "Every call recorded on the contact record. No separate recording tool.", scoring: "AI call scoring is in the platform at " + money((cfg.usage || {}).aiScoringPerCall) + " per scored call" + (pro ? ", with sentiment and real-time agent assist on Pro." : "."), compliance: "DNC scrubbing on every list before anyone dials. Built in, not bolted on.", reporting: (pro ? "Custom reporting and dashboards" : "Custom dashboards") + " over calls, texts, pipeline and outcomes. No Friday spreadsheet.", marketplace: "RevRing's inbound lead system runs inside the platform, matched by state and availability. Your other vendors still work; their lists import and scrub." };
     fit.calc.consolidatable.forEach(t => { if (label[t]) consolidate.push({ t: label[t], d: why[t] || "" }); });
     if (fit.crm === "add" && !hasCrm) consolidate.push({ t: "Spreadsheets and memory into RevRing CRM", d: fit.crm_reason });
@@ -2002,8 +2004,14 @@
     };
   }
 
+  // display names for the CRM and dialer the person named (shared by the report, the stack plan and the email)
+  const CRM_NAMES = { hubspot: "HubSpot", ghl: "GoHighLevel", salesforce: "Salesforce", zoho: "Zoho", radius: "Radius", agencybloc: "AgencyBloc", pipedrive: "Pipedrive" };
+  const DIALER_NAMES = { convoso: "Convoso", five9: "Five9", ricochet: "Ricochet360", readymode: "ReadyMode", ringcentral: "RingCentral", kixie: "Kixie", phoneburner: "PhoneBurner" };
+  function crmDisplay(a) { return a.crm_name && a.crm_name !== "none" ? (a.crm_name === "other" ? (a.crm_other || "your CRM") : CRM_NAMES[a.crm_name] || "your CRM") : null; }
+  function dialerDisplay(a) { return a.dialer_name && a.dialer_name !== "none" ? (a.dialer_name === "other" ? (a.dialer_other || "your dialer") : DIALER_NAMES[a.dialer_name] || "your dialer") : null; }
+
   root.FIT = {
-    POST_QUESTIONS, PRE_QUESTIONS, DIAG_QUESTIONS, withDerived, zemiColor, ZEMI_COLORS, stackPlan, opportunity, PAIN_LABEL, TOOL_LABEL, SEAT_LABEL, DIAL_LABEL, CRM_FEEL_LABEL, WORTH_LABEL, FEATURE_BANK, SYSTEMS_NUM, COST_MID,
+    POST_QUESTIONS, PRE_QUESTIONS, DIAG_QUESTIONS, withDerived, zemiColor, ZEMI_COLORS, stackPlan, opportunity, PAIN_LABEL, TOOL_LABEL, SEAT_LABEL, DIAL_LABEL, CRM_FEEL_LABEL, WORTH_LABEL, FEATURE_BANK, SYSTEMS_NUM, COST_MID, COST_LABEL, HOURS_LABEL, crmDisplay, dialerDisplay,
     computeFit, buildPayload, classifyLead, scores, money, num, seatCount, leaning, INSIGHTS, ZEMI_INTRO, zemiMood, zemiHeat, sideBySide, stackScore, buildSheet, transformation, systemsKey
   };
 })(typeof window !== "undefined" ? window : globalThis);
@@ -2606,7 +2614,8 @@
     state.completedAt = new Date().toISOString();
     state.fit = F.computeFit(a, CFG, "diag");
     state.screen = "results"; save();
-    track("complete", Object.assign({ first_name: a.first_name || "", email: a.email || "", company: a.company || "", mobile: a.mobile || "" }, fitProps()));
+    let reportTxt = ""; try { reportTxt = reportText(state.fit); } catch (e) { reportTxt = ""; }
+    track("complete", Object.assign({ first_name: a.first_name || "", email: a.email || "", company: a.company || "", mobile: a.mobile || "", report: reportTxt }, fitProps()));
     const payload = F.buildPayload(a, state.fit, CFG, ATTR, { startedAt: state.startedAt, completedAt: state.completedAt, pageUrl: location.href.split("#")[0] });
     // keep a local copy (this browser only) for the admin view and for retry
     const subs = store.get("diag_submissions", []); subs.unshift({ id: "s_" + Date.now(), payload, sent: false }); store.set("diag_submissions", subs.slice(0, 200));
@@ -2678,6 +2687,39 @@
     lines.push("Lead status: " + fit.lead + ".");
     if (a.email) lines.push("Contact: " + a.email + (a.mobile ? ", " + a.mobile : ""));
     return lines.join("\n");
+  }
+
+  // the report in writing, for the person who ran it: the same numbers and lists the results screen shows, nothing internal
+  function reportText(fit) {
+    const a = F.withDerived(state.answers), c = fit.calc;
+    const bsx = F.buildSheet(a, fit, CFG), sp = F.stackPlan(a, fit, CFG), op = F.opportunity(a, fit);
+    const crm = F.crmDisplay(a), dialer = F.dialerDisplay(a);
+    const tools = (a.tools || []).filter(t => t !== "crm" && t !== "dialer").map(t => F.TOOL_LABEL[t] || t);
+    const L = [];
+    L.push("YOUR ZIMMI RESULT: " + fit.color.name.toUpperCase());
+    L.push(fit.color.line);
+    L.push("");
+    L.push("WHAT YOU TOLD ZIMMI");
+    L.push("Team: " + (F.SEAT_LABEL[a.seats] || a.seats || "not given") + (a.seats_exact ? " (" + a.seats_exact + " exactly)" : "") + ", " + c.seats + " seat" + (c.seats === 1 ? "" : "s") + " in the build.");
+    L.push("CRM: " + (crm ? crm + (a.crm_keep === "yes" ? ", and you would keep it" : a.crm_keep === "no" ? ", and you would rather consolidate" : a.crm_keep === "maybe" ? ", maybe keeping it" : "") + (a.crm_cost ? ", about " + money(Number(a.crm_cost), 0) + " per user a month" : "") : "none today"));
+    L.push("Dialer: " + (dialer ? (dialer === "your dialer" ? "one you did not name" : dialer) : a.dialer_name === "none" ? "none, calling from phones" : "not given"));
+    if (tools.length) L.push("Also in the stack: " + tools.join(", "));
+    L.push("Calling: " + (F.DIAL_LABEL[a.dialing] || "not given"));
+    L.push("Stack cost per agent: " + (a.cost === "unknown" ? "not sure" : (F.COST_LABEL[a.cost] || "not given") + " a month") + (a.spend_exact ? ", " + money(Number(a.spend_exact), 0) + " total a month exactly" : ""));
+    if (a.hours) L.push("Hours lost switching between tools: " + (F.HOURS_LABEL[a.hours] || a.hours) + (a.hours !== "unknown" && a.hours !== "none" ? " a week" : ""));
+    if (a.pains && a.pains.length) L.push("What hurts most, in your order: " + a.pains.map(p => F.PAIN_LABEL[p] || p).join(", "));
+    if (a.worth && a.worth.length) L.push("What matters most: " + a.worth.map(w => F.WORTH_LABEL[w] || w).join(", "));
+    L.push("");
+    L.push("THE BUILD");
+    L.push(bsx.plan + (fit.crm === "add" ? " plus RevRing CRM" : crm ? " plus " + crm + ", connected" : "") + " at " + money(c.basePerUser) + " per seat per month. " + bsx.seatsLine);
+    L.push("");
+    L.push("THE MATH, BASE LICENSES ONLY");
+    if (op.lines.length) op.lines.forEach(l => L.push(l)); else L.push(op.note);
+    L.push("Usage on RevRing (minutes, texts, AI scoring) is metered at the published rates on " + (CFG.links.pricing || "the pricing page") + " and is not in the numbers above. Whatever usage is buried inside what you pay today is not in them either.");
+    const sections = [["KEEP", sp.keep], ["CONNECT", sp.connect], ["CONSOLIDATE", sp.consolidate], ["ADD", sp.add]];
+    sections.forEach(([h, items]) => { if (!items.length) return; L.push(""); L.push(h); items.forEach(x => L.push("- " + x.t + (x.d ? ": " + x.d : ""))); });
+    if (fit.fixes && fit.fixes.length) { L.push(""); L.push("FIXING, IN ORDER"); fit.fixes.forEach((r, i) => L.push((i + 1) + ". " + r.h)); }
+    return L.join("\n");
   }
 
   function renderResults() {
