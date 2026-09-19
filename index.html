@@ -2301,7 +2301,7 @@
     const dock = $("#zemi-dock"), stage = $("#stage"); if (!dock) return;
     const wasHidden = dock.hidden;
     dock.hidden = false; stage.classList.add("survey-grid");
-    dock.className = "zemi-side mood-" + (mood || "blue");
+    dock.className = "zemi-side mood-" + (mood || "blue") + (duetOn ? " duet" : "");
     const fig = $("#zemi-dock-fig"), bub = $("#zemi-dock-bubble"), txt = $("#zemi-dock-text");
     talkFig = fig; if (idleFig !== fig) startIdle(fig);
     if (wasHidden) { setPose(fig, "hat-tip"); flash(fig, "appear", 900); setTimeout(() => { const c = centerIn(fig, dock); poof(dock, c.x, c.y, 16); }, 80); }
