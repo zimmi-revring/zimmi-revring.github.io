@@ -558,11 +558,11 @@
   @media (max-width: 860px) {
     #stage.survey-grid { grid-template-columns: 1fr; gap: 12px; }
     #stage.survey-grid > .zemi-side {
-      order: -1; position: sticky; top: calc(var(--topbar-h, 61px) + env(safe-area-inset-top, 0px)); z-index: 6;
+      order: -1; position: relative; top: auto; z-index: auto;
       display: grid; grid-template-columns: 84px minmax(0, 1fr); grid-template-areas: "fig bubble" "fig spec";
       column-gap: 12px; row-gap: 6px; align-items: center;
       background: var(--surface-2); padding: 8px 0 10px; margin-top: -10px;
-      box-shadow: 0 10px 12px -12px rgba(15, 23, 42, .25);
+      box-shadow: none;
     }
     #stage.survey-grid > .zemi-side .zemi-fig.side { grid-area: fig; height: 100px; width: auto; justify-self: center; animation: bob 4s ease-in-out infinite; }
     #stage.survey-grid > .zemi-side .zemi-bubble.side { grid-area: bubble; width: auto; font-size: 13.5px; line-height: 1.35; padding: 8px 11px; border-radius: 4px 12px 12px 12px; min-height: 38px; }
@@ -588,7 +588,7 @@
     #stage.survey-grid.contact-step > .zemi-side .zemi-spec { display: none; }
     #stage.survey-grid.contact-step > .zemi-side { grid-template-areas: "fig bubble"; }
     /* when a field gets focus, the browser scrolls it below the pinned strip, not underneath it */
-    html { scroll-padding-top: calc(var(--topbar-h, 61px) + 150px); }
+    html { scroll-padding-top: calc(var(--topbar-h, 61px) + 12px); }
   }
   @media (pointer: coarse), (max-width: 640px) { .qfoot > span { visibility: hidden; } }
   @media (prefers-reduced-motion: reduce) { .zemi-side .zemi-fig.side, .zemi-side .zemi-bubble.side, .zemi-band.cool-down { animation: none; } .zemi-band.cool-down { filter: drop-shadow(0 12px 24px rgba(0,0,0,.45)); } }
