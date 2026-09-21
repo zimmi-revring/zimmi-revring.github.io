@@ -474,9 +474,9 @@
     .hero-copy { display: contents; }
     .hero-copy > .eyebrow { order: 1; font-size: 11px; }
     .hero-copy > h1 { order: 2; font-size: clamp(27px, 7.6vw, 34px); line-height: 1.12; max-width: none; margin-top: 8px; }
-    .hero-figure { order: 3; min-height: 0; margin-top: 14px; padding-top: 0; }
-    .hero-copy > .hero-offer { order: 4; margin-top: 12px; font-size: 13.5px; }
-    .hero-copy > .entry-one { order: 4; margin-top: 10px; padding-bottom: 6px; flex-direction: column; align-items: stretch; gap: 8px; }
+    .hero-figure { order: 5; min-height: 0; margin-top: 14px; padding-top: 0; }
+    .hero-copy > .hero-offer { order: 4; margin-top: 10px; font-size: 13.5px; }
+    .hero-copy > .entry-one { order: 3; margin-top: 14px; padding-bottom: 6px; flex-direction: column; align-items: stretch; gap: 8px; }
     .hero-copy > .entry-one .btn { width: 100%; font-size: 17px; padding: 15px 20px; }
     .hero-copy > .entry-one span { text-align: center; font-size: 13px; }
     .hero-copy > p.lead { order: 5; font-size: 15.5px; margin-top: 18px; }
@@ -516,6 +516,9 @@
   .mood-bright .zemi-bubble { background: var(--primary-strong); border-color: var(--primary-strong); color: #fff; }
   .mood-bright .zemi-name { color: #dff3ff; }
   .mobile-only { display: none; }
+  .more-fields { margin-top: 12px; }
+  .more-fields > summary { cursor: pointer; color: var(--primary); font-weight: 600; font-size: 14px; padding: 4px 0; }
+  .more-fields[open] > summary { margin-bottom: 8px; }
   /* Zinni: same chameleon, purple, facing Zimmi. Only on the money screen. */
   .zinni { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 100%; padding-top: 6px; border-top: 1px dashed var(--line); }
   .zemi-side .zemi-fig.side.zinni-fig { height: 300px; animation: bob 4s ease-in-out 1.3s infinite; }
@@ -989,7 +992,11 @@
     "when": "",
     "url": "https://calendly.com/revring-marketing/revring-webinar",
     "blurb": "The RevRing team walks through real reports live, what to keep, what to cut, what changes day one."
-  }
+  },
+  "skipLanding": [
+    "s1",
+    "e1"
+  ]
 }
 </script>
 <header class="topbar">
@@ -1316,7 +1323,7 @@
         { id: "spend_exact", kind: "money", label: "Total monthly spend for the whole team, if you know it", hint: "Optional. Turns the estimate into real math." }
       ]
     },
-    { id: "contact", short: "Report", section: "Your report", type: "contact", q: "Where do we send your report?", help: "It is on the next screen either way. A copy goes to your RevRing contact so nobody repeats this conversation.",
+    { id: "contact", short: "Report", section: "Your report", type: "contact", q: "Your report's ready. Where do I send it?", help: "It opens on the next screen either way. First name and email is all it takes.",
       extras: [{ id: "arq2", kind: "chips", label: "Say the parts that hurt got fixed and the parts that work stayed put. Where does that leave you?", opts: [["ready", "Ready to move"], ["numbers", "Show me the numbers"], ["team", "Need my team in on it"], ["no", "No reason not to, just looking"]] }]
     }
   ];
@@ -2436,7 +2443,7 @@
   // ---------- State ----------
   if (params.get("fresh") === "1") { try { sessionStorage.removeItem("diag_state"); localStorage.removeItem("diag_progress"); } catch (e) {} }
   let state = session.get("diag_state", null) || { screen: "landing", mode: null, step: 0, answers: {}, startedAt: null, fit: null, completedAt: null };
-  if (params.get("start") === "1" && state.screen === "landing") startMode("diag", false);
+  if ((params.get("start") === "1" || (CFG.skipLanding || []).includes(params.get("c"))) && state.screen === "landing") startMode("diag", false);
   if (window.claude && window.claude.hot && typeof window.claude.hot.snapshot === "function") {
     try { window.claude.hot.snapshot(() => state); } catch (e) {}
   }
@@ -2476,7 +2483,8 @@
         <div class="hero-copy">
         <div class="eyebrow">Free 60-second RevRing Business Diagnostic</div>
         <h1>How healthy is your business stack?</h1>
-        <p class="lead">Let's find where your business is losing time, opportunities or revenue. You probably have a CRM. A dialer. Lead vendors. Texting. Quoting. Compliance. Some of it works. Some of it quietly costs you money and hours every month. Sixty seconds with Zimmi and you get what to keep, what to connect, what to consolidate and what to add, plus the setup that fixes it and what it costs.</p>
+        <div class="entry-one"><button type="button" class="btn btn-primary btn-lg" id="start-diag">Start my business diagnostic</button><span>Seven taps. About a minute. Your report and your estimated opportunity are on the last screen.${webinarOn() ? ` Then see the fix live: <a class="hero-link" data-track="cta_webinar" href="${esc(webinarUrl())}" target="_blank" rel="noopener">${esc(CFG.webinar.title)}${CFG.webinar.when ? ", " + esc(CFG.webinar.when) : ""}</a>.` : ""}</span></div>
+        <div class="hero-offer"><span class="offer-tag">Free</span><span>No account, no card, no sales call. A minute from now you'll know if your stack is costing you money, and the report is yours to keep.</span></div>
         <div class="hero-game">
           <h2>Can you turn Zimmi blue?</h2>
           <p>He starts blue. Your answers move him. Red means the stack is held together with tape. Deep blue means it is tight. Most shops land somewhere in the middle, and the setup at the end is what turns him back.</p>
@@ -2489,8 +2497,6 @@
           <div><b>Consolidate</b><span>The pieces that overlap become one.</span></div>
           <div><b>Add</b><span>What you are missing turns on.</span></div>
         </div>
-        <div class="hero-offer"><span class="offer-tag">Free</span><span>No account, no card, no sales call. A minute from now you'll know if your stack is costing you money, and the report is yours to keep.</span></div>
-        <div class="entry-one"><button type="button" class="btn btn-primary btn-lg" id="start-diag">Start my business diagnostic</button><span>Seven taps. About a minute. Your report and your estimated opportunity are on the last screen.${webinarOn() ? ` Then see the fix live: <a class="hero-link" data-track="cta_webinar" href="${esc(webinarUrl())}" target="_blank" rel="noopener">${esc(CFG.webinar.title)}${CFG.webinar.when ? ", " + esc(CFG.webinar.when) : ""}</a>.` : ""}</span></div>
         </div>
         <div class="hero-figure duo"><div class="zemi-hello" id="hero-hello"></div>${zemiFigure("zemi-fig", "hero-zemi")}<div class="zemi-shadow" aria-hidden="true"></div><div class="zemi-hello zinni-hello" id="hero-hello-z"></div>${zinniFigure("zemi-fig zinni-fig", "hero-zinni", "Zinni, RevRing's numbers chameleon")}<div class="zemi-shadow zinni-shadow" aria-hidden="true"></div></div>
       </section>`;
@@ -2608,12 +2614,16 @@
       contactHtml = `
         <div class="fields">
           <div class="field"><label for="c-first">First name</label><input id="c-first" type="text" autocomplete="given-name" value="${v("first_name")}"><span class="err">Please add your first name.</span></div>
-          <div class="field"><label for="c-last">Last name</label><input id="c-last" type="text" autocomplete="family-name" value="${v("last_name")}"></div>
-          <div class="field"><label for="c-email">Work email</label><input id="c-email" type="email" autocomplete="email" inputmode="email" value="${v("email")}"><span class="err">Please enter a valid email so we can send your report.</span></div>
+                    <div class="field"><label for="c-email">Work email</label><input id="c-email" type="email" autocomplete="email" inputmode="email" value="${v("email")}"><span class="err">Please enter a valid email so we can send your report.</span></div>
+        </div>
+        <details class="more-fields" ${a.mobile || a.company || a.last_name ? "open" : ""}><summary>Add your phone or agency (optional)</summary>
+        <div class="fields">
+<div class="field"><label for="c-last">Last name</label><input id="c-last" type="text" autocomplete="family-name" value="${v("last_name")}"></div>
           <div class="field"><label for="c-mobile">Mobile</label><input id="c-mobile" type="tel" autocomplete="tel" inputmode="tel" value="${v("mobile")}"><span class="err">Please enter a valid mobile number, or leave it blank.</span></div>
           <div class="field span2"><label for="c-company">Agency or company</label><input id="c-company" type="text" autocomplete="organization" value="${v("company")}"></div>
         </div>
         <label class="consent"><input id="c-sms" type="checkbox" ${a.sms_consent ? "checked" : ""}> <span>It is okay to text me about my results at the mobile number above. Message and data rates may apply. Reply STOP to opt out at any time.</span></label>
+        </details>
         <p class="fineprint" style="margin-top:12px">Your answers are used to build your recommendation and to make sure your RevRing contact already knows your situation. Nothing is sold or shared outside RevRing.</p>`;
     }
 
