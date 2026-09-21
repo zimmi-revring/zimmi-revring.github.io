@@ -799,6 +799,10 @@
   .result-money { margin: 20px 0 0; font-size: 17px; line-height: 1.55; color: #fff; max-width: 64ch; padding: 12px 16px 14px; border-radius: 12px; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.14); }
   .result-money b { color: #8fdbff; }
   .result-fixes { margin-top: 18px; }
+  .result-offer { margin: 12px 0 0; font-size: 14.5px; line-height: 1.45; color: var(--band-muted); max-width: 64ch; }
+  .result-offer b { color: #fde68a; }
+  .promo-inc { margin-top: 14px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-2); }
+  .promo-inc ul { margin: 6px 0 8px; padding-left: 18px; display: grid; gap: 3px; font-size: 14px; }
   .result-fixes .eyebrow { display: block; margin-bottom: 8px; }
   .result-fixes ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
   .result-fixes li { display: inline-flex; align-items: center; gap: 8px; padding: 7px 13px; border-radius: 999px; background: rgba(22,132,232,.2); border: 1px solid rgba(56,189,248,.45); color: #e3ecf8; font-size: 14px; font-weight: 600; }
@@ -996,7 +1000,23 @@
   "skipLanding": [
     "s1",
     "e1"
-  ]
+  ],
+  "promo": {
+    "active": true,
+    "price": 99.99,
+    "label": "RevRing Pro + Full CRM",
+    "terms": "$99.99 per user a month, rate locked in for life. For the first 1,000 users or through December 31, 2026, whichever comes first.",
+    "includes": [
+      "RevRing Pro: power and predictive dialing, inbound, local numbers",
+      "Full CRM with pipelines",
+      "Lead Marketplace with Dynamic Lead Pricing",
+      "Facebook and Instagram marketing",
+      "AI builders for funnels, landing pages, lead flows, lead forms and automations",
+      "A separate automation builder with ready-made follow-up flows",
+      "Easier single and bulk email, including video email",
+      "AI call scoring, real-time assist, coaching and a training simulator"
+    ]
+  }
 }
 </script>
 <header class="topbar">
@@ -1399,7 +1419,7 @@
       if (!a.cost) return null;
       const fit = computeFit(a, cfg), c = fit.calc, seats = c.seats;
       const crm = crmDisplay(a);
-      const build = "RevRing " + cfg.plans[fit.plan].name + (fit.crm === "add" ? " with RevRing CRM" : crm ? " with " + crm + " connected" : "");
+      const build = cfg.promo && cfg.promo.active ? cfg.promo.label : "RevRing " + cfg.plans[fit.plan].name + (fit.crm === "add" ? " with RevRing CRM" : crm ? " with " + crm + " connected" : "");
       const seatsTxt = seats === 1 ? "one seat" : seats + " seats", forN = seats === 1 ? "" : " for " + seats;
       let m;
       if (c.currentPerUser == null) m = "Not sure. Honest, and I'd rather have honest than a guess. " + build + " is " + money(c.basePerUser) + " a seat, about " + money(c.baseMonthly, 0) + " a month" + forN + ". Find one invoice later and the savings line fills itself in. I'll wait.";
@@ -1790,8 +1810,9 @@
   // ---------- Cost math ----------
   function costCalc(a, cfg, plan, crmRec) {
     const seats = seatCount(a) || 1;
-    const planPrice = cfg.plans[plan].price;
-    const crmPrice = crmRec === "add" ? cfg.crmAddon.price : 0;
+    const promo = cfg.promo && cfg.promo.active;
+    const planPrice = promo ? cfg.promo.price : cfg.plans[plan].price;
+    const crmPrice = promo ? 0 : (crmRec === "add" ? cfg.crmAddon.price : 0);
     const basePerUser = planPrice + crmPrice;
     const baseMonthly = basePerUser * seats;
     const annualPct = cfg.annualDiscountPct || 0;
@@ -1877,7 +1898,7 @@
     const recording = pro ? "Recording on every call. Advanced AI call scoring and sentiment (" + money(u.aiScoringPerCall) + " per scored call). Real-time agent assist." : "Recording on every call. AI call scoring (" + money(u.aiScoringPerCall) + " per scored call) and post-call summaries.";
     const quoting = "Final expense, term, Medicare Advantage and Medicare Supplement quotes inside the platform.";
 
-    const crm = fit.crm === "add" ? "RevRing CRM at " + money(cfg.crmAddon.price) + " per seat. Contacts, pipeline and every call and text on one record, in the same place agents dial." : "Keep " + crmName + ", connected. CRM connectors are included on every plan, no connector charge.";
+    const crm = fit.crm === "add" ? "RevRing CRM" + (cfg.promo && cfg.promo.active ? ", included in the offer." : " at " + money(cfg.crmAddon.price) + " per seat.") + " Contacts, pipeline and every call and text on one record, in the same place agents dial." : "Keep " + crmName + ", connected. CRM connectors are included on every plan, no connector charge.";
     const seatsLine = seats === 1 ? "1 seat at " + money(c.basePerUser) + " a month before usage." : seats + " seats at " + money(c.basePerUser) + " each. " + money(c.baseMonthly) + " a month for the team before usage.";
 
     // What gets set up, keyed to what they said. Verified features only.
@@ -1903,7 +1924,7 @@
       { d: "Outbound live", t: "First list imported and scrubbed, the " + (a.dialing === "multiline" ? "multi-line" : "power") + " dialer running, recordings and scoring on" + (seats >= 6 || pains.includes("visibility") ? ", manager dashboard up." : ".") }
     ];
 
-    return { plan: "RevRing " + cfg.plans[fit.plan].name, crm, seats, seatsLine, numbers, dialing, inbound, compliance, recording, quoting, dayOne: setup.slice(0, 6), stop: c.consolidatable.map(t => TOOL_LABEL[t]), week: after };
+    return { plan: cfg.promo && cfg.promo.active ? cfg.promo.label : "RevRing " + cfg.plans[fit.plan].name, crm, seats, seatsLine, numbers, dialing, inbound, compliance, recording, quoting, dayOne: setup.slice(0, 6), stop: c.consolidatable.map(t => TOOL_LABEL[t]), week: after };
   }
 
   // ---------- Transformation: before and after, only from their own answers ----------
@@ -1998,7 +2019,8 @@
   // ---------- Full fit ----------
   function computeFit(a, cfg, mode) {
     const s = scores(a);
-    const planR = recommendPlan(a, s, cfg);
+    let planR = recommendPlan(a, s, cfg);
+    if (cfg.promo && cfg.promo.active) planR = Object.assign({}, planR, { plan: "pro", reason: "The offer covers RevRing Pro and the full CRM together at " + money(cfg.promo.price) + " per user." });
     const crmR = recommendCrm(a, s);
     const calc = costCalc(a, cfg, planR.plan, crmR.rec);
     const features = pickFeatures(a, s, planR.plan, crmR.rec);
@@ -2866,11 +2888,11 @@
     if (a.worth && a.worth.length) L.push("What matters most: " + a.worth.map(w => F.WORTH_LABEL[w] || w).join(", "));
     L.push("");
     L.push("THE BUILD");
-    L.push(bsx.plan + (fit.crm === "add" ? " plus RevRing CRM" : crm ? " plus " + crm + ", connected" : "") + " at " + money(c.basePerUser) + " per seat per month. " + bsx.seatsLine);
+    L.push(bsx.plan + (CFG.promo && CFG.promo.active ? (fit.crm !== "add" && crm ? ", with " + crm + " connected if you keep it," : "") : fit.crm === "add" ? " plus RevRing CRM" : crm ? " plus " + crm + ", connected" : "") + " at " + money(c.basePerUser) + " per seat per month. " + bsx.seatsLine);
     L.push("");
     L.push("WHERE YOUR CONTACTS LIVE");
     if (fit.crm === "add") {
-      L.push("RevRing CRM, " + money(CFG.crmAddon.price) + " per seat on top of the plan" + (crm ? ", replacing " + crm + "." : "."));
+      L.push("RevRing CRM, " + (CFG.promo && CFG.promo.active ? "included in the offer" : money(CFG.crmAddon.price) + " per seat on top of the plan") + (crm ? ", replacing " + crm + "." : "."));
       L.push("- Contacts, policies, tasks, pipeline and every conversation on one record, in the same place your team dials.");
       L.push("- Every call outcome lands on the contact by itself, with the recording attached. Nobody types it in.");
       L.push("- Follow up texts, emails and tasks fire from pipeline stages and call outcomes, so the follow up stops depending on memory.");
@@ -2880,9 +2902,10 @@
       L.push("Keep " + (crm || "your CRM") + ". Connectors are included on every plan, no connector charge.");
       L.push("- Calls, texts, recordings and dispositions write back to the contact in " + (crm || "your CRM") + " by themselves.");
       L.push("- Your team dials from RevRing and works the pipeline where they already do.");
-      L.push("- If it ever stops earning its keep, RevRing CRM is " + money(CFG.crmAddon.price) + " per seat on the same login.");
+      L.push(CFG.promo && CFG.promo.active ? "- The full RevRing CRM is included in the offer anyway, whenever you want to switch." : "- If it ever stops earning its keep, RevRing CRM is " + money(CFG.crmAddon.price) + " per seat on the same login.");
     }
     L.push("");
+    if (CFG.promo && CFG.promo.active) { L.push("THE OFFER"); L.push(CFG.promo.label + ", " + CFG.promo.terms); CFG.promo.includes.forEach(x => L.push("- " + x)); L.push(""); }
     L.push("THE MATH, BASE LICENSES ONLY");
     if (op.lines.length) op.lines.forEach(l => L.push(l)); else L.push(op.note);
     L.push("Usage on RevRing (minutes, texts, AI scoring) is metered at the published rates on " + (CFG.links.pricing || "the pricing page") + " and is not in the numbers above. Whatever usage is buried inside what you pay today is not in them either.");
@@ -2898,7 +2921,8 @@
     const fit = state.fit, a = F.withDerived(state.answers), c = fit.calc;
     const name = a.first_name || "Here is";
     const planName = CFG.plans[fit.plan].name;
-    const fitLabel = "RevRing " + planName + (fit.crm === "add" ? " plus CRM" : " plus your CRM");
+    const PROMO = CFG.promo && CFG.promo.active ? CFG.promo : null;
+    const fitLabel = PROMO ? PROMO.label : "RevRing " + planName + (fit.crm === "add" ? " plus CRM" : " plus your CRM");
     const col = fit.color, blue = F.zemiColor(0);
     const sp = F.stackPlan(a, fit, CFG), op = F.opportunity(a, fit), bs = F.buildSheet(a, fit, CFG);
     const ctas = Object.assign({ build: "Start RevRing", review: "See the live demo", email: "Email my report", webinar: "See the live demo", recs: "Get my recommendations", setup: "Have RevRing set it up with me" }, CFG.ctas || {});
@@ -2939,6 +2963,7 @@
           </div>
         </div>
         <div class="result-money"><div class="by-zinni"><img class="zemi-av zinni-av" src="${ZINNI_ART.avatar || ZEMI_AV}" alt=""><span><b>Zinni</b> ran the numbers</span></div><p>${moneyHtml}</p></div>
+        ${PROMO ? `<p class="result-offer"><b>${money(PROMO.price)} per user, locked in for life.</b> Pro, the full CRM, the dialer, the lead marketplace and every new update. First 1,000 users or through Dec 31.</p>` : ""}
         ${fixes.length ? `<div class="result-fixes"><span class="eyebrow">What one login fixes</span><ul>${fixes.map((r, i) => `<li class="lit-in" style="animation-delay:${150 + i * 110}ms">${esc(r.h)}</li>`).join("")}</ul></div>` : ""}
         <div class="result-ctas">${hot ? buildBtn("btn-light btn-lg") + demoBtn("btn-outline-light btn-lg") : demoBtn("btn-light btn-lg") + buildBtn("btn-outline-light btn-lg")}</div>
         <p class="result-note">${a.email ? `A written copy of this report goes to ${esc(a.email)}. ` : ""}Base licenses only. Usage is metered and listed in the breakdown.</p>
@@ -2955,7 +2980,7 @@
           </table>
           ${c.currentPerUser == null ? `<p class="fineprint" style="margin-top:10px">No spend entered, so no savings figure. That is the honest answer. Your RevRing contact can run it with you in a few minutes.</p>` : c.savings <= 0 ? `<p class="fineprint" style="margin-top:10px">The case here is fewer systems and the hours, not the invoice.</p>` : ""}
         
-          ${fit.plan === "pro" ? `<p class="fineprint" style="margin-top:12px">If budget is the constraint, Scale is ${money(CFG.plans.scale.price)} per seat: power and predictive dialing, routing, voicemail drop and dashboards. You give up multi-line dialing, advanced AI scoring, real-time agent assist and custom reporting.</p>` : `<p class="fineprint" style="margin-top:12px">Pro is ${money(CFG.plans.pro.price - CFG.plans.scale.price)} more per seat and adds multi-line dialing, advanced AI scoring, real-time agent assist and custom reporting. Worth it when you add agents or a manager who needs to see the floor.</p>`}
+          ${PROMO ? `<div class="promo-inc"><b>Included for ${money(PROMO.price)} per user</b><ul>${PROMO.includes.map(x => `<li>${esc(x)}</li>`).join("")}</ul><p class="fineprint">${esc(PROMO.terms)}</p></div>` : fit.plan === "pro" ? `<p class="fineprint" style="margin-top:12px">If budget is the constraint, Scale is ${money(CFG.plans.scale.price)} per seat: power and predictive dialing, routing, voicemail drop and dashboards. You give up multi-line dialing, advanced AI scoring, real-time agent assist and custom reporting.</p>` : `<p class="fineprint" style="margin-top:12px">Pro is ${money(CFG.plans.pro.price - CFG.plans.scale.price)} more per seat and adds multi-line dialing, advanced AI scoring, real-time agent assist and custom reporting. Worth it when you add agents or a manager who needs to see the floor.</p>`}
           <details class="rates-toggle"><summary>Usage rates, metered on every plan</summary><div class="rates">${usageRows()}</div></details>
         </section>
 
@@ -2991,7 +3016,7 @@
           <details class="brief" style="margin-top:14px"><summary>Plain-text copy of this report</summary><pre id="brief-text">${esc(brief)}</pre></details>
         </section>
 
-        <div class="sticky-cta" aria-hidden="false"><span class="sticky-txt">RevRing ${esc(planName)}${fit.crm === "add" ? " plus CRM" : ""} &middot; ${money(c.basePerUser)} / seat</span>${hot ? buildBtn("btn-primary btn-sm") : demoBtn("btn-primary btn-sm")}</div>
+        <div class="sticky-cta" aria-hidden="false"><span class="sticky-txt">${esc(fitLabel)} &middot; ${money(c.basePerUser)} / seat</span>${hot ? buildBtn("btn-primary btn-sm") : demoBtn("btn-primary btn-sm")}</div>
         <div class="util"><div class="links"><button type="button" id="restart">Start over</button><a href="${esc(withUtm(CFG.links.pricing))}" target="_blank" rel="noopener">Full pricing</a><a href="${esc(withUtm(CFG.links.site))}" target="_blank" rel="noopener">revring.com</a></div><span class="fineprint">Savings and ratios appear only when your own numbers support them.</span></div>
       </div>`;
 
