@@ -230,7 +230,8 @@
   .money input { padding-left: 26px; }
   .money::before { content: "$"; position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: var(--muted); font-weight: 600; }
   .consent { display: flex; gap: 10px; align-items: flex-start; font-size: 13px; color: var(--muted); margin-top: 14px; }
-  .consent input { margin-top: 3px; width: 16px; height: 16px; }
+  .consent input { margin-top: 3px; width: 16px; height: 16px; flex: none; }
+  .disclosure { margin-top: 10px; font-size: 12px; line-height: 1.5; }
   .qnav { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--line); }
   .btn {
     display: inline-flex; align-items: center; justify-content: center; gap: 8px;
@@ -536,6 +537,11 @@
   .zemi-side.duet .zinni { order: -1; border-top: 0; border-bottom: 1px dashed var(--line); padding: 0 0 10px; }
   .zemi-side.duet .zemi-fig.side:not(.zinni-fig) { height: 150px; }
   .zemi-side.duet .zemi-bubble.side.zinni-bubble { border-radius: 14px 14px 14px 4px; }
+  /* the money screen is Zinni's alone: Zimmi steps off, his color bar stays */
+  .zemi-side.duet .zemi-fig.side:not(.zinni-fig), .zemi-side.duet .zemi-bubble.side:not(.zinni-bubble) { display: none !important; }
+  .spec-who-d { display: none; }
+  .zemi-side.duet .spec-who { display: none; }
+  .zemi-side.duet .spec-who-d { display: inline; }
   .zemi-fig.swap-out { animation: vanish .7s cubic-bezier(.5, 0, .8, .3) forwards !important; }
   .zemi-fig.swap-in { animation: appear .75s cubic-bezier(.2, .9, .3, 1.15) both !important; }
   /* Zinni is real art, never a recolor: no filter on her at all (phones drop wrapper filters, which is what made her show up blue) */
@@ -588,7 +594,7 @@
     #stage.survey-grid > .zemi-side .zinni { grid-column: 1 / -1; display: grid; grid-template-columns: 84px minmax(0, 1fr); grid-template-areas: "zfig zbubble"; column-gap: 12px; align-items: center; padding-top: 6px; }
     #stage.survey-grid > .zemi-side .zemi-fig.side.zinni-fig { grid-area: zfig; height: 100px; justify-self: center; }
     #stage.survey-grid > .zemi-side .zemi-bubble.side.zinni-bubble { grid-area: zbubble; font-size: 13px; line-height: 1.32; padding: 8px 11px; }
-    #stage.survey-grid > .zemi-side.duet { grid-template-areas: "zn zn" "fig bubble" "fig spec"; }
+    #stage.survey-grid > .zemi-side.duet { grid-template-areas: "zn zn" "spec spec"; }
     #stage.survey-grid > .zemi-side.duet .zinni { grid-area: zn; padding: 0 0 6px; border-top: 0; border-bottom: 1px dashed var(--line); }
     #stage.survey-grid > .zemi-side.duet .zemi-fig.side:not(.zinni-fig) { height: 70px; }
     #stage.survey-grid > .zemi-side.duet .zemi-bubble.side:not(.zinni-bubble) { font-size: 12.5px; padding: 7px 10px; min-height: 0; }
@@ -1047,7 +1053,7 @@
 <main class="page">
   <div id="stage" class="wrap-wide">
     <div id="app" aria-live="polite"></div>
-    <aside id="zemi-dock" class="zemi-side" hidden><div class="zemi-bubble side" id="zemi-dock-bubble"><span class="zemi-name">Zimmi</span><span id="zemi-dock-text"></span></div><div class="zemi-fig side" id="zemi-dock-fig" aria-hidden="true"></div><div class="zemi-spec" id="zemi-spec"><div class="spec-bar"><i id="zemi-spec-dot" style="left:100%"></i></div><div class="spec-ends"><span>Red</span><span>Blue</span></div><div class="spec-lbl">Zimmi is <b id="zemi-color-name">deep blue</b></div></div><div class="zinni" id="zinni-dock" hidden><div class="zemi-bubble side zinni-bubble" id="zinni-dock-bubble"><span class="zemi-name">Zinni</span><span id="zinni-dock-text"></span></div><div class="zemi-fig side zinni-fig" id="zinni-dock-fig" aria-hidden="true"></div></div></aside>
+    <aside id="zemi-dock" class="zemi-side" hidden><div class="zemi-bubble side" id="zemi-dock-bubble"><span class="zemi-name">Zimmi</span><span id="zemi-dock-text"></span></div><div class="zemi-fig side" id="zemi-dock-fig" aria-hidden="true"></div><div class="zemi-spec" id="zemi-spec"><div class="spec-bar"><i id="zemi-spec-dot" style="left:100%"></i></div><div class="spec-ends"><span>Red</span><span>Blue</span></div><div class="spec-lbl"><span class="spec-who">Zimmi is</span><span class="spec-who-d">Your stack reads</span> <b id="zemi-color-name">deep blue</b></div></div><div class="zinni" id="zinni-dock" hidden><div class="zemi-bubble side zinni-bubble" id="zinni-dock-bubble"><span class="zemi-name">Zinni</span><span id="zinni-dock-text"></span></div><div class="zemi-fig side zinni-fig" id="zinni-dock-fig" aria-hidden="true"></div></div></aside>
   </div>
 </main>
 
@@ -1355,7 +1361,7 @@
         { id: "hours", kind: "chips", label: "And how many hours a week does the team lose switching between it all?", opts: HOURS_OPTS }
       ]
     },
-    { id: "contact", short: "Report", section: "Your report", type: "contact", q: "Your report's ready. Where do I send it?", help: "It opens on the next screen either way. First name and email is all it takes.",
+    { id: "contact", short: "Report", section: "Your report", type: "contact", q: "Your report's ready. Where do I send it?", help: "It opens on the next screen, and a copy goes to your email.",
       extras: [{ id: "arq2", kind: "chips", label: "Where are you at with this?", opts: [["ready", "Ready to switch"], ["numbers", "Want to see the numbers first"], ["team", "Need my team in on it"], ["no", "Just looking"]] }]
     }
   ];
@@ -1402,7 +1408,7 @@
     crm_feel_diag: "And how's that goin'? Be honest wit' me. I ain't gonna tell it.",
     tools_diag: "Now the rest of it. Everything with its own login besides the CRM and the dialer. Yeah, the spreadsheet counts.",
     worth: "Almost there. Now think about it. What would make a change actually worth it to you? Up to three.",
-    report: "Where do I send ya report? It's on the next screen either way. I ain't holdin' it hostage."
+    report: "Where do I send ya report? Name, email, phone. Then it's all yours."
   };
   // Zinni: the numbers half. Sharp, quick, exact, and she does not let anyone off easy, Zimmi included. Every line is built from what the form already knows.
   const ZINNI = {
@@ -1436,7 +1442,7 @@
     intro: a => {
       const st = ZINNI.stack(a);
       const bills = st.bills >= 3 ? " " + ["", "", "", "Three", "Four", "Five", "Six", "Seven", "Eight"][Math.min(8, st.bills)] + " bills before anybody dials. Cute." : st.bills === 2 ? " Two bills before anybody dials." : "";
-      return "Finally. Zinni. I do the math, he does the charm. So far: " + st.text + bills + " What does all of it run per agent a month, and how many hours a week go to hopping between all of it? Ballpark is fine. I'll be exact later.";
+      return "Zinni. He does the charm, I do the math. So far: " + st.text + bills + " What does all of it run per agent a month, and how many hours a week go to hopping between all of it? Ballpark is fine. I'll be exact later.";
     },
     react: (a, cfg) => {
       if (!a.cost) return null;
@@ -1462,24 +1468,44 @@
       return m + h;
     }
   };
+  // what Zimmi says about the pain they ranked first. Each one names it, and none of them are happy.
+  const PAIN_REACT = {
+    fragmentation: "too many logins. Every switch is time you don't get back.",
+    software_cost: "the bills. Payin' five tools to do one job hurts.",
+    manual_entry: "typin' it all in by hand. Agents should be talkin', not typin'.",
+    adoption: "nobody uses the tools. Then it's the tool, not the team.",
+    leads_disorganized: "leads all over the place. A lead you can't find is a lead you lost.",
+    dialing_cost: "dialin' costs. Every minute on the meter adds up.",
+    spam_likely: "Spam Likely. Nobody picks up a number they don't trust.",
+    compliance: "compliance. That's the one that keeps owners up at night.",
+    follow_up: "follow up. That's where the money leaks out.",
+    visibility: "you can't see the floor. Can't manage what you can't see.",
+    coaching: "coachin'. Hard to coach calls you never get to hear.",
+    pipeline: "no steady pipeline. Feast or famine, every month.",
+    reporting: "reports in five places. By the time you add it up, it's old news.",
+    vendors: "leads and vendors not talkin'. Leads die in that gap.",
+    missing_tools: "missin' tools. That one's costing ya every day."
+  };
+  // how the team dials, said on the dialer screen once they pick it. A warmer color always gets a worried line.
+  const DIAL_REACT = { multiline: "Multi-line. You're a volume shop. I'm already thinkin' Pro.", power: "Power dialin'. Real good. Scale's got it, Pro makes it smarter.", blended: "Inbound and outbound together. That's a routin' question. Noted.", inbound: "Inbound first. Then it's about who picks up fastest, not who dials most. Noted.", outbound_1to1: "One at a time. The win is the call landin' on the contact without anybody typin'.", inefficient: "Not dialin' efficiently yet. That's hours leakin' every day. Good part is, it's the easiest one to fix." };
   const INSIGHTS = {
-    tools: a => { const t = (a.tools || []); const n = t.filter(x => x !== "missing" && x !== "other").length; if (t.includes("missing")) return "Missin' pieces. Honestly? Easier to fix than a pile of pieces that don't talk to each other. Trust me."; if (n >= 5) return n + " logins to make one call. You see me changin' color over here? That's why."; if (n >= 3) return n + " logins, " + n + " bills, " + n + " places a lead can hide. I'm gonna un-hide 'em."; if (n === 2) return "Two systems, one handoff. Handoffs are where notes go to die. Noted."; if (n === 1) return "One system. Either it does everything, or you got real good at workin' around it."; return null; },
-    pains: a => { const n = (a.pains || []).length; if (!n) return null; if (n === 1) return "Got it. Keep goin' if there's more. Biggest one first."; if (n === 5) { const h = zemiHeat(a); return "Five. Look at me, I'm " + (h >= 0.9 ? "red" : h >= 0.6 ? "orange" : "turnin' colors") + ". Deep breath. We fix all five, in that order. Fuhgeddaboudit."; } return n + " picked. I'm buildin' in that order."; },
-    dialing: a => ({ multiline: "Multi-line. You're a volume shop. I'm already thinkin' Pro. Don't let me get ahead of myself.", power: "Power dialin'. Good. Scale's got it, Pro makes it smarter. The next answers decide.", blended: "Inbound and outbound together. That's a routing problem wearin' a dialing costume.", inbound: "Inbound first. Then it's about who picks up fastest, not who dials most.", outbound_1to1: "One at a time. Fine. The win is the call landin' on the contact without anybody typin'.", inefficient: "Not dialin' efficiently yet. Easiest thing on this whole list to fix. I promise ya." })[a.dialing] || null,
-    seats: a => { const n = SEAT_MID[a.seats]; if (!n) return null; if (n === 1) return "Just you. Then the system does the paperwork and you do the talkin'. On the phones, where you belong."; if (n <= 5) return "Small crew. Consistency comes from the setup, not from naggin'. Noted."; if (n <= 10) return "Now managers matter. I'm writin' that down."; return "That's a floor. From here, seein' it matters as much as dialin' it."; },
+    tools: a => { const t = (a.tools || []); const n = t.filter(x => x !== "missing").length; if (t.includes("missing")) return "Missin' pieces. Easier to fix than a pile of pieces that don't talk to each other, but it's costing ya today."; if (n >= 5) return n + " logins to make one call. See me changin' color? That's what it's costing ya."; if (n >= 3) return n + " logins, " + n + " bills, " + n + " places a lead can hide. I'm gonna un-hide 'em."; if (n === 2) return "Two systems, one handoff. Handoffs are where notes go to die. Noted."; if (n === 1) return "One system. Either it does everything, or you got real good at workin' around it."; return null; },
+    pains: a => { const p = a.pains || [], n = p.length; if (!n) return null; const top = PAIN_REACT[p[0]] || ""; if (n === 1) return "Worst one first: " + top + " Keep goin' if there's more."; if (n === 5) { const h = zemiHeat(a); return "Five. Look at me, I'm " + (h >= 0.9 ? "red" : h >= 0.6 ? "orange" : "turnin' colors") + ". That hurts. Deep breath. We fix all five, worst first."; } return n + " picked. Worst one first: " + top + " I'm buildin' in that order."; },
+    dialing: a => DIAL_REACT[a.dialing] || null,
+    seats: a => { const n = SEAT_MID[a.seats]; if (!n) return null; if (n === 1) return "Just you. Then the system does the paperwork and you do the talkin'. On the phones, where you belong."; if (n <= 5) return "Small crew. Consistency comes from the setup, not from naggin'. Noted."; if (n <= 10) return "Now managers matter. I'm writin' that down."; if (n <= 25) return "That's a floor. From here, seein' it matters as much as dialin' it."; if (n <= 50) return "Real floor. At that size, small stuff adds up quick. I'm writin' that down."; return "Big shop. Every little thing times sixty. Noted."; },
     crm_feel: a => ({ love: "You love it. Then ya keep it. I connect to it, no charge. I'm not jealous. Okay, a little.", good: "Good enough is fine. I'll show ya what it looks like hooked up to me.", expensive: "Pricey, but it works. I'll put it next to my CRM and let you decide.", frustrating: "Frustratin'. Every click of that thing is a tax on your agents. I got a fix.", barely: "A CRM nobody opens is a bill, not a system. I can be the system.", none: "No CRM. So leads live in your head, and your head is a terrible pipeline. No offense. That's what mine's for." })[a.crm_feel] || null,
     crm_keep: a => ({ yes: "Keepin' it. Respect.", maybe: "Maybe. I'll show ya both roads.", no: "Consolidate. My favorite word." })[a.crm_keep] || null,
     cost: a => { if (!a.cost) return null; return a.cost === "unknown" ? "Told ya. No judgment. She'll still build it straight, she just won't let me round." : "See that? Nothin' gets past her. I tried once. Once."; },
     arq2: a => ({ ready: "Ready. And look at that, I'm blue again. Next screen is your setup, and the button after that is the real thing.", numbers: "Numbers on the next screen. Real ones, from your answers, not mine.", team: "Bring the crew. Your report comes wit' a summary you can forward.", no: "No reason not to. Then the only thing left is the build." })[a.arq2] || null,
-    crm_name: a => a.crm_name === "none" ? "Spreadsheets. I seen worse. Barely. Here's the thing: RevRing CRM puts contacts, pipeline, tasks and every call outcome in the same place ya dial, and the follow ups fire themselves. That's the whole fix for ya." : a.crm_name ? "Two ways this goes. Keep it and I connect to it for free, or fold it into RevRing CRM. Tell me how it's goin'." : null,
-    dialer_name: a => a.dialer_name === "none" ? "Cell phones. No recordings, no numbers you control, no coachin'. We fix that first." : a.dialer_name ? "Noted. I can sit right next to that on your setup call." : null,
+    crm_name: a => a.crm_name === "none" ? "Spreadsheets. I seen worse. Barely. Here's the thing: RevRing CRM puts contacts, pipeline, tasks and every call outcome in the same place ya dial, and the follow ups fire themselves. That's the whole fix for ya." : !a.crm_name ? null : a.crm_feel === "love" ? "You love it? Then ya keep it. I connect to it for free. Respect." : a.crm_feel === "good" ? "Good enough works. Respect. Ya keep it and I connect to it for free." : a.crm_feel === "frustrating" ? "Frustratin'. Every click in that thing is a tax on your agents. Ya can fold it into RevRing CRM." : a.crm_feel === "barely" ? "A CRM nobody opens is a bill, not a system. Fold it into RevRing CRM and it gets used." : "Two ways this goes. Keep it and I connect to it for free, or fold it into RevRing CRM. Tell me how it's goin'.",
+    dialer_name: a => a.dialer_name === "none" ? "Cell phones. No recordings, no numbers you control, no coachin'. We fix that first." : a.dialer_name ? (DIAL_REACT[a.dialing] || "Noted. Now how's the team callin'?") : null,
     worth: a => (a.worth || []).length ? "That's what your demo gets built around." : null
   };
   // Heat: how far from blue Zimmi is right now. 0 is peak blue, 1 is red. From the answers so far.
   function zemiHeat(a) {
-    const tools = (a.tools || []).filter(x => x !== "missing" && x !== "other").length;
+    const tools = (a.tools || []).filter(x => x !== "missing" && x !== "crm" && x !== "dialer").length;
     let h = 0;
-    if (tools >= 5) h += 0.35; else if (tools >= 3) h += 0.2; else if (tools === 2) h += 0.08;
+    if (tools >= 3) h += 0.35; else if (tools === 2) h += 0.2; else if (tools === 1) h += 0.1;
     if ((a.tools || []).includes("missing")) h += 0.15;
     h += Math.min(0.5, (a.pains || []).length * 0.1);
     if (a.dialing === "inefficient") h += 0.1;
@@ -2210,10 +2236,10 @@
   // what he says while he waits on the landing (after the greeting has been read). The words pick the pose.
   // what the two of them say while they wait on the landing. z: Zimmi, n: Zinni, reply: she answers him.
   const LANDING_LINES = [
-    { z: "Watch this." }, { z: "Nothin' up my sleeve. I don't got sleeves." }, { z: "Thinkin' about your stack. Somebody's gotta." },
+    { z: "Watch this." }, { z: "Thinkin' about your stack. Somebody's gotta." },
     { z: "Still here. Sixty seconds. You got sixty seconds.", n: "Sixty seconds. I timed it. Twice." },
     { z: "Red's bad. Blue's good. Let's see what you got." },
-    { z: "For my next trick, five logins become one. Tap start.", n: "That's not a trick. That's arithmetic." },
+    { z: "Five logins become one. Tap start.", n: "That's not a trick. That's arithmetic." },
     { z: "Ay. Tap the button. I don't bite. I blend." },
     { z: "Zinni's got the calculator. I got the charm. It works.", n: "One of us is load bearing." },
     { n: "Two things I don't do. Guess, and round in our favor." }, { n: "He's the show. I'm the invoice." }, { n: "Bring your real numbers. I can tell." }, { n: "Four logins isn't a system. It's a habit." }
@@ -2350,7 +2376,7 @@
   }
   // say: type a line into a bubble and perform it
   function say(fig, el, text, fallback) { talkFig = fig; if (REDUCE) { setPose(fig, poseFor(text)); typeInto(el, text, null); return; } typeInto(el, text, beatsFor(fig, text, fallback)); }
-  const QUIPS = ["Nothin' up my sleeve. I don't got sleeves.", "Pick a card. Any card. Actually, pick a plan.", "The charm's real. The magic's the setup.", "For my next trick, five logins become one.", "Ay, watch this.", "You tapped a chameleon. Bold move.", "I'm workin' here.", "Keep goin'. The build's almost done.", "Blue is the goal. Remember that.", "You want the tail thing? Fine. There's the tail thing.", "Every tap gets you closer. I counted.", "I don't bite. I blend.", "That's my good side. They're both my good side."];
+  const QUIPS = ["Ay, watch this.", "You tapped a chameleon. Bold move.", "I'm workin' here.", "Keep goin'. The build's almost done.", "Blue is the goal. Remember that.", "You want the tail thing? Fine. There's the tail thing.", "Every tap gets you closer. I counted.", "I don't bite. I blend.", "That's my good side. They're both my good side."];
   function poke(figEl, bubbleTextEl) {
     if (!figEl && !bubbleTextEl) return;
     if (figEl) { figEl.classList.remove("react", "wiggle"); void figEl.offsetWidth; figEl.classList.add("wiggle"); }
@@ -2655,12 +2681,15 @@
     let contactHtml = "";
     if (isLast) {
       const v = k => esc(a[k] || "");
+      const fullV = esc(a.full_name || [a.first_name, a.last_name].filter(Boolean).join(" "));
       contactHtml = `
         <div class="fields">
-          <div class="field"><label for="c-first">First name</label><input id="c-first" type="text" autocomplete="given-name" value="${v("first_name")}"><span class="err">Please add your first name.</span></div>
-                    <div class="field"><label for="c-email">Work email</label><input id="c-email" type="email" autocomplete="email" inputmode="email" value="${v("email")}"><span class="err">Please enter a valid email so we can send your report.</span></div>
+          <div class="field span2"><label for="c-name">Full name</label><input id="c-name" type="text" autocomplete="name" value="${fullV}"><span class="err">Please add your first and last name.</span></div>
+          <div class="field"><label for="c-email">Work email</label><input id="c-email" type="email" autocomplete="email" inputmode="email" value="${v("email")}"><span class="err">Please enter a valid email so we can send your report.</span></div>
+          <div class="field"><label for="c-mobile">Phone number</label><input id="c-mobile" type="tel" autocomplete="tel" inputmode="tel" value="${v("mobile")}"><span class="err">Please enter a 10 digit phone number.</span></div>
         </div>
-        <p class="fineprint" style="margin-top:12px">Your answers are used to build your recommendation and to make sure your RevRing contact already knows your situation. Nothing is sold or shared outside RevRing.</p>`;
+        <label class="consent" for="c-sms"><input id="c-sms" type="checkbox" ${a.sms_consent ? "checked" : ""}><span>Text me too. RevRing may send texts about my report and account to this number. Message and data rates may apply. Message frequency varies. Reply STOP to opt out, HELP for help. Optional.</span></label>
+        <p class="fineprint disclosure">By tapping Show my report, you agree that RevRing may contact you about your report and RevRing products by email and by phone at the number above, including calls placed with automated technology. Agreeing is not a condition of any purchase. Your answers and contact details stay with RevRing and are never sold.</p>`;
     }
 
     const meter = `<div class="meter" aria-hidden="true">${qs.map((qq, i) => `<span class="m ${i < state.step ? "done" : i === state.step ? "now" : ""}">${esc(qq.short || qq.section)}</span>`).join("")}</div>`;
@@ -2754,11 +2783,18 @@
       if (el) el.addEventListener("input", () => { state.answers[x.id] = el.value; save(); $("#q-next").disabled = !canContinue(q); if (q.id === "cost" && x.id === "spend_exact") { clearTimeout(el._zt); el._zt = setTimeout(refresh, 700); } });
     });
     if (isLast) {
-      [["c-first", "first_name"], ["c-email", "email"]].forEach(([id, k]) => {
-        const el = $("#" + id); if (!el) return; el.addEventListener("input", () => { state.answers[k] = el.value; save(); $("#q-next").disabled = !canContinue(q); });
+      [["c-name", "full_name"], ["c-email", "email"], ["c-mobile", "mobile"]].forEach(([id, k]) => {
+        const el = $("#" + id); if (!el) return;
+        el.addEventListener("input", () => {
+          state.answers[k] = el.value;
+          // the full name feeds first_name and last_name, which the emails, the sheet and the report already use
+          if (k === "full_name") { const parts = el.value.trim().split(/\s+/).filter(Boolean); state.answers.first_name = parts[0] || ""; state.answers.last_name = parts.slice(1).join(" "); }
+          save(); $("#q-next").disabled = !canContinue(q);
+        });
       });
+      const sms = $("#c-sms"); if (sms) sms.addEventListener("change", () => { state.answers.sms_consent = sms.checked; save(); });
       // desktop gets the cursor in the first field; phones would pop the keyboard over the form, so they tap when ready
-      if (window.matchMedia("(pointer: fine)").matches) $("#c-first").focus({ preventScroll: true });
+      if (window.matchMedia("(pointer: fine)").matches) $("#c-name").focus({ preventScroll: true });
     }
     $("#q-back").addEventListener("click", () => { if (state.step === 0) resetAll(); else { state.step -= 1; save(); draw(); } });
     $("#q-next").addEventListener("click", next);
@@ -2778,16 +2814,17 @@
     const a = state.answers;
     if (q.type === "single") return !!a[q.id];
     if (q.type === "multi") return Array.isArray(a[q.id]) && a[q.id].length > 0;
-    if (q.type === "contact") return !!(a.first_name && a.first_name.trim()) && /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test((a.email || "").trim());
+    if (q.type === "contact") return !!(a.first_name && a.first_name.trim() && a.last_name && a.last_name.trim()) && /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test((a.email || "").trim()) && phoneOk(a.mobile);
     return true;
   }
+  function phoneOk(v) { const d = String(v || "").replace(/[^0-9]/g, ""); return d.length === 10 || (d.length === 11 && d[0] === "1"); }
   function validateContact() {
     let ok = true;
-    const f = $("#c-first").closest(".field"), e = $("#c-email").closest(".field"), m = ($("#c-mobile") || $("#c-first")).closest(".field");
-    f.classList.toggle("invalid", !(state.answers.first_name || "").trim()); if (f.classList.contains("invalid")) ok = false;
-    e.classList.toggle("invalid", !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test((state.answers.email || "").trim())); if (e.classList.contains("invalid")) ok = false;
-    const mob = (state.answers.mobile || "").replace(/[^0-9]/g, "");
-    if ($("#c-mobile")) { m.classList.toggle("invalid", !!(state.answers.mobile || "").trim() && (mob.length < 10 || mob.length > 11)); if (m.classList.contains("invalid")) ok = false; }
+    const a = state.answers;
+    const n = $("#c-name").closest(".field"), e = $("#c-email").closest(".field"), m = $("#c-mobile").closest(".field");
+    n.classList.toggle("invalid", !((a.first_name || "").trim() && (a.last_name || "").trim())); if (n.classList.contains("invalid")) ok = false;
+    e.classList.toggle("invalid", !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test((a.email || "").trim())); if (e.classList.contains("invalid")) ok = false;
+    m.classList.toggle("invalid", !phoneOk(a.mobile)); if (m.classList.contains("invalid")) ok = false;
     return ok;
   }
   function next() {
@@ -2805,6 +2842,8 @@
     state.fit = F.computeFit(a, CFG, "diag");
     state.screen = "results"; save();
     let reportTxt = ""; try { reportTxt = reportText(state.fit); } catch (e) { reportTxt = ""; }
+    const consentTxt = "CONTACT: " + [a.first_name, a.last_name].filter(Boolean).join(" ") + ", " + (a.email || "") + ", " + (a.mobile || "") + "\nCONSENT: agreed to email and phone contact, including automated calls, by tapping Show my report at " + state.completedAt + ". Texts: " + (a.sms_consent ? "yes, checked the text box." : "no, text box left unchecked. Do not text.") + "\n\n";
+    reportTxt = consentTxt + reportTxt;
     track("complete", Object.assign({ first_name: a.first_name || "", email: a.email || "", company: a.company || "", mobile: a.mobile || "", report: reportTxt }, fitProps()));
     const payload = F.buildPayload(a, state.fit, CFG, ATTR, { startedAt: state.startedAt, completedAt: state.completedAt, pageUrl: location.href.split("#")[0] });
     // keep a local copy (this browser only) for the admin view and for retry
