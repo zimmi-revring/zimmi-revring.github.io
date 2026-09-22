@@ -1129,21 +1129,21 @@
   ];
 
   const PAIN_OPTS = [
-    ["fragmentation", "Too many systems and logins"],
-    ["software_cost", "Software cost"],
-    ["manual_entry", "Manual data entry"],
-    ["adoption", "Agents do not adopt the tools"],
-    ["leads_disorganized", "Leads are not organized"],
-    ["dialing_cost", "Dialing costs"],
-    ["spam_likely", "Numbers showing Spam Likely"],
-    ["compliance", "Compliance concerns"],
-    ["follow_up", "Poor follow-up"],
-    ["visibility", "Managers cannot see what is happening"],
-    ["coaching", "Cannot coach agents effectively"],
-    ["pipeline", "No consistent pipeline"],
-    ["reporting", "Reporting is scattered"],
-    ["vendors", "Leads and vendors do not connect easily"],
-    ["missing_tools", "We are missing tools entirely"]
+    ["fragmentation", "Five logins to make one call"],
+    ["software_cost", "Paying for tools that overlap"],
+    ["manual_entry", "Agents typing instead of talking"],
+    ["adoption", "Bought tools nobody uses"],
+    ["leads_disorganized", "Leads fall through the cracks"],
+    ["dialing_cost", "Dialing costs eat the margin"],
+    ["spam_likely", "Nobody picks up, we show Spam Likely"],
+    ["compliance", "One DNC mistake from a fine"],
+    ["follow_up", "Follow up depends on memory"],
+    ["visibility", "No idea what the floor is doing"],
+    ["coaching", "Can't hear the calls, can't coach"],
+    ["pipeline", "Feast or famine every month"],
+    ["reporting", "Numbers live in five places"],
+    ["vendors", "Leads stuck in vendor portals"],
+    ["missing_tools", "Still doing it by hand"]
   ];
 
   const PAIN_LABEL = Object.fromEntries(PAIN_OPTS);
@@ -1442,15 +1442,15 @@
   // Zinni: the numbers half. Sharp, quick, exact, and she does not let anyone off easy, Zimmi included. Every line is built from what the form already knows.
   const ZINNI = {
     // phone versions: two sentences, same numbers
-    introShort: a => "Zinni. I do the math. What does the whole stack run per agent a month, and how many hours a week go to switching tools?",
+    introShort: a => "Zinni. I do the math, and I don't round in anybody's favor. What does the whole stack run per agent a month, and how many hours a week go to switching tools?",
     reactShort: (a, cfg) => {
       if (!a.cost) return null;
       const c = computeFit(a, cfg).calc, seats = c.seats, forN = seats === 1 ? "" : " for " + seats + " seats";
       const hm = c.hoursMonthly, team = hm ? Math.round(hm * seats) : null;
-      const hrs = team ? " Plus about " + team + " hours a month lost switching tools. Counting it." : "";
-      if (c.currentPerUser == null) return "Not sure is fine. " + money(cfg.promo.price) + " a seat is about " + money(c.baseMonthly, 0) + " a month" + forN + ", and the savings line fills in once you find an invoice.";
-      if (c.savings > 0) return "About " + money(c.currentPerUser, 0) + " a user today against " + money(c.basePerUser) + ". That's about " + money(c.savings, 0) + " a month back" + forN + " in year one. You're welcome." + hrs;
-      return money(c.basePerUser) + " a seat is about " + money(Math.abs(c.savings), 0) + " more a month" + forN + " than today. I won't pretend otherwise. The case is one login and the hours." + hrs;
+      const hrs = team ? " Plus about " + team + " hours a month lost switching tools. That's " + Math.round(team / 8) + " selling day" + (Math.round(team / 8) === 1 ? "" : "s") + " gone every month." : "";
+      if (c.currentPerUser == null) return "You don't know what it costs. That's the most expensive answer on this screen. " + money(cfg.promo.price) + " a seat is about " + money(c.baseMonthly, 0) + " a month" + forN + ". Find one invoice and I'll show you the gap." + hrs;
+      if (c.savings > 0) return "About " + money(c.currentPerUser, 0) + " a user today. That's " + money(c.currentMonthly * 12, 0) + " a year" + forN + ". Against " + money(c.basePerUser) + " a seat, about " + money(c.savings * 12, 0) + " walks out the door every year you wait." + hrs;
+      return money(c.basePerUser) + " a seat is about " + money(Math.abs(c.savings), 0) + " more a month" + forN + " than today. I won't pretend otherwise. The bill isn't your problem. The logins and the hours are." + hrs;
     },
     stack: a => {
       const seats = seatCount(a), crm = crmDisplay(a), dialer = dialerDisplay(a);
@@ -1470,8 +1470,8 @@
     },
     intro: a => {
       const st = ZINNI.stack(a);
-      const bills = st.bills >= 3 ? " " + ["", "", "", "Three", "Four", "Five", "Six", "Seven", "Eight"][Math.min(8, st.bills)] + " bills before anybody dials. Cute." : st.bills === 2 ? " Two bills before anybody dials." : "";
-      return "Zinni. He reads the stack, I do the math. So far: " + st.text + bills + " What does all of it run per agent a month, and how many hours a week go to hopping between all of it? Ballpark is fine. I'll be exact later.";
+      const bills = st.bills >= 3 ? " " + ["", "", "", "Three", "Four", "Five", "Six", "Seven", "Eight"][Math.min(8, st.bills)] + " bills before anybody dials. Every one of them auto-renews whether the phones ring or not." : st.bills === 2 ? " Two bills before anybody dials." : "";
+      return "Zinni. He reads the stack, I do the math, and I don't round in anybody's favor. So far: " + st.text + bills + " What does all of it run per agent a month, and how many hours a week go to hopping between all of it? Ballpark is fine. Most owners guess low.";
     },
     react: (a, cfg) => {
       if (!a.cost) return null;
@@ -1480,20 +1480,22 @@
       const build = cfg.promo && cfg.promo.active ? cfg.promo.label : "RevRing " + cfg.plans[fit.plan].name + (fit.crm === "add" ? " with RevRing CRM" : crm ? " with " + crm + " connected" : "");
       const seatsTxt = seats === 1 ? "one seat" : seats + " seats", forN = seats === 1 ? "" : " for " + seats;
       let m;
-      if (c.currentPerUser == null) m = "Not sure. Honest, and I'd rather have honest than a guess. " + build + " is " + money(c.basePerUser) + " a seat, about " + money(c.baseMonthly, 0) + " a month" + forN + ". Find one invoice later and the savings line fills itself in. I'll wait.";
+      if (c.currentPerUser == null) m = "You don't know what it costs. That's the most expensive answer on this screen, because a bill nobody looks at never goes down. " + build + " is " + money(c.basePerUser) + " a seat, about " + money(c.baseMonthly, 0) + " a month" + forN + ". Find one invoice and I'll show you the gap. I'll wait.";
       else {
         const said = c.currentSource === "exact" ? money(c.currentMonthly, 0) + " a month across " + seatsTxt + " is " + money(c.currentPerUser, 0) + " a user." : COST_LABEL[a.cost] + " per agent. Call it " + money(c.currentPerUser, 0) + (seats > 1 ? ", times " + seats + " seats is about " + money(c.currentMonthly, 0) + " a month." : " a month.");
-        if (c.savings > 0) m = said + " " + build + " is " + money(c.basePerUser) + " a seat" + (seats > 1 ? ", " + money(c.baseMonthly, 0) + forN : "") + ". That's about " + money(c.savings, 0) + " a month back on licenses alone in year one. You're welcome. It's in writing on the last screen.";
-        else m = said + " " + build + " is " + money(c.basePerUser) + " a seat, so on licenses you'd spend about " + money(Math.abs(c.savings), 0) + " more a month" + forN + ". I'm not going to pretend otherwise, I have standards. The case here is one login and the hours.";
+        const year = money(c.currentMonthly * 12, 0);
+        if (c.savings > 0) m = said + " That's " + year + " a year for a stack that makes you log in " + (Math.max(2, ZINNI.stack(a).bills)) + " times to make one call. " + build + " is " + money(c.basePerUser) + " a seat" + (seats > 1 ? ", " + money(c.baseMonthly, 0) + forN : "") + ". Difference is about " + money(c.savings, 0) + " a month, " + money(c.savings * 12, 0) + " in year one. That's what waiting costs. It's in writing on the last screen.";
+        else m = said + " That's " + year + " a year. " + build + " is " + money(c.basePerUser) + " a seat, so on licenses you'd spend about " + money(Math.abs(c.savings), 0) + " more a month" + forN + ". I'm not going to pretend otherwise, I have standards. Your bill isn't the problem. The logins and the hours are, and those you can't see on an invoice.";
       }
       const hm = c.hoursMonthly, team = hm != null ? Math.round(hm * seats) : null;
+      const days = team ? Math.round(team / 8) : 0, dayTxt = days + " selling day" + (days === 1 ? "" : "s");
       const each = seats > 1 ? " each" : "";
-      const h = { "10p": hm != null ? " Ten plus hours a week" + each + ". Call it " + hm + " a month" + (seats > 1 ? ", times " + seats + " seats is about " + team + " hours a month" : "") + ". Somebody's paying for that, and it's you. Counting it." : "",
-        "5_10": hm != null ? " Five to ten hours a week" + each + ". Call it " + hm + " a month" + (seats > 1 ? ", times " + seats + " seats is about " + team + " hours a month hopping between tabs. That's not a rounding error, that's a hire." : ". That's four selling days.") + " Counting it." : "",
-        "2_5": hm != null ? " Two to five hours a week" + each + ", call it " + hm + " a month" + (seats > 1 ? ", about " + team + " across the team" : "") + ". Adds up. Counting it." : "",
+      const h = { "10p": hm != null ? " Ten plus hours a week" + each + ". Call it " + hm + " a month" + (seats > 1 ? ", times " + seats + " seats is about " + team + " hours" : "") + ". That's " + dayTxt + " a month where nobody is on the phone and you're paying for it anyway." : "",
+        "5_10": hm != null ? " Five to ten hours a week" + each + ". Call it " + hm + " a month" + (seats > 1 ? ", times " + seats + " seats is about " + team + " hours hopping between tabs. That's " + dayTxt + " a month, gone. That's not a rounding error, that's a hire you're already paying for." : ". That's " + dayTxt + " a month you're not selling.") : "",
+        "2_5": hm != null ? " Two to five hours a week" + each + ", call it " + hm + " a month" + (seats > 1 ? ", about " + team + " across the team. " + dayTxt + " a month, gone." : ". Adds up.") : "",
         u2: " Under two hours a week. Tight. I'm impressed, and I don't say that.",
         none: " Almost no hours lost. Fine. Then this is a money conversation only, and I'm good at those.",
-        unknown: " Hours lost, nobody counting. Most common answer I get, and the most expensive one. I'll flag it. I won't invent a number." }[a.hours] || "";
+        unknown: " Hours lost, nobody counting. Most common answer I get, and the most expensive one, because the one thing you can't invoice is the hour that didn't happen. I'll flag it. I won't invent a number." }[a.hours] || "";
       return m + h;
     }
   };
