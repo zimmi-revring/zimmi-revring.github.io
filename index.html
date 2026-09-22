@@ -358,7 +358,9 @@
   .social-row, .footer-socials { display: inline-flex; flex-wrap: wrap; gap: 14px; font-size: 13px; }
   .social-row { margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--line); width: 100%; }
   .social-row a, .footer-socials a { color: var(--primary); font-weight: 600; text-decoration: none; }
-  .footer-socials { margin-left: 8px; }
+  .footer-socials { margin-left: 0; display: flex; flex-wrap: wrap; gap: 4px 12px; margin-top: 6px; font-size: 12.5px; }
+  footer.site .footer-socials a { font-size: 12px; }
+  footer.site .footer-socials { gap: 4px 10px; }
   .score-band { display: grid; grid-template-columns: 1.1fr 1fr; gap: 20px; background: var(--surface); border: 1.5px solid var(--primary); border-radius: 16px; padding: clamp(20px, 3.5vw, 32px); margin-bottom: 16px; }
   @media (max-width: 760px) { .score-band { grid-template-columns: 1fr; } }
   .grade-row { display: flex; align-items: center; gap: 18px; margin-top: 8px; }
@@ -1229,7 +1231,7 @@
       id: "seats", short: "Team", section: "Your team", type: "single",
       q: "How many people would be on it?",
       opts: SEAT_OPTS, cols: 2,
-      extras: [{ id: "seats_exact", kind: "number", label: "Exact number, if you know it", hint: "" }]
+      extras: []
     },
     {
       id: "crm_feel", short: "CRM", section: "Your CRM", type: "single",
@@ -1263,7 +1265,7 @@
       id: "seats", short: "Team", section: "Your team", type: "single",
       q: "How big is the team that would be on it?",
       opts: SEAT_OPTS, cols: 2,
-      extras: [{ id: "seats_exact", kind: "number", label: "Exact number, if you know it", hint: "" }]
+      extras: []
     },
     {
       id: "crm_name", short: "CRM", section: "Your CRM", type: "single",
@@ -1311,7 +1313,7 @@
       id: "seats", short: "Team", section: "Your team", type: "single",
       q: "How many people are on the phones?",
       opts: SEAT_OPTS, cols: 2,
-      extras: [{ id: "seats_exact", kind: "number", label: "Exact number, if you know it", hint: "" }]
+      extras: []
     },
     {
       id: "crm_name", short: "CRM", section: "Your CRM", type: "single",
@@ -1350,12 +1352,11 @@
       help: "Ballpark. CRM, dialer, texting, quoting, compliance, AI, all of it.",
       opts: COST_OPTS, cols: 2,
       extras: [
-        { id: "hours", kind: "chips", label: "And how many hours a week does the team lose switching between it all?", opts: HOURS_OPTS },
-        { id: "spend_exact", kind: "money", label: "Total monthly spend for the whole team, if you know it", hint: "Optional. Turns the estimate into real math." }
+        { id: "hours", kind: "chips", label: "And how many hours a week does the team lose switching between it all?", opts: HOURS_OPTS }
       ]
     },
     { id: "contact", short: "Report", section: "Your report", type: "contact", q: "Your report's ready. Where do I send it?", help: "It opens on the next screen either way. First name and email is all it takes.",
-      extras: [{ id: "arq2", kind: "chips", label: "Say the parts that hurt got fixed and the parts that work stayed put. Where does that leave you?", opts: [["ready", "Ready to move"], ["numbers", "Show me the numbers"], ["team", "Need my team in on it"], ["no", "No reason not to, just looking"]] }]
+      extras: [{ id: "arq2", kind: "chips", label: "Where are you at with this?", opts: [["ready", "Ready to switch"], ["numbers", "Want to see the numbers first"], ["team", "Need my team in on it"], ["no", "Just looking"]] }]
     }
   ];
   // Fill in the tools the name questions already answered, so counts and consolidation are right.
@@ -1397,7 +1398,7 @@
     crm_name: "What's holdin' your contacts today? Spreadsheets count. Barely.",
     dialer_name: "And whaddaya dialin' on?",
     preview: "Where do I send ya preview? Your demo gets built off it.",
-    seats_diag: "Ta-da. Told ya. Now watch my color. Red's bad. Blue's good. First, how many humans are on the phones?",
+    seats_diag: "First one's easy. How many people are on the phones? Watch my color as you go. Red's bad, blue's good.",
     crm_feel_diag: "And how's that goin'? Be honest wit' me. I ain't gonna tell it.",
     tools_diag: "Now the rest of it. Everything with its own login besides the CRM and the dialer. Yeah, the spreadsheet counts.",
     worth: "Almost there. Now think about it. What would make a change actually worth it to you? Up to three.",
@@ -1470,7 +1471,7 @@
     crm_keep: a => ({ yes: "Keepin' it. Respect.", maybe: "Maybe. I'll show ya both roads.", no: "Consolidate. My favorite word." })[a.crm_keep] || null,
     cost: a => { if (!a.cost) return null; return a.cost === "unknown" ? "Told ya. No judgment. She'll still build it straight, she just won't let me round." : "See that? Nothin' gets past her. I tried once. Once."; },
     arq2: a => ({ ready: "Ready. And look at that, I'm blue again. Next screen is your setup, and the button after that is the real thing.", numbers: "Numbers on the next screen. Real ones, from your answers, not mine.", team: "Bring the crew. Your report comes wit' a summary you can forward.", no: "No reason not to. Then the only thing left is the build." })[a.arq2] || null,
-    crm_name: a => a.crm_name === "none" ? "Spreadsheets. I seen worse. Barely. Here's the thing: RevRing CRM puts contacts, pipeline, tasks and every call outcome in the same place ya dial, and the follow ups fire themselves. That's the whole fix for ya." : a.crm_name ? "Okay. Two ways this goes. Keep it, I hook to it for free and every call, text and recording writes back to the contact. Or fold it into RevRing CRM and the pipeline sits on the same screen as the dial. Tell me how it's goin' and I'll pick." : null,
+    crm_name: a => a.crm_name === "none" ? "Spreadsheets. I seen worse. Barely. Here's the thing: RevRing CRM puts contacts, pipeline, tasks and every call outcome in the same place ya dial, and the follow ups fire themselves. That's the whole fix for ya." : a.crm_name ? "Two ways this goes. Keep it and I connect to it for free, or fold it into RevRing CRM. Tell me how it's goin'." : null,
     dialer_name: a => a.dialer_name === "none" ? "Cell phones. No recordings, no numbers you control, no coachin'. We fix that first." : a.dialer_name ? "Noted. I can sit right next to that on your setup call." : null,
     worth: a => (a.worth || []).length ? "That's what your demo gets built around." : null
   };
@@ -2535,9 +2536,9 @@
     app.innerHTML = resumeHtml + `
       <section class="hero hero-zemi">
         <div class="hero-copy">
-        <div class="eyebrow">Free 60-second RevRing Business Diagnostic</div>
-        <h1>How healthy is your business stack?</h1>
-        <div class="entry-one"><button type="button" class="btn btn-primary btn-lg" id="start-diag">Start my business diagnostic</button><span>Seven taps. About a minute. Your report and your estimated opportunity are on the last screen.${webinarOn() ? ` Then see the fix live: <a class="hero-link" data-track="cta_webinar" href="${esc(webinarUrl())}" target="_blank" rel="noopener">${esc(CFG.webinar.title)}${CFG.webinar.when ? ", " + esc(CFG.webinar.when) : ""}</a>.` : ""}</span></div>
+        <div class="eyebrow">Free 60-second stack analysis</div>
+        <h1>Find out what your stack is really costing you.</h1>
+        <div class="entry-one"><button type="button" class="btn btn-primary btn-lg" id="start-diag">Start my free analysis</button><span>Seven quick questions. You get your number, the fix, and what it costs.</span></div>
         <div class="hero-promo"><b>$99.99 per user, locked in for life.</b> RevRing Pro, the full CRM, the dialer and the lead marketplace. First 1,000 users or through Dec 31.</div>
         <div class="hero-offer"><span class="offer-tag">Free</span><span>No account, no card, no sales call. A minute from now you'll know if your stack is costing you money, and the report is yours to keep.</span></div>
         </div>
@@ -2659,14 +2660,6 @@
           <div class="field"><label for="c-first">First name</label><input id="c-first" type="text" autocomplete="given-name" value="${v("first_name")}"><span class="err">Please add your first name.</span></div>
                     <div class="field"><label for="c-email">Work email</label><input id="c-email" type="email" autocomplete="email" inputmode="email" value="${v("email")}"><span class="err">Please enter a valid email so we can send your report.</span></div>
         </div>
-        <details class="more-fields" ${a.mobile || a.company || a.last_name ? "open" : ""}><summary>Add your phone or agency (optional)</summary>
-        <div class="fields">
-<div class="field"><label for="c-last">Last name</label><input id="c-last" type="text" autocomplete="family-name" value="${v("last_name")}"></div>
-          <div class="field"><label for="c-mobile">Mobile</label><input id="c-mobile" type="tel" autocomplete="tel" inputmode="tel" value="${v("mobile")}"><span class="err">Please enter a valid mobile number, or leave it blank.</span></div>
-          <div class="field span2"><label for="c-company">Agency or company</label><input id="c-company" type="text" autocomplete="organization" value="${v("company")}"></div>
-        </div>
-        <label class="consent"><input id="c-sms" type="checkbox" ${a.sms_consent ? "checked" : ""}> <span>It is okay to text me about my results at the mobile number above. Message and data rates may apply. Reply STOP to opt out at any time.</span></label>
-        </details>
         <p class="fineprint" style="margin-top:12px">Your answers are used to build your recommendation and to make sure your RevRing contact already knows your situation. Nothing is sold or shared outside RevRing.</p>`;
     }
 
@@ -2682,13 +2675,12 @@
           ${insight ? zemiSays(insight, "mobile-only", heat) : ""}
           ${extrasHtml}${contactHtml}
           <div class="qnav">
-            <button type="button" class="btn btn-ghost" id="q-back" ${state.step === 0 ? "" : ""}>${state.step === 0 ? "Start over" : "Back"}</button>
+            <button type="button" class="btn btn-ghost" id="q-back" ${state.step === 0 ? 'style="visibility:hidden"' : ""}>Back</button>
             <button type="button" class="btn btn-primary" id="q-next" ${canContinue(q) ? "" : "disabled"}>${isLast ? "Show my report" : "Continue"}</button>
           </div>
         </div>
       </section>
-      <div class="qfoot"><span>${q.type !== "contact" ? "Keys 1 to " + Math.min(9, q.opts.length) + " answer. Enter continues." : ""}</span><button type="button" id="q-restart">Restart</button></div>
-      ${leanHtml}`;
+      `;
     showDock(zemiLine, mood, q.id + ":" + (insight ? "r" : "i"), heat);
     // the money screen is a duet: Zimmi hands off, they swap places, Zinni asks, Zinni answers. She waits for him to finish talking.
     if (q.id === "cost") {
@@ -2719,7 +2711,7 @@
       const chip = app.querySelector(".zc-chip"); if (chip) { chip.style.setProperty("--zc", zc2.hex); chip.innerHTML = `Zimmi is <b>${esc(zc2.name)}</b>`; }
       const lean2 = F.leaning(a2, CFG), leanEl = app.querySelector(".lean");
       const leanHtml2 = lean2 && !isLast ? `<div class="lean"><span class="eyebrow">Building</span><b>RevRing ${esc(CFG.plans[lean2].name)}</b><span class="muted small">Keep going. The last answers set the details.</span></div>` : "";
-      if (leanEl && !leanHtml2) leanEl.remove(); else if (leanEl) leanEl.outerHTML = leanHtml2; else if (leanHtml2) app.insertAdjacentHTML("beforeend", leanHtml2);
+      if (leanEl) leanEl.remove();
       showDock(insight2 || intro, F.zemiMood(a2), q.id + ":" + (insight2 ? "r" : "i"), heat2);
       if (q.id === "cost") { const PH2 = window.matchMedia("(max-width: 860px)").matches; zinniPending = insight2 ? (PH2 ? F.ZINNI.reactShort(a2, CFG) : F.ZINNI.react(a2, CFG)) : (PH2 ? F.ZINNI.introShort(a2) : F.ZINNI.intro(a2)); zinniPose($("#zinni-dock-fig"), insight2 ? zinniPoseFor(a2) : "thinking"); if (duetOn) zinniSay(zinniPending, REDUCE ? 0 : (insight2 || intro).length * CHAR_MS + 500); }
     };
@@ -2762,16 +2754,15 @@
       if (el) el.addEventListener("input", () => { state.answers[x.id] = el.value; save(); $("#q-next").disabled = !canContinue(q); if (q.id === "cost" && x.id === "spend_exact") { clearTimeout(el._zt); el._zt = setTimeout(refresh, 700); } });
     });
     if (isLast) {
-      [["c-first", "first_name"], ["c-last", "last_name"], ["c-email", "email"], ["c-mobile", "mobile"], ["c-company", "company"]].forEach(([id, k]) => {
-        const el = $("#" + id); el.addEventListener("input", () => { state.answers[k] = el.value; save(); $("#q-next").disabled = !canContinue(q); });
+      [["c-first", "first_name"], ["c-email", "email"]].forEach(([id, k]) => {
+        const el = $("#" + id); if (!el) return; el.addEventListener("input", () => { state.answers[k] = el.value; save(); $("#q-next").disabled = !canContinue(q); });
       });
-      $("#c-sms").addEventListener("change", e => { state.answers.sms_consent = e.target.checked; save(); });
       // desktop gets the cursor in the first field; phones would pop the keyboard over the form, so they tap when ready
       if (window.matchMedia("(pointer: fine)").matches) $("#c-first").focus({ preventScroll: true });
     }
     $("#q-back").addEventListener("click", () => { if (state.step === 0) resetAll(); else { state.step -= 1; save(); draw(); } });
     $("#q-next").addEventListener("click", next);
-    $("#q-restart").addEventListener("click", resetAll);
+    const qr = $("#q-restart"); if (qr) qr.addEventListener("click", resetAll);
     document.onkeydown = e => {
       if (state.screen !== "survey" || !$("#admin-root").hidden) return;
       const typing = e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA" || e.target.tagName === "SELECT");
@@ -2792,11 +2783,11 @@
   }
   function validateContact() {
     let ok = true;
-    const f = $("#c-first").closest(".field"), e = $("#c-email").closest(".field"), m = $("#c-mobile").closest(".field");
+    const f = $("#c-first").closest(".field"), e = $("#c-email").closest(".field"), m = ($("#c-mobile") || $("#c-first")).closest(".field");
     f.classList.toggle("invalid", !(state.answers.first_name || "").trim()); if (f.classList.contains("invalid")) ok = false;
     e.classList.toggle("invalid", !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test((state.answers.email || "").trim())); if (e.classList.contains("invalid")) ok = false;
     const mob = (state.answers.mobile || "").replace(/[^0-9]/g, "");
-    m.classList.toggle("invalid", !!(state.answers.mobile || "").trim() && (mob.length < 10 || mob.length > 11)); if (m.classList.contains("invalid")) ok = false;
+    if ($("#c-mobile")) { m.classList.toggle("invalid", !!(state.answers.mobile || "").trim() && (mob.length < 10 || mob.length > 11)); if (m.classList.contains("invalid")) ok = false; }
     return ok;
   }
   function next() {
@@ -3038,7 +3029,6 @@
           <details class="brief" style="margin-top:14px"><summary>Plain-text copy of this report</summary><pre id="brief-text">${esc(brief)}</pre></details>
         </section>
 
-        <div class="sticky-cta" aria-hidden="false"><span class="sticky-txt">${esc(fitLabel)} &middot; ${money(c.basePerUser)} / seat</span>${hot ? buildBtn("btn-primary btn-sm") : demoBtn("btn-primary btn-sm")}</div>
         <div class="util"><div class="links"><button type="button" id="restart">Start over</button><a href="${esc(withUtm(CFG.links.pricing))}" target="_blank" rel="noopener">Full pricing</a><a href="${esc(withUtm(CFG.links.site))}" target="_blank" rel="noopener">revring.com</a></div><span class="fineprint">Savings and ratios appear only when your own numbers support them.</span></div>
       </div>`;
 
