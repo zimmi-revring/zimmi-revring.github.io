@@ -853,6 +853,35 @@
   .ledger-sec .ledger .note { font-size: 12.5px; color: var(--muted); margin-top: 2px; font-weight: 400; }
   .ledger-sec .ledger tr.total td { border-bottom: 0; font-weight: 800; font-size: 16px; color: var(--primary-ink); }
   @media (max-width: 520px) { .ledger-sec .ledger td.num { white-space: normal; } }
+  /* breakdown: one color per meaning. red is today, blue is RevRing, green is money kept, amber is time lost */
+  .bd-money .tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 14px; }
+  @media (max-width: 640px) { .bd-money .tiles { grid-template-columns: 1fr; } }
+  .tile { --tc: var(--primary); border-radius: 12px; padding: 14px; background: color-mix(in srgb, var(--tc) 9%, var(--surface)); border: 1px solid color-mix(in srgb, var(--tc) 28%, var(--surface)); display: grid; gap: 4px; }
+  .tile.t-bad { --tc: var(--bad); } .tile.t-blue { --tc: var(--primary); } .tile.t-good { --tc: var(--good); } .tile.t-warn { --tc: var(--warn); }
+  .tile .t-lbl { font-size: 11.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--tc); }
+  .tile b { font-size: 26px; line-height: 1.1; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .tile b small { font-size: 14px; font-weight: 600; color: var(--muted); }
+  .tile .t-sub { font-size: 13px; color: var(--ink-2); }
+  .hours-pill { margin: 10px 0 0; padding: 8px 12px; border-radius: 10px; background: var(--warn-bg); color: var(--ink-2); font-size: 14px; }
+  .hours-pill b { color: var(--warn); }
+  .incl { margin-top: 14px; padding: 12px 14px; border-radius: 12px; background: var(--tint); border: 1px solid var(--tint-2); }
+  .incl ul { list-style: none; margin: 8px 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 14px; font-size: 13.5px; color: var(--ink-2); }
+  @media (max-width: 560px) { .incl ul { grid-template-columns: 1fr; } }
+  .incl li { padding-left: 20px; position: relative; }
+  .incl li::before { content: "\2713"; position: absolute; left: 0; top: 0; color: var(--primary); font-weight: 800; }
+  .fix-row { margin: 10px 0 14px; }
+  .fix-row ol { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+  .fix-row li { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px 6px 6px; border-radius: 999px; background: var(--bad-bg); color: var(--ink); font-size: 14px; font-weight: 600; }
+  .fix-row .n { width: 22px; height: 22px; border-radius: 50%; background: var(--bad); color: #fff; font-size: 12px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; }
+  .bd-plan .kc { background: color-mix(in srgb, var(--kc) 7%, var(--surface)); padding: 12px 14px; }
+  .bd-plan .kc .kc-sub { margin-bottom: 8px; }
+  .bd-plan .kc ul { gap: 6px; }
+  .bd-plan .kc li b { font-weight: 600; font-size: 14px; }
+  .bd-setup .sheet > div { grid-template-columns: 90px 1fr; padding: 6px 0; }
+  .bd-setup .sheet dt { color: var(--primary); }
+  .bd-setup .week li { border-top: 3px solid var(--wc, var(--primary)); background: color-mix(in srgb, var(--wc, var(--primary)) 6%, var(--surface)); }
+  .bd-setup .week li b { color: var(--wc, var(--primary)); }
+  .bd-setup .week .w1 { --wc: var(--good); } .bd-setup .week .w2 { --wc: var(--primary); } .bd-setup .week .w3 { --wc: var(--warn); } .bd-setup .week .w4 { --wc: #a855f7; }
 </style>
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)} [hidden]{display:none!important} #open-admin{display:none} body.admin-on #open-admin{display:inline}</style>
 </head>
@@ -1019,9 +1048,9 @@
   ],
   "promo": {
     "active": true,
-    "price": 99.99,
+    "price": 99,
     "label": "RevRing Pro + Full CRM",
-    "terms": "$99.99 per user a month, rate locked in for life. For the first 1,000 users or through December 31, 2026, whichever comes first.",
+    "terms": "$99 per user a month for your first 12 months. For the first 1,000 users or through December 31, 2026, whichever comes first. Running a bigger team? Ask about enterprise pricing.",
     "includes": [
       "RevRing Pro: power and predictive dialing, inbound, local numbers",
       "Full CRM with pipelines",
@@ -1419,8 +1448,8 @@
       const c = computeFit(a, cfg).calc, seats = c.seats, forN = seats === 1 ? "" : " for " + seats + " seats";
       const hm = c.hoursMonthly, team = hm ? Math.round(hm * seats) : null;
       const hrs = team ? " Plus about " + team + " hours a month lost switching tools. Counting it." : "";
-      if (c.currentPerUser == null) return "Not sure is fine. $" + cfg.promo.price + " a seat is about " + money(c.baseMonthly, 0) + " a month" + forN + ", and the savings line fills in once you find an invoice.";
-      if (c.savings > 0) return "About " + money(c.currentPerUser, 0) + " a user today against " + money(c.basePerUser) + ". That's about " + money(c.savings, 0) + " a month back" + forN + ". You're welcome." + hrs;
+      if (c.currentPerUser == null) return "Not sure is fine. " + money(cfg.promo.price) + " a seat is about " + money(c.baseMonthly, 0) + " a month" + forN + ", and the savings line fills in once you find an invoice.";
+      if (c.savings > 0) return "About " + money(c.currentPerUser, 0) + " a user today against " + money(c.basePerUser) + ". That's about " + money(c.savings, 0) + " a month back" + forN + " in year one. You're welcome." + hrs;
       return money(c.basePerUser) + " a seat is about " + money(Math.abs(c.savings), 0) + " more a month" + forN + " than today. I won't pretend otherwise. The case is one login and the hours." + hrs;
     },
     stack: a => {
@@ -1454,7 +1483,7 @@
       if (c.currentPerUser == null) m = "Not sure. Honest, and I'd rather have honest than a guess. " + build + " is " + money(c.basePerUser) + " a seat, about " + money(c.baseMonthly, 0) + " a month" + forN + ". Find one invoice later and the savings line fills itself in. I'll wait.";
       else {
         const said = c.currentSource === "exact" ? money(c.currentMonthly, 0) + " a month across " + seatsTxt + " is " + money(c.currentPerUser, 0) + " a user." : COST_LABEL[a.cost] + " per agent. Call it " + money(c.currentPerUser, 0) + (seats > 1 ? ", times " + seats + " seats is about " + money(c.currentMonthly, 0) + " a month." : " a month.");
-        if (c.savings > 0) m = said + " " + build + " is " + money(c.basePerUser) + " a seat" + (seats > 1 ? ", " + money(c.baseMonthly, 0) + forN : "") + ". That's about " + money(c.savings, 0) + " a month back on licenses alone. You're welcome. It's in writing on the last screen.";
+        if (c.savings > 0) m = said + " " + build + " is " + money(c.basePerUser) + " a seat" + (seats > 1 ? ", " + money(c.baseMonthly, 0) + forN : "") + ". That's about " + money(c.savings, 0) + " a month back on licenses alone in year one. You're welcome. It's in writing on the last screen.";
         else m = said + " " + build + " is " + money(c.basePerUser) + " a seat, so on licenses you'd spend about " + money(Math.abs(c.savings), 0) + " more a month" + forN + ". I'm not going to pretend otherwise, I have standards. The case here is one login and the hours.";
       }
       const hm = c.hoursMonthly, team = hm != null ? Math.round(hm * seats) : null;
@@ -2565,7 +2594,7 @@
         <div class="eyebrow">Free 60-second stack analysis</div>
         <h1>Find out what your stack is really costing you.</h1>
         <div class="entry-one"><button type="button" class="btn btn-primary btn-lg" id="start-diag">Start my free analysis</button><span>Seven quick questions. You get your number, the fix, and what it costs.</span></div>
-        <div class="hero-promo"><b>$99.99 per user, locked in for life.</b> RevRing Pro, the full CRM, the dialer and the lead marketplace. First 1,000 users or through Dec 31.</div>
+        <div class="hero-promo"><b>$99 per user a month for your first 12 months.</b> RevRing Pro, the full CRM, the dialer and the lead marketplace. First 1,000 users or through Dec 31.</div>
         <div class="hero-offer"><span class="offer-tag">Free</span><span>No account, no card, no sales call. A minute from now you'll know if your stack is costing you money, and the report is yours to keep.</span></div>
         </div>
         <div class="hero-figure duo"><div class="zemi-hello" id="hero-hello"></div>${zemiFigure("zemi-fig", "hero-zemi")}<div class="zemi-shadow" aria-hidden="true"></div><div class="zemi-hello zinni-hello" id="hero-hello-z"></div>${zinniFigure("zemi-fig zinni-fig", "hero-zinni", "Zinni, RevRing's numbers chameleon")}<div class="zemi-shadow zinni-shadow" aria-hidden="true"></div></div>
@@ -2986,7 +3015,7 @@
     const brief = summaryText(fit);
     const shareUrl = location.href.split("#")[0].split("?")[0];
     const shareText = "Zimmi went " + col.name + " on my stack. Sixty seconds. See what color you get:";
-    const kc = (key, title, sub, items, empty) => `<div class="kc ${key}"><div class="kc-h"><b>${title}</b><span>${items.length ? items.length : ""}</span></div><div class="kc-sub">${sub}</div>${items.length ? `<ul>${items.map((x, i) => `<li class="lit-in" style="animation-delay:${200 + i * 90}ms"><b>${esc(x.t)}</b><span>${esc(x.d)}</span></li>`).join("")}</ul>` : `<div class="kc-empty">${empty}</div>`}</div>`;
+    const kc = (key, title, sub, items, empty) => `<div class="kc ${key}"><div class="kc-h"><b>${title}</b><span>${items.length ? items.length : ""}</span></div><div class="kc-sub">${sub}</div>${items.length ? `<ul>${items.map((x, i) => `<li class="lit-in" style="animation-delay:${200 + i * 90}ms" title="${esc(x.d)}"><b>${esc(x.t)}</b></li>`).join("")}</ul>` : `<div class="kc-empty">${empty}</div>`}</div>`;
     const seatsTxt = c.seats + " seat" + (c.seats === 1 ? "" : "s");
 
     // One card: the color, one line on it, the money in one sentence, what one login fixes, two buttons. Everything else is under the breakdown.
@@ -2994,7 +3023,7 @@
     let moneyHtml = c.currentPerUser == null
       ? `<b>${esc(fitLabel)}</b> is ${money(c.basePerUser)} a seat a month on one login, ${money(c.baseMonthly)} a month for ${seatsTxt}. You did not enter what you pay today, so there is no savings figure. That is the honest answer.`
       : cheaper
-        ? `Today you pay about <b>${money(c.currentPerUser, 0)} per user</b> a month across your stack. <b>${esc(fitLabel)}</b> is ${money(c.basePerUser)} a seat on one login, about <b>${money(c.savings, 0)} a month less</b> on base licenses for ${seatsTxt}.`
+        ? `Today you pay about <b>${money(c.currentPerUser, 0)} per user</b> a month across your stack. <b>${esc(fitLabel)}</b> is ${money(c.basePerUser)} a seat on one login, about <b>${money(c.savings, 0)} a month less</b> on base licenses for ${seatsTxt}${PROMO ? " in year one" : ""}.`
         : `<b>${esc(fitLabel)}</b> is ${money(c.basePerUser)} a seat a month against about ${money(c.currentPerUser, 0)} you pay today. The money side is not the argument here. One login and the hours are.`;
     if (c.hoursMonthly != null && c.hoursMonthly > 0) moneyHtml += ` You also said about <b>${c.hoursMonthly} hours a month</b> go to switching between tools. Those come back.`;
     const fixes = fit.fixes.slice(0, 3);
@@ -3015,7 +3044,7 @@
           </div>
         </div>
         <div class="result-money"><div class="by-zinni"><img class="zemi-av zinni-av" src="${ZINNI_ART.avatar || ZEMI_AV}" alt=""><span><b>Zinni</b> ran the numbers</span></div><p>${moneyHtml}</p></div>
-        ${PROMO ? `<p class="result-offer"><b>${money(PROMO.price)} per user, locked in for life.</b> Pro, the full CRM, the dialer, the lead marketplace and every new update. First 1,000 users or through Dec 31.</p>` : ""}
+        ${PROMO ? `<p class="result-offer"><b>${money(PROMO.price)} per user a month for your first 12 months.</b> Pro, the full CRM, the dialer, the lead marketplace and every new update. First 1,000 users or through Dec 31.${c.seats >= 26 ? " With " + c.seats + " seats, ask about enterprise pricing too." : ""}</p>` : ""}
         ${fixes.length ? `<div class="result-fixes"><span class="eyebrow">What one login fixes</span><ul>${fixes.map((r, i) => `<li class="lit-in" style="animation-delay:${150 + i * 110}ms">${esc(r.h)}</li>`).join("")}</ul></div>` : ""}
         <div class="result-ctas">${hot ? buildBtn("btn-light btn-lg") + demoBtn("btn-outline-light btn-lg") : demoBtn("btn-light btn-lg") + buildBtn("btn-outline-light btn-lg")}</div>
         <p class="result-note">${a.email ? `A written copy of this report goes to ${esc(a.email)}. ` : ""}Base licenses only. Usage is metered and listed in the breakdown.</p>
@@ -3023,45 +3052,37 @@
       <div class="result-links"><button type="button" id="show-breakdown" aria-expanded="false">Show the full breakdown</button><button type="button" id="back-answers">Change an answer</button></div>
 
       <div class="report" id="breakdown" hidden>
-        <section class="sec ledger-sec"><h3>What you pay vs what you could pay</h3><p class="sub">Base licenses only. Usage is metered on RevRing and is not counted on either side.</p>
-          <table class="ledger">
-            <tr><td>Today${c.currentPerUser != null ? (c.currentSource === "exact" ? " (from the spend you entered)" : " (middle of the range you picked)") : ""}<div class="note">${c.seats} seat${c.seats === 1 ? "" : "s"}</div></td><td class="num">${c.currentPerUser != null ? money(c.currentPerUser, 0) + " / user &middot; " + money(c.currentMonthly, 0) + " / month" : "Not entered"}</td></tr>
-            <tr><td>${esc(fitLabel)}<div class="note">${money(c.basePerUser)} per seat</div></td><td class="num">${money(c.basePerUser)} / seat &middot; ${money(c.baseMonthly)} / month</td></tr>
-            ${c.hoursMonthly != null && c.hoursMonthly > 0 ? `<tr><td>Hours a month lost to switching today<div class="note">From what you said</div></td><td class="num">About ${c.hoursMonthly} hours</td></tr>` : ""}
-            <tr class="total"><td>${c.currentPerUser == null ? "Difference" : c.savings > 0 ? "You keep" : "Difference"}</td><td class="num">${c.currentPerUser == null ? "Enter your spend to see it" : c.savings > 0 ? money(c.savings, 0) + " / month" : "RevRing is not cheaper on base licenses here"}</td></tr>
-          </table>
-          ${c.currentPerUser == null ? `<p class="fineprint" style="margin-top:10px">No spend entered, so no savings figure. That is the honest answer. Your RevRing contact can run it with you in a few minutes.</p>` : c.savings <= 0 ? `<p class="fineprint" style="margin-top:10px">The case here is fewer systems and the hours, not the invoice.</p>` : ""}
-        
-          ${PROMO ? `<div class="promo-inc"><b>Included for ${money(PROMO.price)} per user</b><ul>${PROMO.includes.map(x => `<li>${esc(x)}</li>`).join("")}</ul><p class="fineprint">${esc(PROMO.terms)}</p></div>` : fit.plan === "pro" ? `<p class="fineprint" style="margin-top:12px">If budget is the constraint, Scale is ${money(CFG.plans.scale.price)} per seat: power and predictive dialing, routing, voicemail drop and dashboards. You give up multi-line dialing, advanced AI scoring, real-time agent assist and custom reporting.</p>` : `<p class="fineprint" style="margin-top:12px">Pro is ${money(CFG.plans.pro.price - CFG.plans.scale.price)} more per seat and adds multi-line dialing, advanced AI scoring, real-time agent assist and custom reporting. Worth it when you add agents or a manager who needs to see the floor.</p>`}
+        <section class="sec bd-money"><h3>The money</h3><p class="sub">Base licenses only. Usage is metered on RevRing and not counted on either side.</p>
+          <div class="tiles">
+            <div class="tile t-bad"><span class="t-lbl">Today</span><b>${c.currentPerUser != null ? money(c.currentPerUser, 0) + "<small> / user</small>" : "Not entered"}</b><span class="t-sub">${c.currentPerUser != null ? money(c.currentMonthly, 0) + " a month for " + seatsTxt : "Add your spend to compare"}</span></div>
+            <div class="tile t-blue"><span class="t-lbl">${esc(fitLabel)}</span><b>${money(c.basePerUser)}<small> / seat</small></b><span class="t-sub">${money(c.baseMonthly)} a month for ${seatsTxt}${PROMO ? ", first 12 months" : ""}</span></div>
+            <div class="tile ${c.currentPerUser != null && c.savings > 0 ? "t-good" : "t-warn"}"><span class="t-lbl">${c.currentPerUser != null && c.savings > 0 ? "You keep" : "Difference"}</span><b>${c.currentPerUser == null ? "Ask us" : c.savings > 0 ? money(c.savings, 0) + "<small> / month</small>" : "Not cheaper"}</b><span class="t-sub">${c.currentPerUser == null ? "Your contact runs it with you in minutes" : c.savings > 0 ? (PROMO ? "In year one, on base licenses" : "On base licenses") : "The case is fewer systems and the hours"}</span></div>
+          </div>
+          ${c.hoursMonthly != null && c.hoursMonthly > 0 ? `<p class="hours-pill"><b>About ${c.hoursMonthly} hours a month</b> lost to switching between tools today.</p>` : ""}
+          ${PROMO ? `<div class="incl"><span class="eyebrow">Included for ${money(PROMO.price)} per user</span><ul>${PROMO.includes.map(x => `<li>${esc(x.split(":")[0])}</li>`).join("")}</ul><p class="fineprint">${esc(PROMO.terms)}</p></div>` : ""}
           <details class="rates-toggle"><summary>Usage rates, metered on every plan</summary><div class="rates">${usageRows()}</div></details>
         </section>
 
-        <section class="sec"><h3>What gets fixed, in the order you picked it</h3>
-          <ol class="reasons dark-on-light">${fit.fixes.map((r, i) => `<li><span class="n">${i + 1}</span><span><b>${esc(r.h)}.</b> ${esc(r.t)}</span></li>`).join("")}</ol></section>
+        <section class="sec bd-plan"><h3>Your plan</h3>
+          ${fit.fixes.length ? `<div class="fix-row"><span class="eyebrow">Fixing first</span><ol>${fit.fixes.map((r, i) => `<li><span class="n">${i + 1}</span>${esc(r.h)}</li>`).join("")}</ol></div>` : ""}
+          <div class="kcca">
+            ${kc("keep", "Keep", "Stays as it is", sp.keep, "Nothing to keep")}
+            ${kc("connect", "Connect", "Wired in, no charge", sp.connect, "Nothing to connect")}
+            ${kc("consolidate", "Consolidate", "One bill, one login", sp.consolidate, "Nothing to fold in")}
+            ${kc("add", "Add", "Turns on in your build", sp.add, "Nothing missing")}
+          </div>
+        </section>
 
-        <div class="sec-head"><h3>Keep, connect, consolidate, add</h3><p class="sub">Your stack, sorted. Nothing that works gets touched.</p></div>
-        <div class="kcca">
-          ${kc("keep", "Keep", "Stays exactly as it is.", sp.keep, "")}
-          ${kc("connect", "Connect", "Wired to RevRing, no connector charge.", sp.connect, "")}
-          ${kc("consolidate", "Consolidate", "Becomes part of RevRing. One bill, one login.", sp.consolidate, "Nothing to fold in yet. This is an add, not a replace.")}
-          ${kc("add", "Add", "Missing today. Turns on in your build.", sp.add, "")}
-        </div>
-
-        <div class="two-col">
-          <section class="sec build"><h3>Your build sheet</h3><p class="sub">Hand this to anyone. It is the whole configuration.</p>
-            <dl class="sheet">
-              <div class="lit-in" style="animation-delay:200ms"><dt>Plan</dt><dd>${esc(bs.plan)} at ${money(c.planPrice)} per seat per month. ${esc(fit.plan_reason)}</dd></div>
-              <div><dt>CRM</dt><dd>${esc(bs.crm)}</dd></div>
-              <div><dt>Seats</dt><dd>${esc(bs.seatsLine)}</dd></div>
-              <div><dt>Inbound leads</dt><dd>${esc(bs.inbound)}</dd></div>
-              <div><dt>Numbers</dt><dd>${esc(bs.numbers)}</dd></div>
-              <div><dt>Dialing</dt><dd>${esc(bs.dialing)}</dd></div>
-              <div><dt>Compliance</dt><dd>${esc(bs.compliance)}</dd></div>
-              <div><dt>Recording and AI</dt><dd>${esc(bs.recording)}</dd></div>
-              <div><dt>Quoting</dt><dd>${esc(bs.quoting)}</dd></div>
-            </dl></section>
-          <section class="sec"><h3>What happens after you sign up</h3><p class="sub">In order. Inbound leads first, outbound once verification clears.</p><ol class="week">${bs.week.map(w => `<li><b>${esc(w.d)}</b><span>${esc(w.t)}</span></li>`).join("")}</ol></section>
-        </div>
+        <section class="sec bd-setup"><h3>Your setup</h3>
+          <dl class="sheet">
+            <div><dt>Plan</dt><dd>${esc(bs.plan)}, ${money(c.planPrice)} per seat per month${PROMO ? " for the first 12 months" : ""}</dd></div>
+            <div><dt>Seats</dt><dd>${esc(bs.seatsLine)}</dd></div>
+            <div><dt>CRM</dt><dd>${esc(bs.crm.split(". ")[0])}.</dd></div>
+            <div><dt>Dialing</dt><dd>${esc(bs.dialing)}</dd></div>
+          </dl>
+          <span class="eyebrow" style="display:block;margin:16px 0 8px">After you sign up</span>
+          <ol class="week">${bs.week.map((w, i) => `<li class="w${i + 1}"><b>${esc(w.d)}</b><span>${esc(w.t)}</span></li>`).join("")}</ol>
+        </section>
 
         <section class="sec send"><h3>Send it or share it</h3><p class="sub">Email the report to yourself, copy it for your team, or send the diagnostic to another agency owner.</p>
           <div class="arow"><button type="button" class="btn btn-primary btn-sm" id="email-brief">${esc(ctas.email)}</button><button type="button" class="btn btn-ghost btn-sm" id="copy-brief">Copy report</button><button type="button" class="btn btn-ghost btn-sm" id="share-copy">Copy my color and the link</button><a class="btn btn-ghost btn-sm" data-track="share_linkedin" href="https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}" target="_blank" rel="noopener">Share on LinkedIn</a><a class="btn btn-ghost btn-sm" data-track="share_facebook" href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}" target="_blank" rel="noopener">Share on Facebook</a></div>
