@@ -81,7 +81,7 @@
   .btn.sm { padding:5px 9px; font-size:12px; }
   .fine { font-size:12.5px; color:var(--muted); }
   .hidden { display:none !important; }
-  .split { display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; }
+  .split { display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; align-items:start; }
   @media (max-width:900px) { .split { grid-template-columns:1fr; } }
   .mini .r { display:grid; grid-template-columns:150px 1fr 36px; gap:8px; align-items:center; font-size:13px; padding:3px 0; }
   .mini .r .t { height:8px; background:var(--tint); border-radius:2px; overflow:hidden; } .mini .r .t i { display:block; height:100%; background:var(--primary); }
@@ -92,6 +92,23 @@
   details.source summary { cursor:pointer; color:var(--muted); font-size:12.5px; }
   details.source .inner { margin-top:10px; display:grid; gap:10px; }
   .foot { margin-top:18px; font-size:12px; color:var(--muted); }
+  .sec-h { margin:22px 0 10px; }
+  .sec-h h2 { margin:0; font-size:16px; font-weight:700; letter-spacing:-.01em; }
+  .sec-h .sub { color:var(--muted); font-size:12.5px; margin:2px 0 0; }
+  .mini.pains .r { grid-template-columns:1fr 90px 36px 36px; }
+  .mini.pains .r .f { text-align:right; color:var(--red); font-weight:600; }
+  .mini .r .n.zero, .mini.pains .r .f.zero { color:var(--muted); font-weight:400; }
+  .grid { grid-template-columns:repeat(4, 1fr); }
+  .kpi.money .v { color:var(--green); }
+  tr.lead { cursor:pointer; }
+  tr.lead:hover td { background:var(--tint); }
+  tr.detail td { background:var(--tint); padding:12px 14px; }
+  tr.detail .who { display:flex; flex-wrap:wrap; gap:8px 18px; font-size:13px; margin-bottom:8px; }
+  tr.detail .who b { color:var(--ink); }
+  tr.detail .consent { font-size:12.5px; color:var(--ink2); background:var(--surface); border:1px solid var(--line); border-radius:6px; padding:8px 10px; margin-bottom:10px; }
+  tr.detail pre { margin:0; white-space:pre-wrap; font:12.5px/1.5 var(--font); color:var(--ink2); max-height:420px; overflow:auto; background:var(--surface); border:1px solid var(--line); border-radius:6px; padding:10px 12px; }
+  .pill { display:inline-block; padding:1px 7px; border-radius:4px; font-size:11px; font-weight:600; background:var(--tint); color:var(--ink2); }
+  @media print { .top button, .bar, details.source, .card.links, tr.detail { display:none !important; } body { background:#fff; } .card { break-inside:avoid; border-color:#ccc; } .wrap { padding:0; max-width:none; } }
   @media (max-width:700px) {
     .top { padding:0 14px; height:50px; } .top .sub { display:none; } .top .right .txt { display:none; }
     .wrap { padding:12px 12px 48px; }
@@ -120,7 +137,7 @@
 <body>
 <header class="top">
   <div class="brand"><h1>RevRing Business Diagnostic</h1><span class="sub">Tracker</span></div>
-  <div class="right"><span class="txt" id="status"><span class="dot wait"></span>Loading</span><button type="button" id="load">Refresh</button></div>
+  <div class="right"><span class="txt" id="status"><span class="dot wait"></span>Loading</span><button type="button" id="print">Print / PDF</button><button type="button" id="load">Refresh</button></div>
 </header>
 <div class="wrap">
   <div class="bar">
@@ -140,12 +157,24 @@
     <div class="grid" id="kpis"></div>
 
     <div class="two">
-      <div class="card funnel"><h2>Funnel</h2><p class="sub">People reaching each screen. A person counts for every screen up to the furthest one they reached. Dropped is how many stopped on that screen.</p><div id="funnel"></div></div>
-      <div class="card"><h2>By day</h2><p class="sub">Visits, starts and completions, local time.</p><div id="daily"></div></div>
+      <div class="card funnel"><h2>Where people stop</h2><p class="sub">People reaching each screen. A person counts for every screen up to the furthest one they reached. Dropped is how many stopped on that screen.</p><div id="funnel"></div></div>
+      <div class="card"><h2>Day by day</h2><p class="sub">Visits, starts and completions, local time.</p><div id="daily"></div></div>
     </div>
 
+    <div class="sec-h"><h2>Where they came from</h2></div>
     <div class="card"><h2>By campaign</h2><p class="sub">One row per campaign code and source. This is the table for the text and email sends.</p><div id="bycamp"></div></div>
     <div class="card"><h2>By rep</h2><p class="sub">Links that carried a rep name.</p><div id="byrep"></div></div>
+    <div class="sec-h"><h2>What they told Zimmi</h2><p class="sub">From completed diagnostics in this range. Pains are ranked by how many people picked them; the number in red is how many put it first.</p></div>
+    <div class="split">
+      <div class="card mini pains"><h2>What hurts</h2><p class="sub">Picked · ranked first</p><div id="bypain"></div></div>
+      <div class="card mini"><h2>CRM today</h2><p class="sub">Completions</p><div id="bycrm"></div></div>
+      <div class="card mini"><h2>Dialer today</h2><p class="sub">Completions</p><div id="bydialer"></div></div>
+    </div>
+    <div class="split">
+      <div class="card mini"><h2>How they call</h2><p class="sub">Completions</p><div id="bydialing"></div></div>
+      <div class="card mini"><h2>Team size</h2><p class="sub">Completions</p><div id="byseats"></div></div>
+      <div class="card mini"><h2>Where they are at</h2><p class="sub">The last question before the report</p><div id="byready"></div></div>
+    </div>
 
     <div class="split">
       <div class="card mini"><h2>Device</h2><p class="sub">Visits</p><div id="bydevice"></div></div>
@@ -153,7 +182,8 @@
       <div class="card mini"><h2>Result color</h2><p class="sub">Completions</p><div id="bycolor"></div></div>
     </div>
 
-    <div class="card"><h2>Completions</h2><p class="sub">Newest first. Lead status comes from their answers.</p><div id="recent"></div></div>
+    <div class="sec-h"><h2>Leads</h2><p class="sub">Everyone who finished and left their contact details, newest first. Tap a row for the full report, the phone number and the consent line.</p></div>
+    <div class="card"><div id="recent"></div></div>
     <div class="card"><h2>Sign-ups</h2><p class="sub">Accounts created after the diagnostic. Needs the one-line snippet on the sign-up success page.</p><div id="signups"></div></div>
   </div>
 
@@ -190,6 +220,15 @@ fb | facebook | social | zimmi</textarea></div>
   // the seven screens of the current form. Older sessions sent extra ids (crm_feel, dialing, worth, arq2); they map onto the screen that holds them now.
   const SCREENS = [["seats", "1. Team"], ["crm_name", "2. CRM"], ["dialer_name", "3. Dialer"], ["tools", "4. Rest of the stack"], ["pains", "5. What hurts"], ["cost", "6. Cost and hours"], ["contact", "7. Name and email"]];
   const SCREEN_IDX = { seats: 1, crm_name: 2, crm_feel: 2, crm_keep: 2, dialer_name: 3, dialing: 3, tools: 4, pains: 5, cost: 6, worth: 6, contact: 7, arq2: 7 };
+  const PAIN_LABEL = { fragmentation: "Five logins to make one call", software_cost: "Paying for tools that overlap", manual_entry: "Agents typing instead of talking", adoption: "Bought tools nobody uses", leads_disorganized: "Leads fall through the cracks", dialing_cost: "Dialing costs eat the margin", spam_likely: "Nobody picks up, we show Spam Likely", compliance: "One DNC mistake from a fine", follow_up: "Follow up depends on memory", visibility: "No idea what the floor is doing", coaching: "Can't hear the calls, can't coach", pipeline: "Feast or famine every month", reporting: "Numbers live in five places", vendors: "Leads stuck in vendor portals", missing_tools: "Still doing it by hand" };
+  const CRM_NAME = { none: "None / spreadsheets", hubspot: "HubSpot", ghl: "GoHighLevel", salesforce: "Salesforce", zoho: "Zoho", radius: "Radius", agencybloc: "AgencyBloc", pipedrive: "Pipedrive", other: "Something else" };
+  const DIALER_NAME = { none: "None / cell phones", convoso: "Convoso", five9: "Five9", ricochet: "Ricochet360", readymode: "ReadyMode", ringcentral: "RingCentral", kixie: "Kixie", phoneburner: "PhoneBurner", other: "Something else" };
+  const DIALING = { inbound: "Mostly inbound", outbound_1to1: "One to one outbound", power: "Power dialing", multiline: "Multi-line dialing", blended: "A mix of both", inefficient: "Not efficiently yet" };
+  const READY = { ready: "Ready to switch", numbers: "Wants the numbers first", team: "Needs the team in on it", no: "Just looking" };
+  const SEATS = { "1": "Just me", "2_5": "2 to 5", "6_10": "6 to 10", "11_25": "11 to 25", "26_50": "26 to 50", "51p": "51 or more" };
+  const SEAT_ORDER = ["1", "2_5", "6_10", "11_25", "26_50", "51p"];
+  const parseList = v => { if (Array.isArray(v)) return v; const t = String(v == null ? "" : v).trim(); if (!t) return []; try { const j = JSON.parse(t); if (Array.isArray(j)) return j; } catch (e) {} return t.split(/[,|]/).map(x => x.trim()).filter(Boolean); };
+  const money0 = n => "$" + Math.round(n).toLocaleString();
   const COLOR_HEX = { "deep blue": "#1684e8", "light blue": "#38bdf8", green: "#22c55e", yellow: "#eab308", orange: "#f97316", red: "#ef4444" };
 
   // a private link carries the collector address after # so it never hits any server: tracker.html#src=...&base=...
@@ -217,6 +256,7 @@ fb | facebook | social | zimmi</textarea></div>
     } catch (e) { status("Could not load: " + (e.message || e), "bad"); }
   }
   $("#load").addEventListener("click", load);
+  $("#print").addEventListener("click", () => window.print());
   $("#src").addEventListener("change", load);
   function schedule() { clearInterval(timer); if ($("#auto").checked) timer = setInterval(() => { if ($("#src").value.trim()) load(); }, 60000); }
   $("#auto").addEventListener("change", schedule); schedule();
@@ -309,15 +349,17 @@ fb | facebook | social | zimmi</textarea></div>
     const starts = reached(1), completes = count(evs, "complete"), builds = count(evs, "cta_build"), demos = countAny(evs, ["cta_webinar", "cta_review"]), clicks = countAny(evs, CLICKS), signups = count(evs, "signup_complete"), breakdown = count(evs, "breakdown_open");
     const hot = uniq(evs.filter(e => e.event === "complete" && e.lead === "HOT").map(e => e.sid)).length;
     const med = medianFinish(evs);
+    const seenS = new Set(); let savingsTotal = 0, savingsN = 0;
+    evs.filter(e => e.event === "complete").forEach(e => { if (seenS.has(e.sid)) return; seenS.add(e.sid); const v = parseFloat(e.savings); if (isFinite(v) && v > 0) { savingsTotal += v; savingsN++; } });
     const kp = [
       ["Visits", sessions, people + " unique " + (people === 1 ? "person" : "people"), ""],
       ["Starts", starts, pct(starts, sessions) + " of visits", ""],
-      ["Completions", completes, pct(completes, starts) + " of starts", ""],
+      ["Completions", completes, pct(completes, starts) + " of starts" + (med ? " · median " + med : ""), ""],
       ["Hot leads", hot, pct(hot, completes) + " of completions", "hot"],
       ["Demo clicks", demos, pct(demos, completes) + " of completions", ""],
       ["Start RevRing clicks", builds, pct(builds, completes) + " of completions", ""],
       ["Sign-ups", signups, pct(signups, completes) + " of completions", ""],
-      ["Median time to finish", med || "–", med ? "start to report" : "no timed completions yet", ""]
+      ["Savings found", savingsTotal > 0 ? money0(savingsTotal) + "/mo" : "–", savingsTotal > 0 ? money0(savingsTotal * 12) + " a year across " + savingsN + " " + (savingsN === 1 ? "report" : "reports") : "needs a spend answer", "money"]
     ];
     $("#kpis").innerHTML = kp.map(([l, v, d, cls]) => `<div class="kpi ${cls}"><div class="l">${esc(l)}</div><div class="v">${typeof v === "number" ? v.toLocaleString() : esc(v)}</div><div class="d">${esc(d)}</div></div>`).join("");
 
@@ -376,10 +418,29 @@ fb | facebook | social | zimmi</textarea></div>
     // completions and sign-ups, one row per session, newest first
     const seen = new Set();
     const comps = evs.filter(e => e.event === "complete").sort((a, b) => (b.ts > a.ts ? 1 : -1)).filter(c => { if (seen.has(c.sid)) return false; seen.add(c.sid); return true; });
+
+    // what they told Zimmi: from the completion rows
+    const tally = (keyFn, labelFn, order) => { const m = {}; comps.forEach(c => { const k = keyFn(c); if (k) m[k] = (m[k] || 0) + 1; }); let rows = Object.keys(m).map(k => [labelFn ? (labelFn[k] || k) : k, m[k], k]); rows = order ? rows.sort((a, b) => order.indexOf(a[2]) - order.indexOf(b[2])) : rows.sort((a, b) => b[1] - a[1]); return rows; };
+    const bars = (id, rows, empty) => { const m = Math.max(1, ...rows.map(r => r[1])); $("#" + id).innerHTML = rows.length ? rows.map(([k, n]) => `<div class="r"><span>${esc(k)}</span><span class="t"><i style="width:${Math.round(n / m * 100)}%"></i></span><span class="n">${n}</span></div>`).join("") : `<p class="fine">${empty || "No completions in this range."}</p>`; };
+    const pm = {}, pf = {};
+    comps.forEach(c => { parseList(c.pains).forEach((p, i) => { pm[p] = (pm[p] || 0) + 1; if (i === 0) pf[p] = (pf[p] || 0) + 1; }); });
+    const prow = Object.keys(pm).map(k => [PAIN_LABEL[k] || k, pm[k], pf[k] || 0]).sort((a, b) => b[1] - a[1] || b[2] - a[2]);
+    const pmax = Math.max(1, ...prow.map(r => r[1]));
+    $("#bypain").innerHTML = prow.length ? prow.map(([k, n, f]) => `<div class="r"><span>${esc(k)}</span><span class="t"><i style="width:${Math.round(n / pmax * 100)}%"></i></span><span class="n">${n}</span><span class="f ${f ? "" : "zero"}">${f || "0"}</span></div>`).join("") : `<p class="fine">No completions in this range.</p>`;
+    bars("bycrm", tally(c => c.crm_name, CRM_NAME));
+    bars("bydialer", tally(c => c.dialer_name, DIALER_NAME));
+    bars("bydialing", tally(c => c.dialing, DIALING));
+    bars("byseats", tally(c => c.seats ? (SEATS[c.seats] ? c.seats : (n => n <= 1 ? "1" : n <= 5 ? "2_5" : n <= 10 ? "6_10" : n <= 25 ? "11_25" : n <= 50 ? "26_50" : "51p")(Number(c.seats))) : "", SEATS, SEAT_ORDER));
+    bars("byready", tally(c => c.arq2, READY, ["ready", "numbers", "team", "no"]));
     const sus = evs.filter(e => e.event === "signup_complete").sort((a, b) => (b.ts > a.ts ? 1 : -1));
     const bySid = {}; comps.forEach(c => { bySid[c.sid] = c; });
     const clickedBy = {}; evs.forEach(e => { if (CLICKS.includes(e.event)) clickedBy[e.sid] = e.event === "cta_build" ? "Start RevRing" : e.event === "cta_setup" ? "Setup call" : "Demo"; });
-    $("#recent").innerHTML = comps.length ? `<table class="stack"><tr><th>When</th><th>Who</th><th>Lead</th><th>Result</th><th>Recommended</th><th class="n">Seats</th><th>Clicked</th><th>Campaign</th><th>Rep</th><th>Device</th></tr>${comps.slice(0, 80).map(c => `<tr><td data-label="When">${esc(when(c.ts))}</td><td class="wide" data-label="Who"><b>${esc(c.first_name || "")}</b> <span class="m-only tag ${esc((c.lead || "").toLowerCase())}">${esc(c.lead || "")}</span><br><span class="fine">${esc(c.email || "")}${c.company ? " · " + esc(c.company) : ""}</span></td><td class="m-hide" data-label="Lead"><span class="tag ${esc((c.lead || "").toLowerCase())}">${esc(c.lead || "")}</span></td><td data-label="Result">${COLOR_HEX[c.color] ? `<span class="swatch" style="background:${COLOR_HEX[c.color]}"></span>` : ""}${esc(c.color || "")}</td><td data-label="Recommended">${c.plan ? "RevRing " + esc(c.plan.charAt(0).toUpperCase() + c.plan.slice(1)) + (c.crm === "add" ? " plus CRM" : "") : ""}</td><td class="n" data-label="Seats">${esc(c.seats || "")}</td><td data-label="Clicked">${esc(clickedBy[c.sid] || "")}</td><td data-label="Campaign">${esc(camp(c))}<br><span class="fine">${esc(src(c))}</span></td><td data-label="Rep">${esc(c.rep || "")}</td><td data-label="Device">${esc(c.device || "")}</td></tr>`).join("")}</table>` : `<p class="fine">No completions in this range.</p>`;
+    const consentOf = c => { const m = String(c.report || "").match(/^CONSENT:[^\n]*/m); return m ? m[0].replace(/^CONSENT:\s*/, "") : ""; };
+    const reportBody = c => String(c.report || "").replace(/^CONTACT:[^\n]*\n?/m, "").replace(/^CONSENT:[^\n]*\n?/m, "").trim();
+    const topPain = c => { const p = parseList(c.pains); return p.length ? PAIN_LABEL[p[0]] || p[0] : ""; };
+    const sav = c => { const v = parseFloat(c.savings); return isFinite(v) && v > 0 ? money0(v) + "/mo" : ""; };
+    $("#recent").innerHTML = comps.length ? `<table class="stack leads"><tr><th>When</th><th>Who</th><th>Lead</th><th>Result</th><th>Biggest pain</th><th class="n">Seats</th><th class="n">Savings</th><th>Where they are at</th><th>Clicked</th><th>Campaign</th><th>Rep</th></tr>${comps.slice(0, 120).map((c, i) => `<tr class="lead" data-i="${i}"><td data-label="When">${esc(when(c.ts))}</td><td class="wide" data-label="Who"><b>${esc(c.first_name || "")}</b> <span class="m-only tag ${esc((c.lead || "").toLowerCase())}">${esc(c.lead || "")}</span><br><span class="fine">${esc(c.email || "")}${c.mobile ? " · " + esc(c.mobile) : ""}${c.company ? " · " + esc(c.company) : ""}</span></td><td class="m-hide" data-label="Lead"><span class="tag ${esc((c.lead || "").toLowerCase())}">${esc(c.lead || "")}</span></td><td data-label="Result">${COLOR_HEX[c.color] ? `<span class="swatch" style="background:${COLOR_HEX[c.color]}"></span>` : ""}${esc(c.color || "")}</td><td data-label="Biggest pain">${esc(topPain(c))}</td><td class="n" data-label="Seats">${esc(c.seats || "")}</td><td class="n" data-label="Savings">${esc(sav(c))}</td><td data-label="Where they are at">${esc(READY[c.arq2] || "")}</td><td data-label="Clicked">${esc(clickedBy[c.sid] || "")}</td><td data-label="Campaign">${esc(camp(c))}<br><span class="fine">${esc(src(c))}</span></td><td data-label="Rep">${esc(c.rep || "")}</td></tr><tr class="detail hidden" data-for="${i}"><td colspan="11"><div class="who"><span><b>${esc([c.first_name, c.last_name].filter(Boolean).join(" "))}</b></span><span>${esc(c.email || "")}</span><span>${esc(c.mobile || "no phone given")}</span><span>${esc(c.device || "")}</span><span>${esc(when(c.ts))}</span></div>${consentOf(c) ? `<div class="consent"><b>Consent:</b> ${esc(consentOf(c))}</div>` : ""}${reportBody(c) ? `<pre>${esc(reportBody(c))}</pre>` : `<p class="fine">No written report stored for this one (completed before reports were saved).</p>`}</td></tr>`).join("")}</table>` : `<p class="fine">No completions in this range.</p>`;
+    $("#recent").querySelectorAll("tr.lead").forEach(tr => tr.addEventListener("click", () => { const d = $("#recent").querySelector(`tr.detail[data-for="${tr.dataset.i}"]`); if (d) d.classList.toggle("hidden"); }));
     $("#signups").innerHTML = sus.length ? `<table class="stack"><tr><th>When</th><th>Who</th><th>Plan</th><th>Campaign</th><th>Rep</th></tr>${sus.slice(0, 50).map(s => { const c = bySid[s.sid] || {}; return `<tr><td data-label="When">${esc(when(s.ts))}</td><td class="wide" data-label="Who"><b>${esc(s.first_name || c.first_name || "")}</b> ${esc(s.email || c.email || "")}<br><span class="fine">${esc(s.company || c.company || "")}</span></td><td data-label="Plan">${esc(s.plan || c.plan || "")}${(s.crm || c.crm) === "add" ? " plus CRM" : ""}</td><td data-label="Campaign">${esc(camp(s))}</td><td data-label="Rep">${esc(s.rep || c.rep || "")}</td></tr>`; }).join("")}</table>` : `<p class="fine">No sign-ups recorded in this range. Start RevRing clicks are counted above; the sign-up itself needs the snippet on RevRing's success page.</p>`;
   }
 

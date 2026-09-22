@@ -869,6 +869,23 @@
   @media (max-width: 560px) { .incl ul { grid-template-columns: 1fr; } }
   .incl li { padding-left: 20px; position: relative; }
   .incl li::before { content: "\2713"; position: absolute; left: 0; top: 0; color: var(--primary); font-weight: 800; }
+  .pain-list { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 10px; }
+  .pain-list li { display: grid; grid-template-columns: 34px 1fr; gap: 12px; align-items: start; padding: 12px 14px; border-radius: 12px; background: var(--bad-bg); border-left: 4px solid var(--bad); }
+  .pain-list .n { width: 30px; height: 30px; border-radius: 50%; background: var(--bad); color: #fff; font-weight: 800; font-size: 14px; display: inline-flex; align-items: center; justify-content: center; }
+  .pain-list b { display: block; font-size: 16px; color: var(--ink); margin-bottom: 3px; }
+  .pain-list span:not(.n) { font-size: 14px; line-height: 1.45; color: var(--ink-2); }
+  .changes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 16px; }
+  @media (max-width: 640px) { .changes { grid-template-columns: 1fr; } }
+  .chg { --cc: var(--primary); border-radius: 12px; padding: 12px 14px; background: color-mix(in srgb, var(--cc) 8%, var(--surface)); border: 1px solid color-mix(in srgb, var(--cc) 28%, var(--surface)); }
+  .chg.gone { --cc: var(--warn); } .chg.on { --cc: var(--good); }
+  .chg .eyebrow { color: var(--cc); }
+  .chg .sub { margin: 2px 0 8px; font-size: 13px; }
+  .chg ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 5px; font-size: 14px; color: var(--ink); }
+  .chg li { padding-left: 18px; position: relative; }
+  .chg.gone li::before { content: "\2212"; position: absolute; left: 0; color: var(--warn); font-weight: 800; }
+  .chg.on li::before { content: "+"; position: absolute; left: 0; color: var(--good); font-weight: 800; }
+  .stays { margin: 12px 0 0; font-size: 14px; color: var(--ink-2); }
+  .stays b { color: var(--good); }
   .fix-row { margin: 10px 0 14px; }
   .fix-row ol { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
   .fix-row li { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px 6px 6px; border-radius: 999px; background: var(--bad-bg); color: var(--ink); font-size: 14px; font-weight: 600; }
@@ -1870,7 +1887,7 @@
   // ---------- What we fix, in the order they picked it ----------
   const PAIN_FIX = {
     fragmentation: (a, f, n) => ({ h: "Too many systems and logins", t: "One desktop for calls, texts, recordings and pipeline. " + (n ? n + " logins become " : "Your logins become ") + (f.crm === "keep" ? "two, and the two talk to each other." : "one.") }),
-    software_cost: (a, f) => ({ h: "Software cost", t: "One base price per seat with usage metered and published. What you stop paying for is in the Consolidate column below." }),
+    software_cost: (a, f) => ({ h: "Software cost", t: "One base price per seat with usage metered and published. What you stop paying for is listed under Goes away." }),
     manual_entry: (a, f) => ({ h: "Manual data entry", t: "Calls, texts, recordings and dispositions land on the contact record by themselves. Nobody types what the system already knows." }),
     adoption: (a, f) => ({ h: "Agents do not adopt the tools", t: "The recording, the note and the next step live on the dial screen. Fewer clicks is the adoption strategy." }),
     leads_disorganized: (a, f) => ({ h: "Leads are not organized", t: "Every source lands in one pipeline, routed by skills, geo and priority. Nothing sits unassigned." }),
@@ -1887,7 +1904,7 @@
   };
   function fixes(a, fit) {
     const n = systemsNum(a);
-    const out = (a.pains || []).map(p => PAIN_FIX[p] ? PAIN_FIX[p](a, fit, n == null ? null : (systemsKey(a) === "5p" ? "Five or more" : String(n))) : null).filter(Boolean);
+    const out = (a.pains || []).map(p => { if (!PAIN_FIX[p]) return null; const f = PAIN_FIX[p](a, fit, n == null ? null : (systemsKey(a) === "5p" ? "Five or more" : String(n))); f.h = PAIN_LABEL[p] || f.h; f.key = p; return f; }).filter(Boolean);
     return out.length ? out : fit.reasons;
   }
 
@@ -2042,8 +2059,7 @@
     // Keep
     if (fit.crm === "keep" && hasCrm) keep.push({ t: crmName, d: "You like it and it works. It stays. RevRing connects to it instead of replacing it." });
     if (tools.includes("marketplace") || pains.includes("vendors")) keep.push({ t: "Your lead vendors", d: "RevRing does not replace where your leads come from. Vendor lists come in, get scrubbed and get dialed." });
-    keep.push({ t: "Your carriers and your book", d: "Nothing about who you sell for changes. This is the system around the phone, not the products." });
-    if (tools.includes("other")) keep.push({ t: "The tool you listed as something else", d: "Until RevRing sees what it does, it stays. Bring it up on the setup call." });
+    keep.push({ t: "your carriers and your book", d: "Nothing about who you sell for changes. This is the system around the phone, not the products." });
 
     // Connect
     if (fit.crm === "keep" && hasCrm) connect.push({ t: crmName + " to RevRing", d: "Connector included on every plan. Calls, texts, recordings and dispositions write back to the contact. No connector charge." });
@@ -2053,7 +2069,7 @@
     // Consolidate: what RevRing takes over
     const label = { crm: fit.crm === "add" ? crmName + " into RevRing CRM" : "CRM", dialer: dialerName ? (dialerName === "your dialer" ? "Your dialer" : dialerName + " (your dialer)") : "Dialer", sms: "Texting", quoting: "Quoting", pipeline: "Pipeline and task tracking", recording: "Call recording", scoring: "AI call scoring", compliance: "DNC scrubbing", reporting: "Reporting and analytics", marketplace: "Part of your lead vendor spend" };
     const why = { crm: fit.crm_reason, dialer: (pro ? "Multi-line predictive dialing" : "Power and predictive dialing") + " with voicemail drop is in the plan. One less bill and one less login, once setup and A2P verification are done.", sms: "Texting runs from the same desktop as the call at published per-segment rates, once A2P registration clears.", quoting: "Final expense, term, Medicare Advantage and Medicare Supplement quotes inside the platform.", pipeline: "Pipeline lives in RevRing CRM on the same screen as the dialer, so the stages finally mean something.", recording: "Every call recorded on the contact record. No separate recording tool.", scoring: "AI call scoring is in the platform at " + money((cfg.usage || {}).aiScoringPerCall) + " per scored call" + (pro ? ", with sentiment and real-time agent assist on Pro." : "."), compliance: "DNC scrubbing on every list before anyone dials. Built in, not bolted on.", reporting: (pro ? "Custom reporting and dashboards" : "Custom dashboards") + " over calls, texts, pipeline and outcomes. No Friday spreadsheet.", marketplace: "RevRing's inbound lead system runs inside the platform, matched by state and availability. Your other vendors still work; their lists import and scrub." };
-    fit.calc.consolidatable.forEach(t => { if (label[t]) consolidate.push({ t: label[t], d: why[t] || "" }); });
+    fit.calc.consolidatable.forEach(t => { if (t !== "marketplace" && label[t]) consolidate.push({ t: label[t], d: why[t] || "" }); });
     if (fit.crm === "add" && !hasCrm) consolidate.push({ t: "Spreadsheets and memory into RevRing CRM", d: fit.crm_reason });
 
     // Add: what they do not have today and the build turns on. Verified features only.
@@ -3070,14 +3086,13 @@
           <details class="rates-toggle"><summary>Usage rates, metered on every plan</summary><div class="rates">${usageRows()}</div></details>
         </section>
 
-        <section class="sec bd-plan"><h3>Your plan</h3>
-          ${fit.fixes.length ? `<div class="fix-row"><span class="eyebrow">Fixing first</span><ol>${fit.fixes.map((r, i) => `<li><span class="n">${i + 1}</span>${esc(r.h)}</li>`).join("")}</ol></div>` : ""}
-          <div class="kcca">
-            ${kc("keep", "Keep", "Stays as it is", sp.keep, "Nothing to keep")}
-            ${kc("connect", "Connect", "Wired in, no charge", sp.connect, "Nothing to connect")}
-            ${kc("consolidate", "Consolidate", "One bill, one login", sp.consolidate, "Nothing to fold in")}
-            ${kc("add", "Add", "Turns on in your build", sp.add, "Nothing missing")}
+        <section class="sec bd-plan"><h3>What's hurting, and what fixes it</h3><p class="sub">In the order you ranked it. Every one of these is in your build.</p>
+          <ol class="pain-list">${fit.fixes.map((r, i) => `<li><span class="n">${i + 1}</span><div><b>${esc(r.h)}</b><span>${esc(r.t)}</span></div></li>`).join("")}</ol>
+          <div class="changes">
+            <div class="chg gone"><span class="eyebrow">Goes away</span><p class="sub">One bill, one login.</p>${sp.consolidate.length ? `<ul>${sp.consolidate.map(x => `<li title="${esc(x.d)}">${esc(x.t)}</li>`).join("")}</ul>` : `<p class="fine">Nothing to fold in. This is an add, not a replace.</p>`}</div>
+            <div class="chg on"><span class="eyebrow">Turns on</span><p class="sub">Missing today. In your build from day one.</p><ul>${sp.add.map(x => `<li title="${esc(x.d)}">${esc(x.t)}</li>`).join("")}</ul></div>
           </div>
+          <p class="stays"><b>Stays:</b> ${[...sp.keep.map(x => x.t + (sp.connect.some(c => c.t.startsWith(x.t + " to")) ? ", connected at no charge" : "")), ...(sp.connect.filter(c => !sp.keep.some(k => c.t.startsWith(k.t + " to"))).map(c => c.t.replace(/^Your /, "your ") + ", wired in"))].join("; ")}.</p>
         </section>
 
         <section class="sec bd-setup"><h3>Your setup</h3>
