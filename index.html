@@ -1061,6 +1061,12 @@
       "Easier single and bulk email, including video email",
       "AI call scoring, real-time assist, coaching and a training simulator"
     ]
+  },
+  "affiliates": {
+    "default": "e887878820322cce430485de",
+    "byRep": {
+      "christian": "CHAYS"
+    }
   }
 }
 </script>
@@ -2919,7 +2925,10 @@
       u.searchParams.set("utm_medium", l.utm_medium || "diagnostic");
       u.searchParams.set("utm_campaign", l.utm_campaign || "zimmi");
       if (l.utm_content) u.searchParams.set("utm_content", l.utm_content);
-      if (ATTR.first.affiliate_id) u.searchParams.set("aff", ATTR.first.affiliate_id);
+      // sign-up credit: an aff in the visitor's link wins, then the rep's own affiliate code, then RevRing's default
+      const AF = CFG.affiliates || {}, rep = (ATTR.first.rep || ATTR.latest.rep || "").toLowerCase();
+      const aff = ATTR.first.affiliate_id || (AF.byRep || {})[rep] || AF.default;
+      if (aff && /revring\.com/.test(u.hostname)) u.searchParams.set("aff", aff);
       if (ATTR.first.referral_id) u.searchParams.set("ref", ATTR.first.referral_id);
       Object.entries(extra || {}).forEach(([k, v]) => { if (v != null && v !== "") u.searchParams.set(k, v); });
       return u.toString();
