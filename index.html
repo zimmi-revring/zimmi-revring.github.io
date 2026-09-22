@@ -2381,7 +2381,7 @@
     [/ta-da|how you doin/i, "wave", null],
     [/\bred\b|orange/i, "worried", "flinch", 1],
     [/\bblue\b/i, "celebrate", "hop", 0],
-    [/disappear|trick|magic(?!ian)|sleeve|abracadabra|\bbuild\b|built around|want it back|pick a card/i, "wand", null],
+    [/disappear|\bbuild\b|built around|want it back|pick a card/i, "wand", null],
     [/thinkin|think\b|honest|ballpark|numbers|noted|writin' that down|spreadsheet|pricey|barely\b|somebody's gotta/i, "thinking", "look"],
     [/dialin|(?<!cell )phones\b|on the phone|send ya|report|forward|dials\b/i, "headset", "nod"],
     [/how you doin|hello|still here|respect|love it|keep it|keepin' it|good enough|real good|almost there|ay\. tap/i, "wave", "sway"],
@@ -2419,7 +2419,7 @@
     const t = String(text || "");
     if (/tail thing|workin' here|bold move|don't bite/i.test(t)) return "neutral";
     if (/^(ay,? )?how you doin|^hi\b|^hello|^ta-da|^still here|good side/i.test(t)) return "wave";
-    if (/zinni|you're up|gets past her|tap the button|tap start|pick the button|pick a plan|pick a card|next screen|on the next|right there|look at|watch this|send ya|let's see what you got/i.test(t)) return "pointing";
+    if (/zinni|you're up|gets past her|tap the button|tap start|pick the button|pick a plan|next screen|on the next|right there|look at|watch this|send ya|let's see what you got/i.test(t)) return "pointing";
     if (/hurts?\b(?! got fixed)|\bpain\b|worst|\btax\b|terrible|no offense|frustrat|\blost\b|missin'|tape\b|leak|costing|nobody|seen worse|scared|barely use|by hand|cell phones|can hide|\bdie\b/i.test(t)) return "worried";
     if (/\bready\b|easiest|we fix|fix that|the fix|the win\b|love it|respect|real good|nice|blue is the goal|want it back|that's a hire|good news|i promise|tight|build's almost done|i counted|^just you/i.test(t)) return "celebrate";
     if (/\?|think|honest|ballpark|numbers|noted|spreadsheet|two ways|depends|which|how many|what's|writin' that down|that's a floor/i.test(t)) return "thinking";
@@ -2958,7 +2958,7 @@
     lines.push("CONNECT: " + sp.connect.map(x => x.t).join("; "));
     lines.push("CONSOLIDATE: " + (sp.consolidate.length ? sp.consolidate.map(x => x.t).join("; ") : "nothing yet, this is an add, not a replace"));
     lines.push("ADD: " + sp.add.map(x => x.t).join("; "));
-    lines.push("Estimated opportunity: " + (op.dollars != null ? money(op.dollars, 0) + " a month on base licenses" : "no dollar figure, spend not entered") + (op.hours != null ? " plus about " + op.hours + " hours a month" : op.hoursUnknown ? " plus uncounted hours" : "") + ".");
+    lines.push("Estimated opportunity: " + (op.dollars == null ? "no dollar figure, spend not entered" : op.dollars > 0 ? money(op.dollars, 0) + " a month on base licenses" : "not cheaper on base licenses, the case is one login and the hours") + (op.hours != null ? (op.dollars > 0 ? " plus" : ",") + " about " + op.hours + " hours a month" : op.hoursUnknown ? " plus uncounted hours" : "") + ".");
     op.lines.forEach(l => lines.push("  " + l));
     lines.push("Inbound leads: " + bsx.inbound);
     lines.push("Numbers: " + bsx.numbers);
@@ -3044,7 +3044,7 @@
     // One card: the color, one line on it, the money in one sentence, what one login fixes, two buttons. Everything else is under the breakdown.
     const cheaper = c.currentPerUser != null && c.savings > 0;
     let moneyHtml = c.currentPerUser == null
-      ? `<b>${esc(fitLabel)}</b> is ${money(c.basePerUser)} a seat a month on one login, ${money(c.baseMonthly)} a month for ${seatsTxt}. You did not enter what you pay today, so there is no savings figure. That is the honest answer.`
+      ? `<b>${esc(fitLabel)}</b> is ${money(c.basePerUser)} a seat a month on one login${c.seats > 1 ? ", " + money(c.baseMonthly) + " a month for " + seatsTxt : ""}. You did not enter what you pay today, so there is no savings figure. That is the honest answer.`
       : cheaper
         ? `Today you pay about <b>${money(c.currentPerUser, 0)} per user</b> a month across your stack. <b>${esc(fitLabel)}</b> is ${money(c.basePerUser)} a seat on one login, about <b>${money(c.savings, 0)} a month less</b> on base licenses for ${seatsTxt}${PROMO ? " in year one" : ""}.`
         : `<b>${esc(fitLabel)}</b> is ${money(c.basePerUser)} a seat a month against about ${money(c.currentPerUser, 0)} you pay today. The money side is not the argument here. One login and the hours are.`;
