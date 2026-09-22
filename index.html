@@ -1064,9 +1064,7 @@
   },
   "affiliates": {
     "default": "e887878820322cce430485de",
-    "byRep": {
-      "christian": "CHAYS"
-    }
+    "note": "Every Start RevRing button and email sign-up link uses this code; it is the sign-up page that shows the $99 offer. Christian's own affiliate link is aff=CHAYS, kept here for reference."
   }
 }
 </script>
@@ -2925,9 +2923,8 @@
       u.searchParams.set("utm_medium", l.utm_medium || "diagnostic");
       u.searchParams.set("utm_campaign", l.utm_campaign || "zimmi");
       if (l.utm_content) u.searchParams.set("utm_content", l.utm_content);
-      // sign-up credit: an aff in the visitor's link wins, then the rep's own affiliate code, then RevRing's default
-      const AF = CFG.affiliates || {}, rep = (ATTR.first.rep || ATTR.latest.rep || "").toLowerCase();
-      const aff = ATTR.first.affiliate_id || (AF.byRep || {})[rep] || AF.default;
+      // every sign-up goes through the offer's affiliate code: that is the sign-up page that shows the $99 pricing
+      const aff = (CFG.affiliates || {}).default || ATTR.first.affiliate_id;
       if (aff && /revring\.com/.test(u.hostname)) u.searchParams.set("aff", aff);
       if (ATTR.first.referral_id) u.searchParams.set("ref", ATTR.first.referral_id);
       Object.entries(extra || {}).forEach(([k, v]) => { if (v != null && v !== "") u.searchParams.set(k, v); });
