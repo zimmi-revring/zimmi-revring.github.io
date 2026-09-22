@@ -1471,7 +1471,7 @@
     intro: a => {
       const st = ZINNI.stack(a);
       const bills = st.bills >= 3 ? " " + ["", "", "", "Three", "Four", "Five", "Six", "Seven", "Eight"][Math.min(8, st.bills)] + " bills before anybody dials. Cute." : st.bills === 2 ? " Two bills before anybody dials." : "";
-      return "Zinni. He does the charm, I do the math. So far: " + st.text + bills + " What does all of it run per agent a month, and how many hours a week go to hopping between all of it? Ballpark is fine. I'll be exact later.";
+      return "Zinni. He reads the stack, I do the math. So far: " + st.text + bills + " What does all of it run per agent a month, and how many hours a week go to hopping between all of it? Ballpark is fine. I'll be exact later.";
     },
     react: (a, cfg) => {
       if (!a.cost) return null;
@@ -2265,12 +2265,12 @@
   // what he says while he waits on the landing (after the greeting has been read). The words pick the pose.
   // what the two of them say while they wait on the landing. z: Zimmi, n: Zinni, reply: she answers him.
   const LANDING_LINES = [
-    { z: "Watch this." }, { z: "Thinkin' about your stack. Somebody's gotta." },
+    { z: "Thinkin' about your stack. Somebody's gotta." },
     { z: "Still here. Sixty seconds. You got sixty seconds.", n: "Sixty seconds. I timed it. Twice." },
     { z: "Red's bad. Blue's good. Let's see what you got." },
-    { z: "Five logins become one. Tap start.", n: "That's not a trick. That's arithmetic." },
+    { z: "Five logins become one. Tap start.", n: "That's not a pitch. That's arithmetic." },
     { z: "Ay. Tap the button. I don't bite. I blend." },
-    { z: "Zinni's got the calculator. I got the charm. It works.", n: "One of us is load bearing." },
+    { z: "Zinni's got the calculator. I got the color. It works.", n: "One of us is load bearing." },
     { n: "Two things I don't do. Guess, and round in our favor." }, { n: "He's the show. I'm the invoice." }, { n: "Bring your real numbers. I can tell." }, { n: "Four logins isn't a system. It's a habit." }
   ];
   let landingBubble = null, landingZinni = null, greetDone = false, lastLanding = -1;
@@ -2405,7 +2405,7 @@
   }
   // say: type a line into a bubble and perform it
   function say(fig, el, text, fallback) { talkFig = fig; if (REDUCE) { setPose(fig, poseFor(text)); typeInto(el, text, null); return; } typeInto(el, text, beatsFor(fig, text, fallback)); }
-  const QUIPS = ["Ay, watch this.", "You tapped a chameleon. Bold move.", "I'm workin' here.", "Keep goin'. The build's almost done.", "Blue is the goal. Remember that.", "You want the tail thing? Fine. There's the tail thing.", "Every tap gets you closer. I counted.", "I don't bite. I blend.", "That's my good side. They're both my good side."];
+  const QUIPS = ["You tapped a chameleon. Bold move.", "I'm workin' here.", "Keep goin'. The build's almost done.", "Blue is the goal. Remember that.", "You want the tail thing? Fine. There's the tail thing.", "Every tap gets you closer. I counted.", "I don't bite. I blend.", "That's my good side. They're both my good side."];
   function poke(figEl, bubbleTextEl) {
     if (!figEl && !bubbleTextEl) return;
     if (figEl) { figEl.classList.remove("react", "wiggle"); void figEl.offsetWidth; figEl.classList.add("wiggle"); }
@@ -2595,14 +2595,13 @@
         <h1>Find out what your stack is really costing you.</h1>
         <div class="entry-one"><button type="button" class="btn btn-primary btn-lg" id="start-diag">Start my free analysis</button><span>Seven quick questions. You get your number, the fix, and what it costs.</span></div>
         <div class="hero-promo"><b>$99 per user a month for your first 12 months.</b> RevRing Pro, the full CRM, the dialer and the lead marketplace. First 1,000 users or through Dec 31.</div>
-        <div class="hero-offer"><span class="offer-tag">Free</span><span>No account, no card, no sales call. A minute from now you'll know if your stack is costing you money, and the report is yours to keep.</span></div>
         </div>
         <div class="hero-figure duo"><div class="zemi-hello" id="hero-hello"></div>${zemiFigure("zemi-fig", "hero-zemi")}<div class="zemi-shadow" aria-hidden="true"></div><div class="zemi-hello zinni-hello" id="hero-hello-z"></div>${zinniFigure("zemi-fig zinni-fig", "hero-zinni", "Zinni, RevRing's numbers chameleon")}<div class="zemi-shadow zinni-shadow" aria-hidden="true"></div></div>
       </section>`;
     const hf = $("#hero-zemi"), hb = $("#hero-hello"), host = app.querySelector(".hero-figure");
     const zf = $("#hero-zinni"), zb = $("#hero-hello-z");
-    const hello = "Ay, how you doin'. I'm Zimmi. Chameleon. I change color with your stack. Red's bad. Blue's good. Sixty seconds, and I make the bad part disappear.";
-    const helloZ = "And I'm Zinni. I do the math. He makes things disappear. I make them add up.";
+    const hello = "Ay, how you doin'. I'm Zimmi. Chameleon. I change color with your stack. Red's bad. Blue's good. Sixty seconds, and you know what your stack is really costing ya.";
+    const helloZ = "And I'm Zinni. I do the math. He reads the stack. I add it up.";
     let leaving = false;
     const magicStart = () => {
       if (leaving) return; leaving = true;
@@ -2633,7 +2632,7 @@
       setTimeout(() => { greetDone = true; }, helloDone + (REDUCE ? 0 : 900 + helloZ.length * CHAR_MS + 2500));
       // hover: a hat tip and a hello. click: a trick with a line that matches it.
       let lastTada = 0;
-      const ACTS = ["Nothin' up my sleeve. I don't got sleeves.", "Every tap gets you closer. Blue is the goal.", "The charm's real. The magic's the setup.", "You tapped a chameleon. Bold move.", "I don't bite. I blend.", "Pick a card. Any card. Actually, pick the button."];
+      const ACTS = ["Every tap gets you closer. Blue is the goal.", "Seven questions. I change color. You get the report.", "You tapped a chameleon. Bold move.", "I don't bite. I blend.", "The button's right there. Sixty seconds."];
       let lastAct = -1;
       hf.addEventListener("mouseenter", () => { const now = Date.now(); if (now - lastTada < 3000 || leaving || !greetDone) return; lastTada = now; say(hf, hb, "Ay, how you doin'."); });
       hf.addEventListener("click", () => { if (leaving || !greetDone) return; lastTada = Date.now(); let n; do { n = Math.floor(Math.random() * ACTS.length); } while (n === lastAct); lastAct = n; say(hf, hb, ACTS[n], { move: "nod" }); });
