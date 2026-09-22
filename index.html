@@ -1319,8 +1319,8 @@
       opts: CRM_NAME_OPTS, cols: 2,
       extras: [
         { id: "crm_other", kind: "text", label: "Which one?", hint: "", showIf: a => a.crm_name === "other" },
-        { id: "crm_feel", kind: "chips", label: "And how is that going?", opts: [["love", "Love it, keeping it"], ["good", "Good enough, would keep it"], ["frustrating", "Frustrating"], ["barely", "Barely use it"]], showIf: a => !!a.crm_name && a.crm_name !== "none" },
-        { id: "crm_cost", kind: "money", label: "Roughly what it costs per user a month", hint: "Optional.", showIf: a => !!a.crm_name && a.crm_name !== "none" }
+        { id: "crm_feel", kind: "chips", label: "And how is that going?", opts: [["love", "Love it, keeping it"], ["good", "Good enough, would keep it"], ["frustrating", "Frustrating"], ["barely", "Barely use it"]], showIf: a => !!a.crm_name && a.crm_name !== "none" }
+
       ]
     },
     {
@@ -2336,9 +2336,20 @@
     // on the landing he can show the color while he talks about it; in the survey his color is the real one
     if (b.tint != null && fig.id === "hero-zemi") { fig.style.setProperty("--rot", heatRot(b.tint)); fig.style.setProperty("--sat", String(1 + 0.35 * b.tint)); if (b.tint > 0) { clearTimeout(fig._tintT); fig._tintT = setTimeout(() => { fig.style.setProperty("--rot", "0deg"); fig.style.setProperty("--sat", "1"); }, 2600); } else clearTimeout(fig._tintT); }
   }
+  // Zimmi picks the pose that matches the whole line: greeting waves, handoffs point, bad news worries, good news celebrates, questions think
+  function poseFor(text) {
+    const t = String(text || "");
+    if (/tail thing|workin' here|bold move|don't bite/i.test(t)) return "neutral";
+    if (/^(ay,? )?how you doin|^hi\b|^hello|^ta-da|^still here|good side/i.test(t)) return "wave";
+    if (/zinni|you're up|gets past her|tap the button|tap start|pick the button|pick a plan|pick a card|next screen|on the next|right there|look at|watch this|send ya|let's see what you got/i.test(t)) return "pointing";
+    if (/hurts?\b(?! got fixed)|\bpain\b|worst|\btax\b|terrible|no offense|frustrat|\blost\b|missin'|tape\b|leak|costing|nobody|seen worse|scared|barely use|by hand|cell phones|can hide|\bdie\b/i.test(t)) return "worried";
+    if (/\bready\b|easiest|we fix|fix that|the fix|the win\b|love it|respect|real good|nice|blue is the goal|want it back|that's a hire|good news|i promise|tight|build's almost done|i counted|^just you/i.test(t)) return "celebrate";
+    if (/\?|think|honest|ballpark|numbers|noted|spreadsheet|two ways|depends|which|how many|what's|writin' that down|that's a floor/i.test(t)) return "thinking";
+    return "neutral";
+  }
   // say: type a line into a bubble and perform it
-  function say(fig, el, text, fallback) { talkFig = fig; typeInto(el, text, beatsFor(fig, text, fallback)); }
-  const QUIPS = ["Nothin' up my sleeve. I don't got sleeves.", "Pick a card. Any card. Actually, pick a plan.", "The charm's real. The magic's the setup.", "For my next trick, five logins become one.", "Ay, watch the hat.", "You tapped a chameleon. Bold move.", "I'm workin' here.", "Keep goin'. The build's almost done.", "Blue is the goal. Remember that.", "You want the tail thing? Fine. There's the tail thing.", "Every tap gets you closer. I counted.", "I don't bite. I blend.", "That's my good side. They're both my good side."];
+  function say(fig, el, text, fallback) { talkFig = fig; if (REDUCE) { setPose(fig, poseFor(text)); typeInto(el, text, null); return; } typeInto(el, text, beatsFor(fig, text, fallback)); }
+  const QUIPS = ["Nothin' up my sleeve. I don't got sleeves.", "Pick a card. Any card. Actually, pick a plan.", "The charm's real. The magic's the setup.", "For my next trick, five logins become one.", "Ay, watch this.", "You tapped a chameleon. Bold move.", "I'm workin' here.", "Keep goin'. The build's almost done.", "Blue is the goal. Remember that.", "You want the tail thing? Fine. There's the tail thing.", "Every tap gets you closer. I counted.", "I don't bite. I blend.", "That's my good side. They're both my good side."];
   function poke(figEl, bubbleTextEl) {
     if (!figEl && !bubbleTextEl) return;
     if (figEl) { figEl.classList.remove("react", "wiggle"); void figEl.offsetWidth; figEl.classList.add("wiggle"); }
@@ -2385,7 +2396,7 @@
     if (spec) spec.style.setProperty("--zc", zc.hex);
     if (nm && nm.textContent !== zc.name) { nm.textContent = zc.name; }
     const changed = key !== lastZemiKey; lastZemiKey = key;
-    if (changed) { clearTimeout(quipTimer); if (wasHidden) typeInto(txt, text); else say(fig, txt, text, fallback); bub.classList.remove("lit"); void bub.offsetWidth; bub.classList.add("lit"); }
+    if (changed) { clearTimeout(quipTimer); if (wasHidden) { if (REDUCE) setPose(fig, poseFor(text)); typeInto(txt, text); } else say(fig, txt, text, fallback); bub.classList.remove("lit"); void bub.offsetWidth; bub.classList.add("lit"); }
     else if (txt.textContent !== text && currentLine !== text) { if (wasHidden) typeInto(txt, text); else say(fig, txt, text, fallback); }
     if (lastHeat > 0.3 && (heat || 0) === 0) sparkle(fig);
     lastHeat = heat || 0;
@@ -2573,7 +2584,7 @@
       if (zf && zb) {
         const ZACTS = ["I count. That's the whole personality.", "You tapped the accountant. Bold.", "Numbers don't have feelings. I do, a little.", "Blue is the goal. Cheaper is the bonus.", "I show my work. Ask him if he does."];
         let lastZ = -1; zf.style.cursor = "pointer";
-        zf.addEventListener("click", () => { if (leaving || !greetDone) return; let n; do { n = Math.floor(Math.random() * ZACTS.length); } while (n === lastZ); lastZ = n; const ZP = ["pointing", "thinking", "pointing", "celebrate", "neutral"]; zinniPose(zf, ZP[n % ZP.length]); zinniType(zb, zf, ZACTS[n], 0); });
+        zf.addEventListener("click", () => { if (leaving || !greetDone) return; let n; do { n = Math.floor(Math.random() * ZACTS.length); } while (n === lastZ); lastZ = n; const ZP = ["neutral", "pointing", "thinking", "celebrate", "pointing"]; zinniPose(zf, ZP[n]); zinniType(zb, zf, ZACTS[n], 0); });
       }
     }
     // the dot on the landing spectrum drifts so people see the range
